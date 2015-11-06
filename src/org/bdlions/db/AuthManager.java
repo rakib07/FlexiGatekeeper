@@ -3,7 +3,6 @@ package org.bdlions.db;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.logging.Level;
 import org.bdlions.bean.UserInfo;
 import org.bdlions.bean.UserServiceInfo;
 import org.bdlions.db.query.helper.EasyStatement;
@@ -60,11 +59,12 @@ public class AuthManager {
             }
 
             connection.commit();
-            
+            connection.close();
         } catch (SQLException ex) {
             try {
                 if(connection != null){
                     connection.rollback();
+                    connection.close();
                 }
             } catch (SQLException ex1) {
                 logger.error(ex1.getMessage());
@@ -120,10 +120,12 @@ public class AuthManager {
             member.addMember(subscriberInfo.getUserId(), userInfo.getUserId());
             
             connection.commit();
+            connection.close();
         } catch (SQLException ex) {
             if(connection != null){
                 try{
                     connection.rollback();
+                    connection.close();
                 }
                 catch(SQLException ex1){
                     

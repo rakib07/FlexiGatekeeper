@@ -43,17 +43,16 @@ public class Subscriber {
         int currentTime = Utils.getCurrentUnixTime();
         String userId = Utils.getRandomString();
         userInfo.setUserId(userId);
-        try {
-            EasyStatement stmt = new EasyStatement(connection, QueryManager.CREATE_USER);
+        
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.CREATE_USER)) {
             stmt.setString(QueryField.USER_ID, userInfo.getUserId());
             stmt.setString(QueryField.REFERENCE_USERNAME, userInfo.getReferenceUserName());
             stmt.setString(QueryField.REFERENCE_PASSWORD, userInfo.getReferencePassword());
             stmt.setInt(QueryField.CREATED_ON, currentTime);
             stmt.setInt(QueryField.MODIFIED_ON, currentTime);
             stmt.executeUpdate();
-        } catch (SQLException ex) {
-            //handle exception here
         }
+        
         return userId;
     }
 
@@ -65,17 +64,15 @@ public class Subscriber {
      * @throws SQLException
      */
     public void createSubscriber(UserInfo userInfo) throws DBSetupException, SQLException {
-        try {
-            EasyStatement stmt = new EasyStatement(connection, QueryManager.CREATE_SUBSCRIBER);
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.CREATE_SUBSCRIBER)) {
             stmt.setString(QueryField.USER_ID, userInfo.getUserId());
             stmt.setInt(QueryField.REGISTRATION_DATE, userInfo.getRegistrationDate());
             stmt.setInt(QueryField.EXPIRED_DATE, userInfo.getExpiredDate());
             stmt.setInt(QueryField.MAX_MEMBERS, userInfo.getMaxMembers());
             stmt.setString(QueryField.IP_ADDRESS, userInfo.getIpAddress());
             stmt.executeUpdate();
-        } catch (SQLException ex) {
-
         }
+        
     }
 
     /**
@@ -88,8 +85,7 @@ public class Subscriber {
      */
     public UserInfo getSubscriberInfo(String ipAddress) throws DBSetupException, SQLException {
         UserInfo userInfo = new UserInfo();
-        try {
-            EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_SUBSCRIBER_INFO);
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_SUBSCRIBER_INFO);){
             stmt.setString(QueryField.IP_ADDRESS, ipAddress);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -100,9 +96,7 @@ public class Subscriber {
                 userInfo.setRegistrationDate(rs.getInt(QueryField.REGISTRATION_DATE));
                 userInfo.setExpiredDate(rs.getInt(QueryField.EXPIRED_DATE));
             }
-        } catch (SQLException  ex) {
-
-        }
+        } 
 
         return userInfo;
     }

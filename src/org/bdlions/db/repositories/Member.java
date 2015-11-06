@@ -36,13 +36,10 @@ public class Member {
      * @throws SQLException
      */
     public void addMember(String subscriberId, String memberId) throws DBSetupException, SQLException {
-        try {
-            EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_SUBSCRIBER_MEMBER);
+        try(EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_SUBSCRIBER_MEMBER);){
             stmt.setString(QueryField.SUBSCRIBER_USER_ID, subscriberId);
             stmt.setString(QueryField.MEMBER_USER_ID, memberId);
             stmt.executeUpdate();
-        } catch (SQLException ex) {
-
         }
     }
 }

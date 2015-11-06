@@ -13,6 +13,9 @@ import org.bdlions.bean.UserServiceInfo;
 import org.bdlions.exceptions.DBSetupException;
 import org.bdlions.db.query.helper.EasyStatement;
 import org.bdlions.db.query.QueryManager;
+import org.bdlions.exceptions.MaxMemberRegException;
+import org.bdlions.exceptions.SubscriptionExpireException;
+import org.bdlions.exceptions.UnRegisterIPException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -77,7 +80,7 @@ public class DatabaseTest {
     }
     
     @Test
-    public void createUserLibrary() throws DBSetupException, SQLException{
+    public void createUserLibrary() throws DBSetupException, SQLException, UnRegisterIPException, SubscriptionExpireException, MaxMemberRegException{
         UserInfo userInfo = new UserInfo();
         userInfo.setReferenceUserName("ru13");
         userInfo.setReferencePassword("rp13");
@@ -89,7 +92,7 @@ public class DatabaseTest {
     
     //@Test
     public void createService() throws DBSetupException, SQLException{
-        EasyStatement stmt = new EasyStatement(QueryManager.ADD_SERVICE);
+        EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.ADD_SERVICE);
         stmt.setString("title", "Super string");
         stmt.setInt("id", 12);
         stmt.executeUpdate();

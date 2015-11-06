@@ -38,16 +38,13 @@ public class Service {
      */
     public void addService(UserServiceInfo userServiceInfo) throws DBSetupException, SQLException {
         userServiceInfo.setAPIKey(Utils.getAPIKey());
-        try {
-            EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_SUBSCRIBER_SERVICE);
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_SUBSCRIBER_SERVICE);){
             stmt.setString(QueryField.SUBSCRIBER_USER_ID, userServiceInfo.getUserId());
             stmt.setInt(QueryField.SERVICE_ID, userServiceInfo.getServiceId());
             stmt.setString(QueryField.API_KEY, userServiceInfo.getAPIKey());
             stmt.setInt(QueryField.REGISTRATION_DATE, userServiceInfo.getRegistrationDate());
             stmt.setInt(QueryField.EXPIRED_DATE, userServiceInfo.getExpiredDate());
             stmt.executeUpdate();
-        } catch (SQLException ex) {
-
         }
     }
 }
