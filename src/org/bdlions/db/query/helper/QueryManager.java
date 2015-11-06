@@ -9,6 +9,6 @@ package org.bdlions.db.query.helper;
  *
  * @author alamgir
  */
-public class QueryManager {
-    
+public final class QueryManager {
+    public static final String ADD_SERVICE = "db.query.add-service";
 }
