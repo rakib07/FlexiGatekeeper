@@ -8,16 +8,12 @@ import java.security.SecureRandom;
  * @author nazmul hasan
  */
 public class Utils {
-    public Utils()
-    {
-    
-    }
     
     /**
      * This method will return current unix time in seconds
      * @return int, current unix time
      */
-    public int getCurrentUnixTime()
+    public static int getCurrentUnixTime()
     {
         return (int) (System.currentTimeMillis() / 1000L);
     }
@@ -26,7 +22,7 @@ public class Utils {
      * This method will return a random string
      * @return String, random string
      */
-    public String getRandomString()
+    public static String getRandomString()
     {
         SecureRandom random = new SecureRandom();
         return new BigInteger(130, random).toString(32);
@@ -36,7 +32,7 @@ public class Utils {
      * This method will return a random string as API Key
      * @return String, random string
      */
-    public String getAPIKey()
+    public static String getAPIKey()
     {
         SecureRandom random = new SecureRandom();
         return new BigInteger(130, random).toString(32);

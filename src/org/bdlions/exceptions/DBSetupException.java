@@ -3,17 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.bdlions.db.exceptions;
+package org.bdlions.exceptions;
 
 /**
  *
  * @author alamgir
  */
-public class DatabaseNameException extends Exception{
-    public DatabaseNameException(){
-        this("Database name is illegal/null.");
+public class DBSetupException extends Exception{
+    public DBSetupException(){
+        this("Database setup incomplete.");
     }
-    public DatabaseNameException(String message){
+    public DBSetupException(String message){
         super(message);
     }
     

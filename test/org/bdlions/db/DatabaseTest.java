@@ -10,19 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import org.bdlions.bean.UserInfo;
 import org.bdlions.bean.UserServiceInfo;
-import org.bdlions.db.exceptions.DBSetupException;
+import org.bdlions.exceptions.DBSetupException;
 import org.bdlions.db.query.helper.EasyStatement;
-import org.bdlions.db.query.helper.QueryManager;
-import org.bdlions.db.util.DbQueryProvider;
-import org.bdlions.library.AuthenticationLibrary;
-import org.bdlions.model.AuthenticationModel;
+import org.bdlions.db.query.QueryManager;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
 /**
  *
  * @author alamgir
@@ -77,7 +72,7 @@ public class DatabaseTest {
         List<UserServiceInfo> userServiceInfoList = new ArrayList<>();
         userServiceInfoList.add(userServiceInfo);
         
-        AuthenticationLibrary authenticationLibrary = new AuthenticationLibrary();
+        AuthManager authenticationLibrary = new AuthManager();
         authenticationLibrary.createSubscriber(userInfo, userServiceInfoList);
     }
     
@@ -88,7 +83,7 @@ public class DatabaseTest {
         userInfo.setReferencePassword("rp13");
         userInfo.setIpAddress("192.168.1.6");
         
-        AuthenticationLibrary authenticationLibrary = new AuthenticationLibrary();
+        AuthManager authenticationLibrary = new AuthManager();
         authenticationLibrary.createUser(userInfo);
     }
     

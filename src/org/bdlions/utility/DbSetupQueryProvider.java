@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.bdlions.db.util;
+package org.bdlions.utility;
 
 /**
  *
@@ -26,10 +26,10 @@ import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
-public class DbQueryProvider {
+public class DbSetupQueryProvider {
 
     static{
-        add("dbquery");
+        add("dbsetup");
     }
     /**
      * Ordered list of the inserted resource bundles.

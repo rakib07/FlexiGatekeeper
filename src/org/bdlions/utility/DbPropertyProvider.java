@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.bdlions.db.util;
+package org.bdlions.utility;
 
 /**
  *
@@ -26,10 +26,10 @@ import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
-public class DbSetupQueryProvider {
+public class DbPropertyProvider {
 
     static{
-        add("dbsetup");
+        add("database");
     }
     /**
      * Ordered list of the inserted resource bundles.
@@ -71,11 +71,11 @@ public class DbSetupQueryProvider {
      *
      * @param basename The basename of the resource bundle to add.
      */
-    private static void add(String basename, Locale locale) {
+    private static void add(String basename, Locale locale){
         if(bundles == null){
             bundles = new LinkedList<ResourceBundle>();
         }
-                File file = new File(".");
+        File file = new File(".");
         try {
             URL[] urls = {file.toURI().toURL()};
             ClassLoader loader = new URLClassLoader(urls);
@@ -84,6 +84,10 @@ public class DbSetupQueryProvider {
         } catch (MalformedURLException ex) {
             //Logger.getLogger(DatabasePropertyProvider.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+//        ResourceBundle bundle = ResourceBundle.getBundle("english", Locale.getDefault(), loader);
+
+        
     }
 
     /**

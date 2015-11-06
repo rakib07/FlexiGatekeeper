@@ -11,13 +11,13 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import org.apache.log4j.Logger;
-import org.bdlions.db.exceptions.DBSetupException;
-import org.bdlions.db.exceptions.DBUserNameException;
-import org.bdlions.db.exceptions.DatabaseNameException;
-import org.bdlions.db.util.DbPropertyProvider;
-import org.bdlions.db.util.DbQueryProvider;
-import org.bdlions.db.util.DbSetupQueryProvider;
+import org.bdlions.exceptions.DBSetupException;
+import org.bdlions.exceptions.DBUserNameException;
+import org.bdlions.exceptions.DatabaseNameException;
+import org.bdlions.utility.DbPropertyProvider;
+import org.bdlions.utility.DbSetupQueryProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -32,8 +32,12 @@ public class Database {
     private String _password = "";
     private String _host = "localhost";
     private String _port = "3306";
-    static Logger _logger = Logger.getLogger(Database.class.getName());
+    static Logger _logger = LoggerFactory.getLogger(Database.class.getName());
     
+    /***
+     * 
+     * @throws DBSetupException 
+     */
     private Database() throws DBSetupException{
         
         _host = DbPropertyProvider.get("host");
@@ -69,6 +73,11 @@ public class Database {
         }
     }
     
+    /***
+     * 
+     * @return true/false
+     * @throws SQLException 
+     */
     private boolean isDatabaseExists() throws SQLException{
         boolean found;
         try (Connection connection = (Connection)DriverManager.getConnection(_connectionURL, _userName, _password)) {
@@ -86,6 +95,10 @@ public class Database {
         return found;
     }
     
+    /***
+     * initial setup database if not exist
+     * @throws SQLException 
+     */
     private void setUpDatabase() throws SQLException{
         Connection connection = getConnection();
         try (Statement statement = (Statement) connection.createStatement()) {
@@ -122,10 +135,22 @@ public class Database {
         }
     }
     
+    /***
+     * get the connection of the database with required username, password, dbname 
+     * @return connection
+     * @throws SQLException 
+     */
     public Connection getConnection() throws SQLException{
         return (Connection) DriverManager.getConnection(_connectionURL, _userName, _password);
     }
     
+    /**
+     * get the instance of the database
+     * singleton instance
+     * 
+     * @return
+     * @throws DBSetupException 
+     */
     public static synchronized Database getInstance() throws DBSetupException{
         if(_database == null){
             _database = new Database();

@@ -3,17 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.bdlions.db.exceptions;
+package org.bdlions.exceptions;
 
 /**
  *
  * @author alamgir
  */
-public class DBUserNameException extends Exception{
-    public DBUserNameException(){
-        this("Database user name is illegal/null.");
+public class UnRegisterIPException extends Exception{
+    public UnRegisterIPException(){
+        this("request from invalid ip address.");
     }
-    public DBUserNameException(String message){
+    public UnRegisterIPException(String message){
         super(message);
     }
     

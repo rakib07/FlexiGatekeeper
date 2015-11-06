@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.bdlions.db.Database;
-import org.bdlions.db.exceptions.DBSetupException;
-import org.bdlions.db.util.DbQueryProvider;
+import org.bdlions.exceptions.DBSetupException;
+import org.bdlions.utility.DbQueryProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,7 @@ public class EasyStatement implements Statement {
      *
      * @param query the parameterized query
      * @throws SQLException if the statement could not be created
-     * @throws org.bdlions.db.exceptions.DBSetupException
+     * @throws org.bdlions.exceptions.DBSetupException
      */
     public EasyStatement(String query)
             throws SQLException, DBSetupException {
