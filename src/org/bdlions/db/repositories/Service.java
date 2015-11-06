@@ -5,6 +5,7 @@
  */
 package org.bdlions.db.repositories;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import org.bdlions.bean.UserServiceInfo;
 import org.bdlions.db.query.QueryField;
@@ -18,6 +19,16 @@ import org.bdlions.utility.Utils;
  * @author alamgir
  */
 public class Service {
+
+    private Connection connection;
+    /***
+     * Restrict to call without connection
+     */
+    private Service(){}
+    public Service(Connection connection) {
+        this.connection = connection;
+    }
+    
     /**
      * This method will add subscriber service info
      *
@@ -28,14 +39,14 @@ public class Service {
     public void addService(UserServiceInfo userServiceInfo) throws DBSetupException, SQLException {
         userServiceInfo.setAPIKey(Utils.getAPIKey());
         try {
-            EasyStatement stmt = new EasyStatement(QueryManager.ADD_SUBSCRIBER_SERVICE);
+            EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_SUBSCRIBER_SERVICE);
             stmt.setString(QueryField.SUBSCRIBER_USER_ID, userServiceInfo.getUserId());
             stmt.setInt(QueryField.SERVICE_ID, userServiceInfo.getServiceId());
             stmt.setString(QueryField.API_KEY, userServiceInfo.getAPIKey());
             stmt.setInt(QueryField.REGISTRATION_DATE, userServiceInfo.getRegistrationDate());
             stmt.setInt(QueryField.EXPIRED_DATE, userServiceInfo.getExpiredDate());
             stmt.executeUpdate();
-        } catch (SQLException | DBSetupException ex) {
+        } catch (SQLException ex) {
 
         }
     }

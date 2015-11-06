@@ -1,7 +1,9 @@
 package org.bdlions.db;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
 import org.bdlions.bean.UserInfo;
 import org.bdlions.bean.UserServiceInfo;
 import org.bdlions.db.query.helper.EasyStatement;
@@ -21,9 +23,9 @@ import org.slf4j.LoggerFactory;
  */
 public class AuthManager {
 
-    Member member = new Member();
-    Service service = new Service();
-    Subscriber subscriber = new Subscriber();
+    private Member member;
+    private Service service;
+    private Subscriber subscriber;
     private final Logger logger = LoggerFactory.getLogger(EasyStatement.class);
 
     /**
@@ -35,12 +37,20 @@ public class AuthManager {
     public void createSubscriber(UserInfo userInfo, List<UserServiceInfo> userServiceInfoList) {
         //validate the userInfo where required fields are
         //referenceUserName, referenceUserPassword, registrationDate, expiredDate, maxMembers, ipAddress
+        Connection connection = null;
         try {
+            connection = Database.getInstance().getConnection();
+            connection.setAutoCommit(false);
+            
+            subscriber = new Subscriber(connection);
+            member = new Member(connection);
+            subscriber = new Subscriber(connection);
             
             String userId = subscriber.createUser(userInfo);
             userInfo.setUserId(userId);
 
             subscriber.createSubscriber(userInfo);
+            
             member.addMember(userInfo.getUserId(), userInfo.getUserId());
             for (UserServiceInfo userServiceInfo : userServiceInfoList) {
                 //validate the userServiceInfo where required fields are
@@ -49,8 +59,18 @@ public class AuthManager {
                 service.addService(userServiceInfo);
             }
 
-        } catch (DBSetupException | SQLException ex) {
-
+            connection.commit();
+            
+        } catch (SQLException ex) {
+            try {
+                if(connection != null){
+                    connection.rollback();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }
+        } catch (DBSetupException ex) {
+            
         }
     }
 
@@ -69,8 +89,16 @@ public class AuthManager {
 
         //now a dummy time is used
         int currentTime = 1;
+        Connection connection = null;
         //check where there maximum members under a subscriber is not exceeded
         try {
+            connection = Database.getInstance().getConnection();
+            connection.setAutoCommit(false);
+            
+            subscriber = new Subscriber(connection);
+            member = new Member(connection);
+            subscriber = new Subscriber(connection);
+            
             UserInfo subscriberInfo = subscriber.getSubscriberInfo(userInfo.getIpAddress());
             if (subscriberInfo.getUserId() == null) {
                 //request from invalid ip address
@@ -90,8 +118,19 @@ public class AuthManager {
             String userId = subscriber.createUser(userInfo);
             userInfo.setUserId(userId);
             member.addMember(subscriberInfo.getUserId(), userInfo.getUserId());
-        } catch (DBSetupException | SQLException ex) {
-
+            
+            connection.commit();
+        } catch (SQLException ex) {
+            if(connection != null){
+                try{
+                    connection.rollback();
+                }
+                catch(SQLException ex1){
+                    
+                }
+            }
+        } catch (DBSetupException ex) {
+            
         }
     }
 }

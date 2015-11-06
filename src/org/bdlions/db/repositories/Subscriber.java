@@ -5,6 +5,7 @@
  */
 package org.bdlions.db.repositories;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.bdlions.bean.UserInfo;
@@ -20,6 +21,16 @@ import org.bdlions.utility.Utils;
  */
 public class Subscriber {
 
+    private Connection connection;
+    /***
+     * Restrict to call without connection
+     */
+    private Subscriber(){}
+    public Subscriber(Connection connection) {
+        this.connection = connection;
+    }
+
+    
     /**
      * This method will create a new user
      *
@@ -33,14 +44,14 @@ public class Subscriber {
         String userId = Utils.getRandomString();
         userInfo.setUserId(userId);
         try {
-            EasyStatement stmt = new EasyStatement(QueryManager.CREATE_USER);
+            EasyStatement stmt = new EasyStatement(connection, QueryManager.CREATE_USER);
             stmt.setString(QueryField.USER_ID, userInfo.getUserId());
             stmt.setString(QueryField.REFERENCE_USERNAME, userInfo.getReferenceUserName());
             stmt.setString(QueryField.REFERENCE_PASSWORD, userInfo.getReferencePassword());
             stmt.setInt(QueryField.CREATED_ON, currentTime);
             stmt.setInt(QueryField.MODIFIED_ON, currentTime);
             stmt.executeUpdate();
-        } catch (SQLException | DBSetupException ex) {
+        } catch (SQLException ex) {
             //handle exception here
         }
         return userId;
@@ -55,14 +66,14 @@ public class Subscriber {
      */
     public void createSubscriber(UserInfo userInfo) throws DBSetupException, SQLException {
         try {
-            EasyStatement stmt = new EasyStatement(QueryManager.CREATE_SUBSCRIBER);
+            EasyStatement stmt = new EasyStatement(connection, QueryManager.CREATE_SUBSCRIBER);
             stmt.setString(QueryField.USER_ID, userInfo.getUserId());
             stmt.setInt(QueryField.REGISTRATION_DATE, userInfo.getRegistrationDate());
             stmt.setInt(QueryField.EXPIRED_DATE, userInfo.getExpiredDate());
             stmt.setInt(QueryField.MAX_MEMBERS, userInfo.getMaxMembers());
             stmt.setString(QueryField.IP_ADDRESS, userInfo.getIpAddress());
             stmt.executeUpdate();
-        } catch (SQLException | DBSetupException ex) {
+        } catch (SQLException ex) {
 
         }
     }
@@ -78,7 +89,7 @@ public class Subscriber {
     public UserInfo getSubscriberInfo(String ipAddress) throws DBSetupException, SQLException {
         UserInfo userInfo = new UserInfo();
         try {
-            EasyStatement stmt = new EasyStatement(QueryManager.GET_SUBSCRIBER_INFO);
+            EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_SUBSCRIBER_INFO);
             stmt.setString(QueryField.IP_ADDRESS, ipAddress);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -89,7 +100,7 @@ public class Subscriber {
                 userInfo.setRegistrationDate(rs.getInt(QueryField.REGISTRATION_DATE));
                 userInfo.setExpiredDate(rs.getInt(QueryField.EXPIRED_DATE));
             }
-        } catch (SQLException | DBSetupException ex) {
+        } catch (SQLException  ex) {
 
         }
 

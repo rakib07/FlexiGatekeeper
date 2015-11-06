@@ -24,7 +24,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.bdlions.db.Database;
 import org.bdlions.exceptions.DBSetupException;
 import org.bdlions.utility.DbQueryProvider;
 
@@ -50,17 +49,17 @@ public class EasyStatement implements Statement {
      * Creates a NamedParameterStatement. Wraps a call to c.{@link Connection#prepareStatement(java.lang.String)
      * prepareStatement}.
      *
+     * @param connection
      * @param query the parameterized query
      * @throws SQLException if the statement could not be created
-     * @throws org.bdlions.exceptions.DBSetupException
      */
-    public EasyStatement(String query)
-            throws SQLException, DBSetupException {
+    public EasyStatement(Connection connection, String query)
+            throws SQLException {
         
         indexMap = new HashMap();
         paramList = new ArrayList();
         String parsedQuery = parse(DbQueryProvider.get(query), indexMap, paramList);
-        statement = Database.getInstance().getConnection().prepareStatement(parsedQuery);
+        statement = connection.prepareStatement(parsedQuery);
     }
 
     public Set<String> getParameterNames() {
