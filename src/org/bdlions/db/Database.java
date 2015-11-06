@@ -100,17 +100,15 @@ public class Database {
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.subscribers_members"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.subscribers_services"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.subscribers_services"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.table.transaction_statuses"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.table.transaction_types"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.table.transactions"));
             
             //create relations
-            
-//            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers-users"));
-//            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_members-users"));
-//            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_services-users"));
-//            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_members-services"));
-
             statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_members"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_services"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.transactions"));
             
             //insert data
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.services"));
@@ -118,6 +116,9 @@ public class Database {
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.subscribers"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.subscribers_members"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.subscribers_services"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.transaction_statuses"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.transaction_types"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.transactions"));
         }
     }
     
