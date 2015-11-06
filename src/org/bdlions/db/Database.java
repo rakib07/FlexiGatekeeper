@@ -103,11 +103,14 @@ public class Database {
             
             //create relations
             
-            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers-users"));
-            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_members-users"));
-            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_services-users"));
-            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_members-services"));
-            
+//            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers-users"));
+//            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_members-users"));
+//            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_services-users"));
+//            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_members-services"));
+
+            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_members"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_services"));
             
             //insert data
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.services"));
