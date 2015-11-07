@@ -3,14 +3,17 @@ package org.bdlions.db;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import org.bdlions.bean.SessionInfo;
 import org.bdlions.bean.UserInfo;
 import org.bdlions.bean.UserServiceInfo;
 import org.bdlions.db.query.helper.EasyStatement;
 import org.bdlions.db.repositories.Member;
 import org.bdlions.db.repositories.Service;
+import org.bdlions.db.repositories.Session;
 import org.bdlions.db.repositories.Subscriber;
 import org.bdlions.exceptions.DBSetupException;
 import org.bdlions.exceptions.MaxMemberRegException;
+import org.bdlions.exceptions.ServiceExpireException;
 import org.bdlions.exceptions.SubscriptionExpireException;
 import org.bdlions.exceptions.UnRegisterIPException;
 import org.slf4j.Logger;
@@ -25,6 +28,7 @@ public class AuthManager {
     private Member member;
     private Service service;
     private Subscriber subscriber;
+    private Session session;
     private final Logger logger = LoggerFactory.getLogger(EasyStatement.class);
 
     /**
@@ -134,5 +138,41 @@ public class AuthManager {
         } catch (DBSetupException ex) {
             
         }
+    }
+    
+    /**
+     * This method will return session info
+     * @param userInfo, user info
+     * @param APIKey, api key
+     * @throws SubscriptionExpireException
+     * @throws ServiceExpireException
+     * @return String, session info
+     */
+    public String getSessionInfo(UserInfo userInfo, String APIKey) throws SubscriptionExpireException, ServiceExpireException
+    {
+        Connection connection = null;
+        SessionInfo sessionInfo = new SessionInfo();
+        try {
+            connection = Database.getInstance().getConnection();
+            session = new Session(connection);   
+            sessionInfo = session.getSessionInfo(userInfo, APIKey);
+            
+            //authenticate available balance before sending session info
+            
+            //put session info into the hashmap at service api server
+            
+            connection.close();
+        } catch (SQLException ex) {
+            try {
+                if(connection != null){
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }
+        } catch (DBSetupException ex) {
+            
+        }
+        return sessionInfo.toString();
     }
 }

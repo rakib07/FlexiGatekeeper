@@ -37,4 +37,14 @@ public class Utils {
         SecureRandom random = new SecureRandom();
         return new BigInteger(130, random).toString(32);
     }
+    
+    /**
+     * This method will return a session id
+     * @return String, random string
+     */
+    public static String getSessionId()
+    {
+        SecureRandom random = new SecureRandom();
+        return new BigInteger(130, random).toString(32);
+    }
 }

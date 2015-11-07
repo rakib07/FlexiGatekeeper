@@ -58,7 +58,7 @@ public class DatabaseTest {
     }
     
    
-    @Test
+    //@Test
     public void createSubscriberLibrary() throws DBSetupException, SQLException{
         UserInfo userInfo = new UserInfo();
         userInfo.setReferenceUserName("ru40");
@@ -89,6 +89,26 @@ public class DatabaseTest {
         
         AuthManager authenticationLibrary = new AuthManager();
         authenticationLibrary.createUser(userInfo);
+    }
+    
+    @Test
+    public void getSessionInfo()
+    {
+        UserInfo userInfo = new UserInfo();
+        userInfo.setReferenceUserName("ru2");
+        userInfo.setReferencePassword("rp2");
+        userInfo.setIpAddress("192.168.1.2");
+        
+        try
+        {
+            AuthManager authManager = new AuthManager();
+            String sessionInfo = authManager.getSessionInfo(userInfo, "key1");
+            System.out.println(sessionInfo);
+        }
+        catch(Exception ex)
+        {
+        
+        }        
     }
     
     //@Test
