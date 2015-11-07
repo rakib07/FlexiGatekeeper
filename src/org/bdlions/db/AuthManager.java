@@ -43,7 +43,7 @@ public class AuthManager {
             
             subscriber = new Subscriber(connection);
             member = new Member(connection);
-            subscriber = new Subscriber(connection);
+            service = new Service(connection);
             
             String userId = subscriber.createUser(userInfo);
             userInfo.setUserId(userId);

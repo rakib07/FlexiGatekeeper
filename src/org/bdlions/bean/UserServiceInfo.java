@@ -10,6 +10,8 @@ public class UserServiceInfo {
     private String APIKey;
     private int registrationDate;
     private int expiredDate;
+    private String callbackFunction;
+    
     public UserServiceInfo()
     {
     
@@ -55,4 +57,11 @@ public class UserServiceInfo {
         this.expiredDate = expiredDate;
     }
     
+    public String getCallbackFunction() {
+        return callbackFunction;
+    }
+
+    public void setCallbackFunction(String callbackFunction) {
+        this.callbackFunction = callbackFunction;
+    }
 }

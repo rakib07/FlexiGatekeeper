@@ -24,6 +24,7 @@ public class QueryField {
     public static final String REFERENCE_PASSWORD = "reference_password";
     public static final String CREATED_ON = "created_on";
     public static final String MODIFIED_ON = "modified_on";
+    public static final String CALLBACK_FUNCTION = "callback_function";
     
     
     

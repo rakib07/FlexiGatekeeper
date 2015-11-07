@@ -58,20 +58,21 @@ public class DatabaseTest {
     }
     
    
-    //@Test
+    @Test
     public void createSubscriberLibrary() throws DBSetupException, SQLException{
         UserInfo userInfo = new UserInfo();
-        userInfo.setReferenceUserName("ru10");
-        userInfo.setReferencePassword("rp10");
-        userInfo.setMaxMembers(2);
+        userInfo.setReferenceUserName("ru40");
+        userInfo.setReferencePassword("rp40");
+        userInfo.setMaxMembers(3);
         userInfo.setRegistrationDate(12345);
         userInfo.setExpiredDate(123456789);
-        userInfo.setIpAddress("192.168.1.2");
+        userInfo.setIpAddress("192.168.1.40");
         
         UserServiceInfo userServiceInfo = new UserServiceInfo();
         userServiceInfo.setServiceId(1);
         userServiceInfo.setRegistrationDate(12345);
-        userServiceInfo.setExpiredDate(123456789);    
+        userServiceInfo.setExpiredDate(123456789);  
+        userServiceInfo.setCallbackFunction("callback40");
         List<UserServiceInfo> userServiceInfoList = new ArrayList<>();
         userServiceInfoList.add(userServiceInfo);
         
@@ -79,7 +80,7 @@ public class DatabaseTest {
         authenticationLibrary.createSubscriber(userInfo, userServiceInfoList);
     }
     
-    @Test
+    //@Test
     public void createUserLibrary() throws DBSetupException, SQLException, UnRegisterIPException, SubscriptionExpireException, MaxMemberRegException{
         UserInfo userInfo = new UserInfo();
         userInfo.setReferenceUserName("ru13");
