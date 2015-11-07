@@ -27,6 +27,10 @@ import org.slf4j.LoggerFactory;
 public class Session {
     private Connection connection;
     private final Logger logger = LoggerFactory.getLogger(EasyStatement.class);
+    /***
+     * Restrict to call without connection
+     */
+    private Session(){}
     public Session(Connection connection)
     {
         this.connection = connection;

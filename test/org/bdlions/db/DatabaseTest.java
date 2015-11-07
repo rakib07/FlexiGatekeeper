@@ -8,11 +8,13 @@ package org.bdlions.db;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.bdlions.bean.TransactionInfo;
 import org.bdlions.bean.UserInfo;
 import org.bdlions.bean.UserServiceInfo;
 import org.bdlions.exceptions.DBSetupException;
 import org.bdlions.db.query.helper.EasyStatement;
 import org.bdlions.db.query.QueryManager;
+import org.bdlions.db.repositories.Transaction;
 import org.bdlions.exceptions.MaxMemberRegException;
 import org.bdlions.exceptions.SubscriptionExpireException;
 import org.bdlions.exceptions.UnRegisterIPException;
@@ -52,7 +54,7 @@ public class DatabaseTest {
     // @Test
     // public void hello() {}
     
-    //@Test
+    @Test
     public void setUpDatabase() throws DBSetupException, SQLException{
         Database.getInstance();
     }
@@ -91,24 +93,46 @@ public class DatabaseTest {
         authenticationLibrary.createUser(userInfo);
     }
     
-    @Test
+    //@Test
     public void getSessionInfo()
     {
         UserInfo userInfo = new UserInfo();
-        userInfo.setReferenceUserName("ru2");
-        userInfo.setReferencePassword("rp2");
-        userInfo.setIpAddress("192.168.1.2");
+        userInfo.setReferenceUserName("ru31");
+        userInfo.setReferencePassword("rp31");
+        userInfo.setIpAddress("192.168.1.30");
         
         try
         {
             AuthManager authManager = new AuthManager();
-            String sessionInfo = authManager.getSessionInfo(userInfo, "key1");
+            String sessionInfo = authManager.getSessionInfo(userInfo, "vr22old1v415kipdk9uob4kv07");
             System.out.println(sessionInfo);
         }
         catch(Exception ex)
         {
         
         }        
+    }
+    
+    //@Test
+    public void createTransaction()
+    {
+        TransactionInfo transactionInfo = new TransactionInfo();
+        transactionInfo.setAPIKey("key1");
+        transactionInfo.setBalanceOut(100);
+        
+        TransactionManager transactionManager = new TransactionManager();
+        transactionManager.addTransaction(transactionInfo);
+    }
+    
+    //@Test
+    public void addUserTransaction()
+    {
+        TransactionInfo transactionInfo = new TransactionInfo();
+        transactionInfo.setAPIKey("key1");
+        transactionInfo.setBalanceIn(50000);
+        
+        TransactionManager transactionManager = new TransactionManager();
+        transactionManager.addUserPayment(transactionInfo);
     }
     
     //@Test

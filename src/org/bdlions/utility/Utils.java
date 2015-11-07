@@ -47,4 +47,14 @@ public class Utils {
         SecureRandom random = new SecureRandom();
         return new BigInteger(130, random).toString(32);
     }
+    
+    /**
+     * This method will return a transaction id
+     * @return String, random string
+     */
+    public static String getTransactionId()
+    {
+        SecureRandom random = new SecureRandom();
+        return new BigInteger(130, random).toString(32);
+    }
 }

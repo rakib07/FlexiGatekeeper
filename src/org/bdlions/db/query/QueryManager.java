@@ -17,6 +17,7 @@ public final class QueryManager {
     public static final String ADD_CALLBACK_FUNCTION = "db.query.add-callback-function";
     public static final String GET_SUBSCRIBER_INFO = "db.query.get-subscriber-info";
     public static final String GET_USER_SUBSCRIBER_SERVICE_INFO = "db.query.get-user-subscriber-service-info";
+    public static final String CREATE_TRANSACTION = "db.query.create-transaction";
     
     public static final String ADD_SERVICE = "db.query.add-service";
 }

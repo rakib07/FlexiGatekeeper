@@ -25,7 +25,10 @@ public class QueryField {
     public static final String CREATED_ON = "created_on";
     public static final String MODIFIED_ON = "modified_on";
     public static final String CALLBACK_FUNCTION = "callback_function";
-    
-    
+    public static final String TRANSACTION_ID = "transaction_id";
+    public static final String BALANCE_IN = "balance_in";
+    public static final String BALANCE_OUT = "balance_out";
+    public static final String TRANSACTION_STATUS_ID = "status_id";
+    public static final String TRANSACTION_TYPE_ID = "type_id";
     
 }
