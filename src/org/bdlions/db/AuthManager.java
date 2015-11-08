@@ -74,7 +74,7 @@ public class AuthManager {
                 logger.error(ex1.getMessage());
             }
         } catch (DBSetupException ex) {
-            
+            logger.error(ex.getMessage());
         }
     }
 
@@ -132,11 +132,11 @@ public class AuthManager {
                     connection.close();
                 }
                 catch(SQLException ex1){
-                    
+                    logger.error(ex1.getMessage());
                 }
             }
         } catch (DBSetupException ex) {
-            
+            logger.error(ex.getMessage());
         }
     }
     

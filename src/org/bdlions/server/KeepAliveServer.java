@@ -7,9 +7,11 @@ package org.bdlions.server;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 
 /**
  *
@@ -29,6 +31,14 @@ public class KeepAliveServer extends AbstractVerticle {
             response.end("KeepAlive server");
         });
 
+        router.route("/api*").handler(BodyHandler.create());
+        router.post("/api").handler((RoutingContext routingContext) -> {
+            HttpServerResponse response = routingContext.response();
+            HttpServerRequest request = routingContext.request();
+            
+            
+            response.end("Keepalive server : param value is " + request.getParam("habijabi"));
+        });
         server.requestHandler(router::accept).listen(4040);
     }
 }
