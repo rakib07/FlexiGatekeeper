@@ -51,14 +51,13 @@ public class Session {
         SessionInfo sessionInfo = new SessionInfo();
         try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_USER_SUBSCRIBER_SERVICE_INFO);){
             stmt.setString(QueryField.REFERENCE_USERNAME, userInfo.getReferenceUserName());
-            stmt.setString(QueryField.REFERENCE_PASSWORD, userInfo.getReferencePassword());
             stmt.setString(QueryField.IP_ADDRESS, userInfo.getIpAddress());
             stmt.setString(QueryField.API_KEY, APIKey);
             ResultSet rs = stmt.executeQuery();
             if(rs.next())
             {
-                int subscriptionExpiredDate = Integer.parseInt(rs.getString("subscription_expired_date"));
-                int APIExpiredDate = Integer.parseInt(rs.getString("api_expired_date"));
+                int subscriptionExpiredDate = Integer.parseInt(rs.getString(QueryField.SUBSCRIPTION_EXPIRED_DATE));
+                int APIExpiredDate = Integer.parseInt(rs.getString(QueryField.API_EXPIRED_DATE));
                 int currentDate = 1;
                 if(subscriptionExpiredDate <= currentDate)
                 {
@@ -72,7 +71,7 @@ public class Session {
                     logger.error("API key expired.");
                     throw new ServiceExpireException();
                 }
-                sessionInfo.setUserId(rs.getString("member_user_id"));
+                sessionInfo.setUserId(rs.getString(QueryField.MEMBER_USER_ID));
                 sessionInfo.setSessionId(Utils.getSessionId());
             }
             else

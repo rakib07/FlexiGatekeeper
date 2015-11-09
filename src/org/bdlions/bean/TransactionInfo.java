@@ -17,12 +17,16 @@ public class TransactionInfo {
     private long balanceOut;
     private int transactionTypeId;
     private int transactionStatusId;
+    private String cellNumber;
+    private String description;
     private int createdOn;
     private int modifiedOn;
     public TransactionInfo()
     {
         balanceIn = 0;
         balanceOut = 0;
+        cellNumber = "";
+        description = "";
     }
 
     public int getId() {
@@ -79,6 +83,22 @@ public class TransactionInfo {
 
     public void setTransactionStatusId(int transactionStatusId) {
         this.transactionStatusId = transactionStatusId;
+    }
+
+    public String getCellNumber() {
+        return cellNumber;
+    }
+
+    public void setCellNumber(String cellNumber) {
+        this.cellNumber = cellNumber;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getCreatedOn() {

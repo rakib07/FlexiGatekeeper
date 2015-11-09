@@ -30,9 +30,11 @@ public class TransactionManager {
     /**
      * This method will add a user payment as transaction
      * @param transactionInfo, transaction info
+     * @return String, transaction id
      */
-    public void addUserPayment(TransactionInfo transactionInfo)
+    public String addUserPayment(TransactionInfo transactionInfo)
     {
+        String transactionId = "";
         Connection connection = null;
         try {
             connection = Database.getInstance().getConnection();
@@ -40,7 +42,7 @@ public class TransactionManager {
             
             transactionInfo.setTransactionStatusId(Transactions.TRANSACTION_STATUS_SUCCESS);
             transactionInfo.setTransactionTypeId(Transactions.TRANSACTION_TYPE_ADD_USER_PAYMENT);
-            transaction.createTransaction(transactionInfo);            
+            transactionId = transaction.createTransaction(transactionInfo);            
             
             connection.close();
         } catch (SQLException ex) {
@@ -54,6 +56,7 @@ public class TransactionManager {
         } catch (DBSetupException ex) {
             
         }
+        return transactionId;
     }
     
     /**

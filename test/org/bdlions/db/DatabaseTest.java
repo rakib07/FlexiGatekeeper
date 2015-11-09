@@ -54,7 +54,7 @@ public class DatabaseTest {
     // @Test
     // public void hello() {}
     
-    @Test
+    //@Test
     public void setUpDatabase() throws DBSetupException, SQLException{
         Database.getInstance();
     }
@@ -64,7 +64,6 @@ public class DatabaseTest {
     public void createSubscriberLibrary() throws DBSetupException, SQLException{
         UserInfo userInfo = new UserInfo();
         userInfo.setReferenceUserName("ru40");
-        userInfo.setReferencePassword("rp40");
         userInfo.setMaxMembers(3);
         userInfo.setRegistrationDate(12345);
         userInfo.setExpiredDate(123456789);
@@ -85,9 +84,9 @@ public class DatabaseTest {
     //@Test
     public void createUserLibrary() throws DBSetupException, SQLException, UnRegisterIPException, SubscriptionExpireException, MaxMemberRegException{
         UserInfo userInfo = new UserInfo();
-        userInfo.setReferenceUserName("ru13");
-        userInfo.setReferencePassword("rp13");
-        userInfo.setIpAddress("192.168.1.6");
+        userInfo.setReferenceUserName("ru41");
+        userInfo.setSubscriberReferenceUserName("ru40");
+        userInfo.setIpAddress("192.168.1.40");
         
         AuthManager authenticationLibrary = new AuthManager();
         authenticationLibrary.createUser(userInfo);
@@ -97,14 +96,13 @@ public class DatabaseTest {
     public void getSessionInfo()
     {
         UserInfo userInfo = new UserInfo();
-        userInfo.setReferenceUserName("ru31");
-        userInfo.setReferencePassword("rp31");
-        userInfo.setIpAddress("192.168.1.30");
+        userInfo.setReferenceUserName("ru41");
+        userInfo.setIpAddress("192.168.1.40");
         
         try
         {
             AuthManager authManager = new AuthManager();
-            String sessionInfo = authManager.getSessionInfo(userInfo, "vr22old1v415kipdk9uob4kv07");
+            String sessionInfo = authManager.getSessionInfo(userInfo, "jjomajbjfn09g4k39s92f269q4");
             System.out.println(sessionInfo);
         }
         catch(Exception ex)
@@ -124,11 +122,11 @@ public class DatabaseTest {
         transactionManager.addTransaction(transactionInfo);
     }
     
-    //@Test
+    @Test
     public void addUserTransaction()
     {
         TransactionInfo transactionInfo = new TransactionInfo();
-        transactionInfo.setAPIKey("key1");
+        transactionInfo.setAPIKey("gug9dce11sk3irb9t0in4qa8mp");
         transactionInfo.setBalanceIn(50000);
         
         TransactionManager transactionManager = new TransactionManager();
