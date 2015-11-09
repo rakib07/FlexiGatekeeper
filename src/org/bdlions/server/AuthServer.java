@@ -10,6 +10,7 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 import java.util.ArrayList;
 import java.util.List;
 import org.bdlions.bean.TransactionInfo;
@@ -113,7 +114,8 @@ public class AuthServer extends AbstractVerticle {
             response.end(result);
         });
         
-        router.route("/addsubscriberpayment").handler((RoutingContext routingContext) -> {
+        router.route("/addsubscriberpayment*").handler(BodyHandler.create());
+        router.post("/addsubscriberpayment").handler((RoutingContext routingContext) -> {
             String APIKey = routingContext.request().getParam("APIKey");
             String amount = routingContext.request().getParam("amount");
             

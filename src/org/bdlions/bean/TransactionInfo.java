@@ -5,6 +5,8 @@
  */
 package org.bdlions.bean;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  *
  * @author nazmul hasan
@@ -116,5 +118,15 @@ public class TransactionInfo {
     public void setModifiedOn(int modifiedOn) {
         this.modifiedOn = modifiedOn;
     }
-    
+    @Override
+    public String toString() {
+        ObjectMapper mapper = new ObjectMapper();
+        String json = "";
+        try {
+            json = mapper.writeValueAsString(this);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return json;
+    }
 }

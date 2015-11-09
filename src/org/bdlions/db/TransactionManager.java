@@ -7,6 +7,7 @@ package org.bdlions.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import org.bdlions.activemq.Producer;
 import org.bdlions.bean.TransactionInfo;
 import org.bdlions.constants.Transactions;
 import org.bdlions.db.query.helper.EasyStatement;
@@ -89,6 +90,17 @@ public class TransactionManager {
             }
         } catch (DBSetupException ex) {
             
+        }
+        
+        try
+        {
+            Producer producer = new Producer();
+            producer.setMessage(transactionInfo.toString());
+            producer.produce();
+        }
+        catch(Exception ex)
+        {
+        
         }
         return transactionId;
     }
