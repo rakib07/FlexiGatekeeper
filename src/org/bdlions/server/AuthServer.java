@@ -68,7 +68,9 @@ public class AuthServer extends AbstractVerticle {
             response.end("Authentication Registration");
         });
         
-        router.route("/registermember").handler((RoutingContext routingContext) -> {
+        //router.route("/registermember").handler((RoutingContext routingContext) -> {
+        router.route("/registermember*").handler(BodyHandler.create());
+        router.post("/registermember").handler((RoutingContext routingContext) -> {
             //System.out.println(routingContext.request().getParam("param1"));
             
             String userName = routingContext.request().getParam("username");
