@@ -8,7 +8,7 @@ public class UserInfo {
     private String userId;
     private String subscriberId;
     private String referenceUserName;
-    private String referencePassword;
+    private String subscriberReferenceUserName;
     private int createdOn;
     private int modifiedOn;
     private int registrationDate;
@@ -46,12 +46,12 @@ public class UserInfo {
         this.referenceUserName = referenceUserName;
     }
 
-    public String getReferencePassword() {
-        return referencePassword;
+    public String getSubscriberReferenceUserName() {
+        return subscriberReferenceUserName;
     }
 
-    public void setReferencePassword(String referencePassword) {
-        this.referencePassword = referencePassword;
+    public void setSubscriberReferenceUserName(String subscriberReferenceUserName) {
+        this.subscriberReferenceUserName = subscriberReferenceUserName;
     }
 
     public int getCreatedOn() {

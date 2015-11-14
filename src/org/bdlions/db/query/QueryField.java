@@ -15,6 +15,8 @@ public class QueryField {
     public static final String MAX_MEMBERS = "max_members";
     public static final String CURRENT_MEMBERS = "current_members";
     public static final String REGISTRATION_DATE = "registration_date";
+    public static final String SUBSCRIPTION_EXPIRED_DATE = "subscription_expired_date";
+    public static final String API_EXPIRED_DATE = "api_expired_date";
     public static final String EXPIRED_DATE = "expired_date";
     public static final String SUBSCRIBER_USER_ID = "subscriber_user_id";
     public static final String SERVICE_ID = "service_id";
@@ -30,5 +32,7 @@ public class QueryField {
     public static final String BALANCE_OUT = "balance_out";
     public static final String TRANSACTION_STATUS_ID = "status_id";
     public static final String TRANSACTION_TYPE_ID = "type_id";
-    
+    public static final String TRANSACTION_CELL_NUMBER = "cell_no";
+    public static final String TRANSACTION_DESCRIPTION= "description";
+    public static final String CURRENT_BALANCE = "current_balance";
 }

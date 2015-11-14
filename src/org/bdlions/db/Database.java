@@ -110,7 +110,6 @@ public class Database {
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.services"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.users"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.subscribers"));
-            statement.executeUpdate(DbSetupQueryProvider.get("db.table.subscribers_members"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.subscribers_services"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.callback_functions"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.transaction_statuses"));
@@ -119,7 +118,6 @@ public class Database {
             
             //create relations
             statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers"));
-            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_members"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_services"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.rel.transactions"));
             
@@ -127,7 +125,6 @@ public class Database {
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.services"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.users"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.subscribers"));
-            statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.subscribers_members"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.subscribers_services"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.callback_functions"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.transaction_statuses"));

@@ -6,6 +6,7 @@
 package org.bdlions.db.repositories;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.bdlions.bean.TransactionInfo;
 import org.bdlions.db.query.QueryField;
@@ -46,10 +47,32 @@ public class Transaction {
             stmt.setLong(QueryField.BALANCE_OUT, transactionInfo.getBalanceOut());
             stmt.setInt(QueryField.TRANSACTION_TYPE_ID, transactionInfo.getTransactionTypeId());
             stmt.setInt(QueryField.TRANSACTION_STATUS_ID, transactionInfo.getTransactionStatusId());
+            stmt.setString(QueryField.TRANSACTION_CELL_NUMBER, transactionInfo.getCellNumber());
+            stmt.setString(QueryField.TRANSACTION_DESCRIPTION, transactionInfo.getDescription());
             stmt.setInt(QueryField.CREATED_ON, currentTime);
             stmt.setInt(QueryField.MODIFIED_ON, currentTime);
             stmt.executeUpdate();
         }
         return transactionId;
+    }
+    
+    /**
+     * This method will return current available balance of an api key
+     * @param APIKey, api key
+     * @throws DBSetupException
+     * @throws SQLException
+     * @return double, current available balance
+     */
+    public double getAvailableBalance(String APIKey) throws DBSetupException, SQLException
+    {
+        double currentBalance = 0;
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_CURRENT_BALANCE);){
+            stmt.setString(QueryField.API_KEY, APIKey);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                currentBalance = rs.getDouble(QueryField.CURRENT_BALANCE);
+            }
+        } 
+        return currentBalance;
     }
 }

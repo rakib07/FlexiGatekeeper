@@ -30,32 +30,6 @@ public class Subscriber {
         this.connection = connection;
     }
 
-    
-    /**
-     * This method will create a new user
-     *
-     * @param userInfo, user info
-     * @return String, user id
-     * @throws DBSetupException
-     * @throws SQLException
-     */
-    public String createUser(UserInfo userInfo) throws DBSetupException, SQLException {
-        int currentTime = Utils.getCurrentUnixTime();
-        String userId = Utils.getRandomString();
-        userInfo.setUserId(userId);
-        
-        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.CREATE_USER)) {
-            stmt.setString(QueryField.USER_ID, userInfo.getUserId());
-            stmt.setString(QueryField.REFERENCE_USERNAME, userInfo.getReferenceUserName());
-            stmt.setString(QueryField.REFERENCE_PASSWORD, userInfo.getReferencePassword());
-            stmt.setInt(QueryField.CREATED_ON, currentTime);
-            stmt.setInt(QueryField.MODIFIED_ON, currentTime);
-            stmt.executeUpdate();
-        }
-        
-        return userId;
-    }
-
     /**
      * This method will create a new subscriber
      *
@@ -78,26 +52,32 @@ public class Subscriber {
     /**
      * This method will return subscriber info based on given ip address
      *
-     * @param ipAddress, ip address
+     * @param userInfo, user info
      * @throws DBSetupException,
      * @throws SQLException
-     * @return Userinfo, user info including details of the user
+     * @return UserInfo, user info including details of the user
      */
-    public UserInfo getSubscriberInfo(String ipAddress) throws DBSetupException, SQLException {
-        UserInfo userInfo = new UserInfo();
+    public UserInfo getSubscriberInfo(UserInfo userInfo) throws DBSetupException, SQLException {
+        UserInfo subscriberInfo = new UserInfo();
         try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_SUBSCRIBER_INFO);){
-            stmt.setString(QueryField.IP_ADDRESS, ipAddress);
+            stmt.setString(QueryField.IP_ADDRESS, userInfo.getIpAddress());
+            stmt.setString(QueryField.REFERENCE_USERNAME, userInfo.getSubscriberReferenceUserName());
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                userInfo.setUserId(rs.getString(QueryField.USER_ID));
-                userInfo.setSubscriberId(rs.getString(QueryField.USER_ID));
-                userInfo.setMaxMembers(rs.getInt(QueryField.MAX_MEMBERS));
-                userInfo.setCurrentMemers(rs.getInt(QueryField.CURRENT_MEMBERS));
-                userInfo.setRegistrationDate(rs.getInt(QueryField.REGISTRATION_DATE));
-                userInfo.setExpiredDate(rs.getInt(QueryField.EXPIRED_DATE));
+                subscriberInfo.setUserId(rs.getString(QueryField.USER_ID));
+                subscriberInfo.setSubscriberId(rs.getString(QueryField.USER_ID));
+                subscriberInfo.setMaxMembers(rs.getInt(QueryField.MAX_MEMBERS));
+                subscriberInfo.setRegistrationDate(rs.getInt(QueryField.REGISTRATION_DATE));
+                subscriberInfo.setExpiredDate(rs.getInt(QueryField.EXPIRED_DATE));
             }
         } 
-
-        return userInfo;
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_SUBSCRIBER_TOTAL_MEMBERS);){
+            stmt.setString(QueryField.SUBSCRIBER_USER_ID, subscriberInfo.getUserId());
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                subscriberInfo.setCurrentMemers(rs.getInt(QueryField.CURRENT_MEMBERS));
+            }
+        }
+        return subscriberInfo;
     }
 }

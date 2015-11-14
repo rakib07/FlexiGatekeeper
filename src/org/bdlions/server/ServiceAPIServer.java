@@ -10,8 +10,10 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 import org.bdlions.bean.TransactionInfo;
 import org.bdlions.db.TransactionManager;
+import org.bdlions.sessions.SessionManager;
 
 /**
  *
@@ -29,14 +31,30 @@ public class ServiceAPIServer extends AbstractVerticle {
             response.end("ServiceAPI server");
         });
         
-        router.route("/addtransaction").handler((RoutingContext routingContext) -> {
+        //router.route("/addtransaction").handler((RoutingContext routingContext) -> {
+        router.route("/addtransaction*").handler(BodyHandler.create());
+        router.post("/addtransaction").handler((RoutingContext routingContext) -> {
             String userId = "";
             String sessionId = "";
             //validate userId and sessionId from the hashmap
             
+            String APIKey = routingContext.request().getParam("APIKey");
+            String amount = routingContext.request().getParam("amount");
+            String cellNumber = routingContext.request().getParam("cell_no");
+            String description = routingContext.request().getParam("description");
+            
             TransactionInfo transactionInfo = new TransactionInfo();
-            transactionInfo.setAPIKey("vr22old1v415kipdk9uob4kv07");
-            transactionInfo.setBalanceOut(100);
+            transactionInfo.setAPIKey(APIKey);
+            transactionInfo.setCellNumber(cellNumber);
+            transactionInfo.setDescription(description);
+            try
+            {
+                transactionInfo.setBalanceOut(Long.parseLong(amount));
+            }
+            catch(Exception ex)
+            {
+                //invalid amount
+            }
 
             TransactionManager transactionManager = new TransactionManager();
             String transactionId = transactionManager.addTransaction(transactionInfo);

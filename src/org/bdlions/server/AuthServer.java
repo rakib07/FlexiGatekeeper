@@ -10,12 +10,19 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 import java.util.ArrayList;
 import java.util.List;
+import org.bdlions.bean.TransactionInfo;
 import org.bdlions.bean.UserInfo;
 import org.bdlions.bean.UserServiceInfo;
 import org.bdlions.constants.Services;
 import org.bdlions.db.AuthManager;
+import org.bdlions.db.TransactionManager;
+import org.bdlions.exceptions.MaxMemberRegException;
+import org.bdlions.exceptions.ServiceExpireException;
+import org.bdlions.exceptions.SubscriptionExpireException;
+import org.bdlions.exceptions.UnRegisterIPException;
 
 /**
  *
@@ -39,8 +46,7 @@ public class AuthServer extends AbstractVerticle {
             //System.out.println(routingContext.request().getParam("param1"));
             
             UserInfo userInfo = new UserInfo();
-            userInfo.setReferenceUserName("ru30");
-            userInfo.setReferencePassword("rp30");
+            userInfo.setReferenceUserName("admin");
             userInfo.setMaxMembers(3);
             userInfo.setRegistrationDate(12345);
             userInfo.setExpiredDate(123456789);
@@ -62,12 +68,17 @@ public class AuthServer extends AbstractVerticle {
             response.end("Authentication Registration");
         });
         
-        router.route("/registermember").handler((RoutingContext routingContext) -> {
+        //router.route("/registermember").handler((RoutingContext routingContext) -> {
+        router.route("/registermember*").handler(BodyHandler.create());
+        router.post("/registermember").handler((RoutingContext routingContext) -> {
             //System.out.println(routingContext.request().getParam("param1"));
             
+            String userName = routingContext.request().getParam("username");
+            String subscriberName = routingContext.request().getParam("subscribername");
+            
             UserInfo userInfo = new UserInfo();
-            userInfo.setReferenceUserName("ru31");
-            userInfo.setReferencePassword("rp31");
+            userInfo.setReferenceUserName(userName);
+            userInfo.setSubscriberReferenceUserName(subscriberName);
             userInfo.setIpAddress("192.168.1.30");
             
             try
@@ -75,7 +86,7 @@ public class AuthServer extends AbstractVerticle {
                 AuthManager authManager = new AuthManager();
                 authManager.createUser(userInfo);
             }
-            catch(Exception ex)
+            catch(UnRegisterIPException | SubscriptionExpireException | MaxMemberRegException ex)
             {
             
             }
@@ -90,20 +101,42 @@ public class AuthServer extends AbstractVerticle {
             String result = "";
             UserInfo userInfo = new UserInfo();
             userInfo.setReferenceUserName("ru31");
-            userInfo.setReferencePassword("rp31");
             userInfo.setIpAddress("192.168.1.30");
             
             try
             {
                 AuthManager authManager = new AuthManager();
-                result = authManager.getSessionInfo(userInfo, "6ak74cdap0p5s44gf7935e5imb");
+                result = authManager.getSessionInfo(userInfo, "64hedl981o0suvld9r79kklta2");
             }
-            catch(Exception ex)
+            catch(SubscriptionExpireException | ServiceExpireException ex)
             {
             
             }            
             HttpServerResponse response = routingContext.response();
             response.end(result);
+        });
+        
+        router.route("/addsubscriberpayment*").handler(BodyHandler.create());
+        router.post("/addsubscriberpayment").handler((RoutingContext routingContext) -> {
+            String APIKey = routingContext.request().getParam("APIKey");
+            String amount = routingContext.request().getParam("amount");
+            
+            TransactionInfo transactionInfo = new TransactionInfo();
+            transactionInfo.setAPIKey(APIKey);
+            try
+            {
+                transactionInfo.setBalanceIn(Long.parseLong(amount));
+            }
+            catch(Exception ex)
+            {
+                //invalid amount
+            }
+
+            TransactionManager transactionManager = new TransactionManager();
+            String transactionId = transactionManager.addUserPayment(transactionInfo);
+            
+            HttpServerResponse response = routingContext.response();
+            response.end(transactionId);
         });
         
         server.requestHandler(router::accept).listen(5050);

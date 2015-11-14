@@ -5,6 +5,8 @@
  */
 package org.bdlions.bean;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  *
  * @author nazmul hasan
@@ -17,12 +19,16 @@ public class TransactionInfo {
     private long balanceOut;
     private int transactionTypeId;
     private int transactionStatusId;
+    private String cellNumber;
+    private String description;
     private int createdOn;
     private int modifiedOn;
     public TransactionInfo()
     {
         balanceIn = 0;
         balanceOut = 0;
+        cellNumber = "";
+        description = "";
     }
 
     public int getId() {
@@ -81,6 +87,22 @@ public class TransactionInfo {
         this.transactionStatusId = transactionStatusId;
     }
 
+    public String getCellNumber() {
+        return cellNumber;
+    }
+
+    public void setCellNumber(String cellNumber) {
+        this.cellNumber = cellNumber;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public int getCreatedOn() {
         return createdOn;
     }
@@ -96,5 +118,15 @@ public class TransactionInfo {
     public void setModifiedOn(int modifiedOn) {
         this.modifiedOn = modifiedOn;
     }
-    
+    @Override
+    public String toString() {
+        ObjectMapper mapper = new ObjectMapper();
+        String json = "";
+        try {
+            json = mapper.writeValueAsString(this);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return json;
+    }
 }

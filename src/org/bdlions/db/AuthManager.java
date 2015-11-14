@@ -7,15 +7,17 @@ import org.bdlions.bean.SessionInfo;
 import org.bdlions.bean.UserInfo;
 import org.bdlions.bean.UserServiceInfo;
 import org.bdlions.db.query.helper.EasyStatement;
-import org.bdlions.db.repositories.Member;
+import org.bdlions.db.repositories.User;
 import org.bdlions.db.repositories.Service;
 import org.bdlions.db.repositories.Session;
 import org.bdlions.db.repositories.Subscriber;
+import org.bdlions.db.repositories.Transaction;
 import org.bdlions.exceptions.DBSetupException;
 import org.bdlions.exceptions.MaxMemberRegException;
 import org.bdlions.exceptions.ServiceExpireException;
 import org.bdlions.exceptions.SubscriptionExpireException;
 import org.bdlions.exceptions.UnRegisterIPException;
+import org.bdlions.sessions.SessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,10 +27,11 @@ import org.slf4j.LoggerFactory;
  */
 public class AuthManager {
 
-    private Member member;
+    private User user;
     private Service service;
     private Subscriber subscriber;
     private Session session;
+    private Transaction transaction;
     private final Logger logger = LoggerFactory.getLogger(EasyStatement.class);
 
     /**
@@ -45,16 +48,14 @@ public class AuthManager {
             connection = Database.getInstance().getConnection();
             connection.setAutoCommit(false);
             
+            user = new User(connection);
             subscriber = new Subscriber(connection);
-            member = new Member(connection);
             service = new Service(connection);
             
-            String userId = subscriber.createUser(userInfo);
+            String userId = user.createUser(userInfo);
             userInfo.setUserId(userId);
-
             subscriber.createSubscriber(userInfo);
             
-            member.addMember(userInfo.getUserId(), userInfo.getUserId());
             for (UserServiceInfo userServiceInfo : userServiceInfoList) {
                 //validate the userServiceInfo where required fields are
                 //serviceId, registrationDate, expiredDate
@@ -99,11 +100,10 @@ public class AuthManager {
             connection = Database.getInstance().getConnection();
             connection.setAutoCommit(false);
             
-            subscriber = new Subscriber(connection);
-            member = new Member(connection);
+            user = new User(connection);
             subscriber = new Subscriber(connection);
             
-            UserInfo subscriberInfo = subscriber.getSubscriberInfo(userInfo.getIpAddress());
+            UserInfo subscriberInfo = subscriber.getSubscriberInfo(userInfo);
             if (subscriberInfo.getUserId() == null) {
                 //request from invalid ip address
                 logger.error("request from invalid ip address.");
@@ -119,9 +119,9 @@ public class AuthManager {
                 logger.error("subscriber already created maximum members");
                 throw new MaxMemberRegException();
             }
-            String userId = subscriber.createUser(userInfo);
+            userInfo.setSubscriberId(subscriberInfo.getUserId());
+            String userId = user.createUser(userInfo);
             userInfo.setUserId(userId);
-            member.addMember(subscriberInfo.getUserId(), userInfo.getUserId());
             
             connection.commit();
             connection.close();
@@ -154,10 +154,16 @@ public class AuthManager {
         SessionInfo sessionInfo = new SessionInfo();
         try {
             connection = Database.getInstance().getConnection();
-            session = new Session(connection);   
+            session = new Session(connection); 
+            transaction = new Transaction(connection);
+            double availableBalance = transaction.getAvailableBalance(APIKey);
+            if(availableBalance <= 0)
+            {
+                //insufficient balance
+                return sessionInfo.toString();
+            }
             sessionInfo = session.getSessionInfo(userInfo, APIKey);
             
-            //authenticate available balance before sending session info
             
             //put session info into the hashmap at service api server
             
