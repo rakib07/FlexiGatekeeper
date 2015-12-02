@@ -6,6 +6,7 @@ import java.util.List;
 import org.bdlions.bean.SessionInfo;
 import org.bdlions.bean.UserInfo;
 import org.bdlions.bean.UserServiceInfo;
+import org.bdlions.constants.ResponseCodes;
 import org.bdlions.db.query.helper.EasyStatement;
 import org.bdlions.db.repositories.User;
 import org.bdlions.db.repositories.Service;
@@ -32,8 +33,17 @@ public class AuthManager {
     private Subscriber subscriber;
     private Session session;
     private Transaction transaction;
+    private int responseCode;
     private final Logger logger = LoggerFactory.getLogger(EasyStatement.class);
 
+    public int getResponseCode() {
+        return responseCode;
+    }
+
+    public void setResponseCode(int responseCode) {
+        this.responseCode = responseCode;
+    }
+    
     /**
      * This method will create a new subscriber
      *
@@ -62,10 +72,11 @@ public class AuthManager {
                 userServiceInfo.setUserId(userId);
                 service.addService(userServiceInfo);
             }
-
             connection.commit();
             connection.close();
         } catch (SQLException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
             try {
                 if(connection != null){
                     connection.rollback();
@@ -73,8 +84,9 @@ public class AuthManager {
                 }
             } catch (SQLException ex1) {
                 logger.error(ex1.getMessage());
-            }
+            }            
         } catch (DBSetupException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
             logger.error(ex.getMessage());
         }
     }
@@ -125,7 +137,10 @@ public class AuthManager {
             
             connection.commit();
             connection.close();
+            this.responseCode = ResponseCodes.SUCCESS;
         } catch (SQLException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
             if(connection != null){
                 try{
                     connection.rollback();
@@ -136,6 +151,7 @@ public class AuthManager {
                 }
             }
         } catch (DBSetupException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
             logger.error(ex.getMessage());
         }
     }

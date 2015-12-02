@@ -15,8 +15,8 @@ public class TransactionInfo {
     private int id;
     private String transactionId;
     private String APIKey;
-    private long balanceIn;
-    private long balanceOut;
+    private double balanceIn;
+    private double balanceOut;
     private int transactionTypeId;
     private int transactionStatusId;
     private String cellNumber;
@@ -55,19 +55,19 @@ public class TransactionInfo {
         this.APIKey = APIKey;
     }
 
-    public long getBalanceIn() {
+    public double getBalanceIn() {
         return balanceIn;
     }
 
-    public void setBalanceIn(long balanceIn) {
+    public void setBalanceIn(double balanceIn) {
         this.balanceIn = balanceIn;
     }
 
-    public long getBalanceOut() {
+    public double getBalanceOut() {
         return balanceOut;
     }
 
-    public void setBalanceOut(long balanceOut) {
+    public void setBalanceOut(double balanceOut) {
         this.balanceOut = balanceOut;
     }
 

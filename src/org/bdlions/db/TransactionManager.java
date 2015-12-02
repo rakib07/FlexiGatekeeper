@@ -9,8 +9,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import org.bdlions.activemq.Producer;
 import org.bdlions.bean.TransactionInfo;
+import org.bdlions.constants.ResponseCodes;
 import org.bdlions.constants.Transactions;
-import org.bdlions.db.query.helper.EasyStatement;
 import org.bdlions.db.repositories.Transaction;
 import org.bdlions.exceptions.DBSetupException;
 import org.slf4j.Logger;
@@ -22,20 +22,30 @@ import org.slf4j.LoggerFactory;
  */
 public class TransactionManager {
     private Transaction transaction;
-    private final Logger logger = LoggerFactory.getLogger(EasyStatement.class);
+    private String transactionId;
+    private int responseCode;
+    private final Logger logger = LoggerFactory.getLogger(TransactionManager.class);
     public TransactionManager()
     {
     
     }
     
+    public String getTransactionId()
+    {
+        return this.transactionId;
+    }
+    
+    public int getResponseCode()
+    {
+        return this.responseCode;
+    }
+    
     /**
      * This method will add a user payment as transaction
      * @param transactionInfo, transaction info
-     * @return String, transaction id
      */
-    public String addUserPayment(TransactionInfo transactionInfo)
+    public void addUserPayment(TransactionInfo transactionInfo)
     {
-        String transactionId = "";
         Connection connection = null;
         try {
             connection = Database.getInstance().getConnection();
@@ -43,10 +53,12 @@ public class TransactionManager {
             
             transactionInfo.setTransactionStatusId(Transactions.TRANSACTION_STATUS_SUCCESS);
             transactionInfo.setTransactionTypeId(Transactions.TRANSACTION_TYPE_ADD_USER_PAYMENT);
-            transactionId = transaction.createTransaction(transactionInfo);            
-            
+            this.transactionId = transaction.createTransaction(transactionInfo);            
+            this.responseCode = ResponseCodes.SUCCESS;
             connection.close();
         } catch (SQLException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
             try {
                 if(connection != null){
                     connection.close();
@@ -55,30 +67,27 @@ public class TransactionManager {
                 logger.error(ex1.getMessage());
             }
         } catch (DBSetupException ex) {
-            
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
+            logger.error(ex.getMessage());
         }
-        return transactionId;
     }
     
     /**
      * This method will add a transaction
      * @param transactionInfo, transaction info
-     * @return String, transaction id
      */
-    public String addTransaction(TransactionInfo transactionInfo)
+    public void addTransaction(TransactionInfo transactionInfo)
     {
-        String transactionId = "";
         Connection connection = null;
         try {
             connection = Database.getInstance().getConnection();
             transaction = new Transaction(connection);
             
-            //at first check available balance of the user
+            //check available balance of the user if required
             
             transactionInfo.setTransactionStatusId(Transactions.TRANSACTION_STATUS_PENDING);
             transactionInfo.setTransactionTypeId(Transactions.TRANSACTION_TYPE_USE_SERVICE);
-            transactionId = transaction.createTransaction(transactionInfo);            
-            
+            this.transactionId = transaction.createTransaction(transactionInfo);            
             connection.close();
         } catch (SQLException ex) {
             try {
@@ -88,20 +97,24 @@ public class TransactionManager {
             } catch (SQLException ex1) {
                 logger.error(ex1.getMessage());
             }
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
         } catch (DBSetupException ex) {
-            
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
+            logger.error(ex.getMessage());
         }
         
+        //activemq to enqueue a new transaction
         try
         {
             Producer producer = new Producer();
             producer.setMessage(transactionInfo.toString());
             producer.produce();
+            this.responseCode = ResponseCodes.SUCCESS;
         }
         catch(Exception ex)
         {
-        
+            this.responseCode = ResponseCodes.ERROR_CODE_SERVER_EXCEPTION;
+            logger.error(ex.getMessage());
         }
-        return transactionId;
     }
 }

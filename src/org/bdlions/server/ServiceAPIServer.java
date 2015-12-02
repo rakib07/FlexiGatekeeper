@@ -12,15 +12,18 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import org.bdlions.bean.TransactionInfo;
+import org.bdlions.constants.ResponseCodes;
 import org.bdlions.db.TransactionManager;
-import org.bdlions.sessions.SessionManager;
+import org.bdlions.response.ResultEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author alamgir
  */
 public class ServiceAPIServer extends AbstractVerticle {
-
+    private final Logger logger = LoggerFactory.getLogger(ServiceAPIServer.class);
     @Override
     public void start() {
         HttpServer server = vertx.createHttpServer();
@@ -34,6 +37,7 @@ public class ServiceAPIServer extends AbstractVerticle {
         //router.route("/addtransaction").handler((RoutingContext routingContext) -> {
         router.route("/addtransaction*").handler(BodyHandler.create());
         router.post("/addtransaction").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
             String userId = "";
             String sessionId = "";
             //validate userId and sessionId from the hashmap
@@ -49,18 +53,27 @@ public class ServiceAPIServer extends AbstractVerticle {
             transactionInfo.setDescription(description);
             try
             {
-                transactionInfo.setBalanceOut(Long.parseLong(amount));
+                transactionInfo.setBalanceOut(Double.parseDouble(amount));
+                
+                TransactionManager transactionManager = new TransactionManager();
+                transactionManager.addTransaction(transactionInfo);
+
+                int responseCode = transactionManager.getResponseCode();
+
+                resultEvent.setResponseCode(responseCode);
+                if(responseCode == ResponseCodes.SUCCESS)
+                {
+                    transactionInfo.setTransactionId(transactionManager.getTransactionId());
+                    resultEvent.setResult(transactionInfo);
+                }
             }
             catch(Exception ex)
             {
-                //invalid amount
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                logger.error(ex.getMessage());
             }
-
-            TransactionManager transactionManager = new TransactionManager();
-            String transactionId = transactionManager.addTransaction(transactionInfo);
-            
             HttpServerResponse response = routingContext.response();
-            response.end(transactionId);
+            response.end(resultEvent.toString());
         });
 
         server.requestHandler(router::accept).listen(3030);

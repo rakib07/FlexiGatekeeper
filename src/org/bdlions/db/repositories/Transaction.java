@@ -43,8 +43,8 @@ public class Transaction {
         try (EasyStatement stmt = new EasyStatement(connection, QueryManager.CREATE_TRANSACTION)) {
             stmt.setString(QueryField.TRANSACTION_ID, transactionId);
             stmt.setString(QueryField.API_KEY, transactionInfo.getAPIKey());
-            stmt.setLong(QueryField.BALANCE_IN, transactionInfo.getBalanceIn());
-            stmt.setLong(QueryField.BALANCE_OUT, transactionInfo.getBalanceOut());
+            stmt.setDouble(QueryField.BALANCE_IN, transactionInfo.getBalanceIn());
+            stmt.setDouble(QueryField.BALANCE_OUT, transactionInfo.getBalanceOut());            
             stmt.setInt(QueryField.TRANSACTION_TYPE_ID, transactionInfo.getTransactionTypeId());
             stmt.setInt(QueryField.TRANSACTION_STATUS_ID, transactionInfo.getTransactionStatusId());
             stmt.setString(QueryField.TRANSACTION_CELL_NUMBER, transactionInfo.getCellNumber());
