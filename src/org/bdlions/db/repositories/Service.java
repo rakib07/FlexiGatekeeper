@@ -37,8 +37,10 @@ public class Service {
      * @throws SQLException
      */
     public void addService(UserServiceInfo userServiceInfo) throws DBSetupException, SQLException {
-        String APIKey = Utils.getAPIKey();
-        userServiceInfo.setAPIKey(APIKey);
+        //right now api key is generated from the admin panel
+        //String APIKey = Utils.getAPIKey();
+        //userServiceInfo.setAPIKey(APIKey);
+        
         try (EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_SUBSCRIBER_SERVICE);){
             stmt.setString(QueryField.SUBSCRIBER_USER_ID, userServiceInfo.getUserId());
             stmt.setInt(QueryField.SERVICE_ID, userServiceInfo.getServiceId());
@@ -49,7 +51,7 @@ public class Service {
         }
         //adding callback function for the APIKey of this service
         try (EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_CALLBACK_FUNCTION);){
-            stmt.setString(QueryField.API_KEY, APIKey);
+            stmt.setString(QueryField.API_KEY, userServiceInfo.getAPIKey());
             stmt.setString(QueryField.CALLBACK_FUNCTION, userServiceInfo.getCallbackFunction());
             stmt.executeUpdate();
         }

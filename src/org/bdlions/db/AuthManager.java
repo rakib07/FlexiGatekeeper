@@ -74,6 +74,7 @@ public class AuthManager {
             }
             connection.commit();
             connection.close();
+            this.responseCode = ResponseCodes.SUCCESS;
         } catch (SQLException ex) {
             this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
             logger.error(ex.getMessage());
@@ -89,6 +90,33 @@ public class AuthManager {
             this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
             logger.error(ex.getMessage());
         }
+    }
+    
+    public UserInfo getSubscriberInfo(UserInfo userInfo)
+    {
+        Connection connection = null;
+        try {
+            connection = Database.getInstance().getConnection();
+            subscriber = new Subscriber(connection);
+            userInfo = subscriber.getSubscriberInfo(userInfo);
+            connection.close();
+            this.responseCode = ResponseCodes.SUCCESS;
+        } catch (SQLException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
+            if(connection != null){
+                try{
+                    connection.close();
+                }
+                catch(SQLException ex1){
+                    logger.error(ex1.getMessage());
+                }
+            }
+        } catch (DBSetupException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
+            logger.error(ex.getMessage());
+        }
+        return userInfo;
     }
 
     /**
@@ -196,5 +224,10 @@ public class AuthManager {
             
         }
         return sessionInfo.toString();
+    }
+    
+    public static void main(String args[])
+    {
+        System.out.println((int) (System.currentTimeMillis() / 1000L));
     }
 }

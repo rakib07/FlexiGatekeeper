@@ -50,7 +50,7 @@ public class Subscriber {
     }
 
     /**
-     * This method will return subscriber info based on given ip address
+     * This method will return subscriber info based on given user name
      *
      * @param userInfo, user info
      * @throws DBSetupException,
@@ -59,8 +59,8 @@ public class Subscriber {
      */
     public UserInfo getSubscriberInfo(UserInfo userInfo) throws DBSetupException, SQLException {
         UserInfo subscriberInfo = new UserInfo();
+        subscriberInfo.setSubscriberReferenceUserName(userInfo.getSubscriberReferenceUserName());
         try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_SUBSCRIBER_INFO);){
-            stmt.setString(QueryField.IP_ADDRESS, userInfo.getIpAddress());
             stmt.setString(QueryField.REFERENCE_USERNAME, userInfo.getSubscriberReferenceUserName());
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {

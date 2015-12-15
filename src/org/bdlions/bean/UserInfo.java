@@ -1,5 +1,9 @@
 package org.bdlions.bean;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  *
  * @author nazmul hasan
@@ -16,7 +20,7 @@ public class UserInfo {
     private int maxMembers;
     private int currentMemers;
     private String ipAddress;
-    
+    private final Logger logger = LoggerFactory.getLogger(UserInfo.class);
     public UserInfo()
     {
     
@@ -109,5 +113,15 @@ public class UserInfo {
     public void setCurrentMemers(int currentMemers) {
         this.currentMemers = currentMemers;
     }
-    
+    @Override
+    public String toString() {
+        ObjectMapper mapper = new ObjectMapper();
+        String json = "";
+        try {
+            json = mapper.writeValueAsString(this);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+        }
+        return json;
+    }
 }
