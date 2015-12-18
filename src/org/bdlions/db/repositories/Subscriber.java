@@ -80,4 +80,14 @@ public class Subscriber {
         }
         return subscriberInfo;
     }
+    
+    public void updateSubscriberInfo()
+    {
+    
+    }
+    
+    public void geAllSubscribers()
+    {
+    
+    }
 }

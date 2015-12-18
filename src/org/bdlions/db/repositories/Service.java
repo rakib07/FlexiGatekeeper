@@ -56,4 +56,21 @@ public class Service {
             stmt.executeUpdate();
         }
     }
+    
+    public void createService()
+    {
+    
+    }
+    public void getAllServices()
+    {
+    
+    }
+    public void getServiceInfo()
+    {
+    
+    }
+    public void updateServiceInfo()
+    {
+    
+    }
 }

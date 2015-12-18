@@ -39,6 +39,6 @@ public class KeepAliveServer extends AbstractVerticle {
             
             response.end("Keepalive server : param value is " + request.getParam("habijabi"));
         });
-        server.requestHandler(router::accept).listen(4040);
+        server.requestHandler(router::accept).listen(5050);
     }
 }

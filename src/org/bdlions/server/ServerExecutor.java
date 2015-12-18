@@ -26,5 +26,9 @@ public class ServerExecutor {
         Vertx serviceAPIVerticle = Vertx.vertx();
         serviceAPIVerticle.deployVerticle(new ServiceAPIServer());
         
+        //run serviceAPI server
+        Vertx adminAPIVerticle = Vertx.vertx();
+        adminAPIVerticle.deployVerticle(new AdminAPIServer());
+        
     }
 }
