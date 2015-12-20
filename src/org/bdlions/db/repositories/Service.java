@@ -5,9 +5,15 @@
  */
 package org.bdlions.db.repositories;
 
+import static java.lang.Boolean.TRUE;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import org.bdlions.bean.ServiceInfo;
 import org.bdlions.bean.UserServiceInfo;
+import org.bdlions.db.Database;
 import org.bdlions.db.query.QueryField;
 import org.bdlions.db.query.QueryManager;
 import org.bdlions.db.query.helper.EasyStatement;
@@ -21,14 +27,18 @@ import org.bdlions.utility.Utils;
 public class Service {
 
     private Connection connection;
-    /***
+
+    /**
+     * *
      * Restrict to call without connection
      */
-    private Service(){}
+    private Service() {
+    }
+
     public Service(Connection connection) {
         this.connection = connection;
     }
-    
+
     /**
      * This method will add subscriber service info
      *
@@ -40,8 +50,8 @@ public class Service {
         //right now api key is generated from the admin panel
         //String APIKey = Utils.getAPIKey();
         //userServiceInfo.setAPIKey(APIKey);
-        
-        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_SUBSCRIBER_SERVICE);){
+
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_SUBSCRIBER_SERVICE);) {
             stmt.setString(QueryField.SUBSCRIBER_USER_ID, userServiceInfo.getUserId());
             stmt.setInt(QueryField.SERVICE_ID, userServiceInfo.getServiceId());
             stmt.setString(QueryField.API_KEY, userServiceInfo.getAPIKey());
@@ -50,27 +60,89 @@ public class Service {
             stmt.executeUpdate();
         }
         //adding callback function for the APIKey of this service
-        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_CALLBACK_FUNCTION);){
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_CALLBACK_FUNCTION);) {
             stmt.setString(QueryField.API_KEY, userServiceInfo.getAPIKey());
             stmt.setString(QueryField.CALLBACK_FUNCTION, userServiceInfo.getCallbackFunction());
             stmt.executeUpdate();
         }
     }
-    
-    public void createService()
-    {
-    
+
+    /**
+     * This method will add service
+     *
+     * @param serviceInfo, service info
+     * @throws DBSetupException
+     * @throws SQLException
+     */
+    public int createService(ServiceInfo serviceInfo) throws DBSetupException, SQLException {
+        int serviceId = Utils.getServiceId();
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_SERVICE)) {
+            stmt.setInt(QueryField.ID, serviceId);
+            stmt.setString(QueryField.SERVICE_TITLE, serviceInfo.getTitle());
+            stmt.executeUpdate();
+        }
+        return serviceId;
+
     }
-    public void getAllServices()
-    {
-    
+
+    /**
+     * This method will return all service
+     *
+     */
+    public List<ServiceInfo> getAllServices() {
+        Connection conn = null;
+        List<ServiceInfo> serviceInfoList = new ArrayList<>();
+        try {
+            conn = Database.getInstance().getConnection();
+
+            try (EasyStatement stmt = new EasyStatement(conn, QueryManager.GET_ALL_SERVICES);) {
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()) {
+                    ServiceInfo serviceInfo = new ServiceInfo();
+                    serviceInfo.setId(rs.getInt(QueryField.SERVICE_ID));
+                    serviceInfo.setTitle(rs.getString(QueryField.SERVICE_TITLE));
+                    serviceInfoList.add(serviceInfo);
+                }
+            }
+        } catch (DBSetupException | SQLException excepton) {
+
+        } finally {
+            try {
+                conn.close();
+            } catch (SQLException ex) {
+
+            }
+        }
+        return serviceInfoList;
     }
-    public void getServiceInfo()
-    {
-    
+
+    public ServiceInfo getServiceInfo(int service_id) throws DBSetupException, SQLException {
+        ServiceInfo serviceInfo = new ServiceInfo();
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_SERVICE_INFO);) {
+            stmt.setInt(QueryField.ID, service_id);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                serviceInfo.setId(rs.getInt(QueryField.ID));
+                serviceInfo.setTitle(rs.getString(QueryField.SERVICE_TITLE));
+                break;
+            }
+        }
+        return serviceInfo;
     }
-    public void updateServiceInfo()
-    {
-    
+
+    /**
+     * This method will update service
+     *
+     * @param serviceInfo, service info
+     * @throws DBSetupException
+     * @throws SQLException
+     */
+    public void updateServiceInfo(ServiceInfo serviceInfo) throws DBSetupException, SQLException {
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.UPDATE_SERVICE_INFO)) {
+            stmt.setString(QueryField.SERVICE_TITLE, serviceInfo.getTitle());
+            stmt.setInt(QueryField.ID, serviceInfo.getId());
+            stmt.executeUpdate();
+        }
+
     }
 }
