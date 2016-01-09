@@ -26,6 +26,9 @@ import org.bdlions.response.ResultEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
+import org.bdlions.bean.UserInfo;
+import org.bdlions.db.PaymentManager;
+import org.bdlions.db.SubscriberManager;
 
 /**
  *
@@ -78,7 +81,6 @@ public class AdminAPIServer extends AbstractVerticle {
             response.end(resultEvent.toString());
 
         });
-//        router.route("/getallservices*").handler(BodyHandler.create());
         router.get("/getallservices").handler((RoutingContext routingContext) -> {
             ResultEvent resultEvent = new ResultEvent();
             try {
@@ -180,20 +182,93 @@ public class AdminAPIServer extends AbstractVerticle {
         // ------------------------------- Subscriber Module -----------------------------------//
         router.route("/createsubscriber*").handler(BodyHandler.create());
         router.post("/createsubscriber").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String subScriberInfo = routingContext.request().getParam("subscriber_info");
+            UserInfo userInfo = UserInfo.getServiceInfo(subScriberInfo);
+            SubscriberManager subscriberManger = new SubscriberManager();
+            try {
+                subscriberManger.createSubscriber(userInfo);
+                int responseCode = subscriberManger.getResponseCode();
+                resultEvent.setResponseCode(responseCode);
+            } catch (Exception ex) {
+                resultEvent.setResponseCode(subscriberManger.getResponseCode());
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
 
         });
-        router.route("/getallsubscribers*").handler(BodyHandler.create());
-        router.post("/getsubscribers").handler((RoutingContext routingContext) -> {
+        router.get("/getallsubscribers").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            try {
+                Database db = Database.getInstance();
+                Connection connection = db.getConnection();
+                if (connection == null) {
+                    resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION);
+                    logger.info("Db connection not set.");
+                } else {
+                    SubscriberManager subscriberManger = new SubscriberManager();
+                    List<UserInfo> subscriberList = subscriberManger.getAllSubscribers();
+                    int responseCode = subscriberManger.getResponseCode();
+                    subscriberManger.setResponseCode(responseCode);
+                    if (responseCode == ResponseCodes.SUCCESS) {
+                        resultEvent.setResult(subscriberList);
+                    }
+                }
+            } catch (DBSetupException | SQLException ex) {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
 
         });
         router.route("/getsubscriberinfo*").handler(BodyHandler.create());
         router.post("/getsubscriberinfo").handler((RoutingContext routingContext) -> {
-
+            ResultEvent resultEvent = new ResultEvent();
+            String userId = routingContext.request().getParam("subscriber_id");
+            try {
+                Database db = Database.getInstance();
+                Connection connection = db.getConnection();
+                if (connection == null) {
+                    resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION);
+                    logger.info("Db connection not set.");
+                } else {
+                    SubscriberManager subscriberManger = new SubscriberManager();
+                    UserInfo subscriberInfo = subscriberManger.getSubscriberInfo(userId);
+                    int responseCode = subscriberManger.getResponseCode();
+                    subscriberManger.setResponseCode(responseCode);
+                    if (responseCode == ResponseCodes.SUCCESS) {
+                        resultEvent.setResult(subscriberInfo);
+                    }
+                }
+            } catch (DBSetupException | SQLException ex) {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
         });
+
         router.route("/updatesubscriberinfo*").handler(BodyHandler.create());
         router.post("/updatesubscriberinfo").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String subScriberInfo = routingContext.request().getParam("subscriber_info");
+            UserInfo userInfo = UserInfo.getServiceInfo(subScriberInfo);
+            SubscriberManager subscriberManger = new SubscriberManager();
+            try {
+                subscriberManger.updateSubscriber(userInfo);
+                int responseCode = subscriberManger.getResponseCode();
+                resultEvent.setResponseCode(responseCode);
+            } catch (Exception ex) {
+                resultEvent.setResponseCode(subscriberManger.getResponseCode());
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
 
         });
+
         // ------------------------------- Subscriber Payment Module ----------------------------//
         /**
          * adding subscriber payment info
@@ -227,6 +302,7 @@ public class AdminAPIServer extends AbstractVerticle {
             HttpServerResponse response = routingContext.response();
             response.end(resultEvent.toString());
         });
+
         /**
          * returning subscriber payment list
          *
@@ -236,13 +312,129 @@ public class AdminAPIServer extends AbstractVerticle {
          */
         router.route("/getsubscriberpaymentlist*").handler(BodyHandler.create());
         router.post("/getsubscriberpaymentlist").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            try {
+                Database db = Database.getInstance();
+                Connection connection = db.getConnection();
+                if (connection == null) {
+                    resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION);
+                    logger.info("Db connection not set.");
+                } else {
+                    PaymentManager paymentManger = new PaymentManager();
+                    paymentManger.getSubscriberPaymentList();
+                    int responseCode = paymentManger.getResponseCode();
+                    paymentManger.setResponseCode(responseCode);
+                    if (responseCode == ResponseCodes.SUCCESS) {
+//                        resultEvent.setResult();
+                    }
+                }
+            } catch (DBSetupException | SQLException ex) {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
 
         });
         // ------------------------------- Subscriber Payment Module ----------------------------//
         router.route("/getalltransactions*").handler(BodyHandler.create());
         router.post("/getalltransactions").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String userId = routingContext.request().getParam("user_id");
+            String offset = routingContext.request().getParam("offset");
+            String limit = routingContext.request().getParam("limit");
+
+            try {
+                TransactionManager transactionManager = new TransactionManager();
+                List<TransactionInfo> transactionList = transactionManager.getAllTransactions();
+                int responseCode = transactionManager.getResponseCode();
+                resultEvent.setResponseCode(responseCode);
+                if (responseCode == ResponseCodes.SUCCESS) {
+                    resultEvent.setResult(transactionList);
+                }
+            } catch (Exception ex) {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
 
         });
+        router.route("/gettransctionInfo*").handler(BodyHandler.create());
+        router.post("/gettransctionInfo").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String transctionId = routingContext.request().getParam("transction_id");
+            try {
+                TransactionManager transactionManager = new TransactionManager();
+                TransactionInfo transactionInfo = transactionManager.getTransactionInfo(transctionId);
+                int responseCode = transactionManager.getResponseCode();
+                resultEvent.setResponseCode(responseCode);
+                if (responseCode == ResponseCodes.SUCCESS) {
+                    resultEvent.setResult(transactionInfo);
+                }
+            } catch (Exception ex) {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
+
+        });
+        router.route("/createtransction*").handler(BodyHandler.create());
+        router.post("/createtransction").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String transctionInfo = routingContext.request().getParam("transction_info");
+            TransactionInfo transactionInfo = TransactionInfo.getTransctionInfo(transctionInfo);
+            try {
+                TransactionManager transactionManager = new TransactionManager();
+                transactionManager.addTransaction(transactionInfo);
+                int responseCode = transactionManager.getResponseCode();
+                resultEvent.setResponseCode(responseCode);
+            } catch (Exception ex) {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
+
+        });
+        router.route("/updatetransctionInfo*").handler(BodyHandler.create());
+        router.post("/updatetransctionInfo").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String transctionInfo = routingContext.request().getParam("transction_info");
+            TransactionInfo transactionInfo = TransactionInfo.getTransctionInfo(transctionInfo);
+            try {
+                TransactionManager transactionManager = new TransactionManager();
+                transactionManager.updateTransaction(transactionInfo);
+                int responseCode = transactionManager.getResponseCode();
+                resultEvent.setResponseCode(responseCode);
+            } catch (Exception ex) {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
+
+        });
+
+        router.route("/deletetransctionInfo*").handler(BodyHandler.create());
+        router.post("/deletetransctionInfo").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String transctionId = routingContext.request().getParam("transction_id");
+            try {
+                TransactionManager transactionManager = new TransactionManager();
+                transactionManager.deleteTransaction(transctionId);
+                int responseCode = transactionManager.getResponseCode();
+                resultEvent.setResponseCode(responseCode);
+            } catch (Exception ex) {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
+
+        });
+
         server.requestHandler(router::accept).listen(2020);
     }
 }

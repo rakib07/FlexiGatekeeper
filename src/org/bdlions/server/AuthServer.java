@@ -71,9 +71,9 @@ public class AuthServer extends AbstractVerticle {
                         UserInfo userInfo = new UserInfo();
                         userInfo.setReferenceUserName(userName);
                         userInfo.setMaxMembers(Integer.parseInt(maxMembers));
-                        userInfo.setRegistrationDate(1449141369);
+                        userInfo.setRegistrationDate("1449141369");
                         //right now we are setting a default expired time
-                        userInfo.setExpiredDate(2140000000);
+                        userInfo.setExpiredDate("2140000000");
                         //right now are not restricting/validating ip address
                         userInfo.setIpAddress("192.168.1.30");
 

@@ -9,21 +9,22 @@ import org.slf4j.LoggerFactory;
  * @author nazmul hasan
  */
 public class UserInfo {
+
     private String userId;
     private String subscriberId;
     private String referenceUserName;
     private String subscriberReferenceUserName;
-    private int createdOn;
-    private int modifiedOn;
-    private int registrationDate;
-    private int expiredDate;
+    private String createdOn;
+    private String modifiedOn;
+    private String registrationDate;
+    private String expiredDate;
     private int maxMembers;
     private int currentMemers;
     private String ipAddress;
     private final Logger logger = LoggerFactory.getLogger(UserInfo.class);
-    public UserInfo()
-    {
-    
+
+    public UserInfo() {
+
     }
 
     public String getUserId() {
@@ -58,37 +59,38 @@ public class UserInfo {
         this.subscriberReferenceUserName = subscriberReferenceUserName;
     }
 
-    public int getCreatedOn() {
+    public String getCreatedOn() {
         return createdOn;
     }
 
-    public void setCreatedOn(int createdOn) {
+    public void setCreatedOn(String createdOn) {
         this.createdOn = createdOn;
     }
 
-    public int getModifiedOn() {
+    public String getModifiedOn() {
         return modifiedOn;
     }
 
-    public void setModifiedOn(int modifiedOn) {
+    public void setModifiedOn(String modifiedOn) {
         this.modifiedOn = modifiedOn;
     }
 
-    public int getRegistrationDate() {
+    public String getRegistrationDate() {
         return registrationDate;
     }
 
-    public void setRegistrationDate(int registrationDate) {
+    public void setRegistrationDate(String registrationDate) {
         this.registrationDate = registrationDate;
     }
 
-    public int getExpiredDate() {
+    public String getExpiredDate() {
         return expiredDate;
     }
 
-    public void setExpiredDate(int expiredDate) {
+    public void setExpiredDate(String expiredDate) {
         this.expiredDate = expiredDate;
     }
+
 
     public int getMaxMembers() {
         return maxMembers;
@@ -113,6 +115,7 @@ public class UserInfo {
     public void setCurrentMemers(int currentMemers) {
         this.currentMemers = currentMemers;
     }
+
     @Override
     public String toString() {
         ObjectMapper mapper = new ObjectMapper();
@@ -123,5 +126,16 @@ public class UserInfo {
             logger.error(ex.getMessage());
         }
         return json;
+    }
+
+    public static UserInfo getServiceInfo(String jsonContent) {
+        UserInfo serviceInfo = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            serviceInfo = mapper.readValue(jsonContent, UserInfo.class);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return serviceInfo;
     }
 }

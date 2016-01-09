@@ -68,24 +68,6 @@ public class Service {
     }
 
     /**
-     * This method will add service
-     *
-     * @param serviceInfo, service info
-     * @throws DBSetupException
-     * @throws SQLException
-     */
-    public int createService(ServiceInfo serviceInfo) throws DBSetupException, SQLException {
-        int serviceId = Utils.getServiceId();
-        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_SERVICE)) {
-            stmt.setInt(QueryField.ID, serviceId);
-            stmt.setString(QueryField.SERVICE_TITLE, serviceInfo.getTitle());
-            stmt.executeUpdate();
-        }
-        return serviceId;
-
-    }
-
-    /**
      * This method will return all service
      *
      */
@@ -116,6 +98,11 @@ public class Service {
         return serviceInfoList;
     }
 
+    /**
+     * This method will return a serviceInfo
+     *
+     *  * @param serviceId, service id
+     */
     public ServiceInfo getServiceInfo(int service_id) throws DBSetupException, SQLException {
         ServiceInfo serviceInfo = new ServiceInfo();
         try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_SERVICE_INFO);) {
@@ -128,6 +115,24 @@ public class Service {
             }
         }
         return serviceInfo;
+    }
+
+    /**
+     * This method will add service
+     *
+     * @param serviceInfo, service info
+     * @throws DBSetupException
+     * @throws SQLException
+     */
+    public int createService(ServiceInfo serviceInfo) throws DBSetupException, SQLException {
+        int serviceId = Utils.getServiceId();
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_SERVICE)) {
+            stmt.setInt(QueryField.ID, serviceId);
+            stmt.setString(QueryField.SERVICE_TITLE, serviceInfo.getTitle());
+            stmt.executeUpdate();
+        }
+        return serviceId;
+
     }
 
     /**

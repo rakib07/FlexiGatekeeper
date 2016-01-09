@@ -1,7 +1,13 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package org.bdlions.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.List;
 import org.bdlions.bean.ServiceInfo;
 import org.bdlions.bean.UserInfo;
@@ -9,19 +15,22 @@ import org.bdlions.constants.ResponseCodes;
 import org.bdlions.db.query.helper.EasyStatement;
 import org.bdlions.db.repositories.Service;
 import org.bdlions.db.repositories.Subscriber;
+import org.bdlions.db.repositories.User;
 import org.bdlions.exceptions.DBSetupException;
+import org.bdlions.utility.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
- * @author nazmul hasan
+ * @author Sampan IT
  */
-public class ServiceManager {
+public class SubscriberManager {
 
     private int responseCode;
-    private int serviceId;
-    private Service service;
+    private String subscriberId;
+    private Subscriber subscriber;
+    private User user;
     private final Logger logger = LoggerFactory.getLogger(EasyStatement.class);
 
     public int getResponseCode() {
@@ -32,21 +41,21 @@ public class ServiceManager {
         this.responseCode = responseCode;
     }
 
-    public int getServiceId() {
-        return this.serviceId;
+    public void setSubscriberId(String subscriberId) {
+        this.subscriberId = subscriberId;
     }
 
     /**
-     * This method will return all services
+     * This method will return all subscribers
      *
      */
-    public List<ServiceInfo> getAllServices() {
-        List<ServiceInfo> serviceList = null;
+    public List<UserInfo> getAllSubscribers() {
+        List<UserInfo> subscriberList = null;
         Connection connection = null;
         try {
             connection = Database.getInstance().getConnection();
-            service = new Service(connection);
-            serviceList = service.getAllServices();
+            subscriber = new Subscriber(connection);
+            subscriberList = subscriber.geAllSubscribers();
             connection.close();
             this.responseCode = ResponseCodes.SUCCESS;
         } catch (SQLException ex) {
@@ -63,23 +72,24 @@ public class ServiceManager {
             this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
             logger.error(ex.getMessage());
         }
-        return serviceList;
+        return subscriberList;
     }
 
     /**
-     * This method will return a service info
+     * This method will return subscriber info
      *
-     * @param Service_id, service id
+     * @param userId, subscriber user Id
+     *
      */
-    public ServiceInfo getServiceInfo(int service_id) {
+    public UserInfo getSubscriberInfo(String userId) {
+        UserInfo subscriberInfo = null;
         Connection connection = null;
-        ServiceInfo serviceInfo = null;
         try {
             connection = Database.getInstance().getConnection();
-            service = new Service(connection);
-            serviceInfo = service.getServiceInfo(service_id);
-            this.responseCode = ResponseCodes.SUCCESS;
+            subscriber = new Subscriber(connection);
+            subscriberInfo = subscriber.getSubscriberInfo(userId);
             connection.close();
+            this.responseCode = ResponseCodes.SUCCESS;
         } catch (SQLException ex) {
             this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
             logger.error(ex.getMessage());
@@ -94,23 +104,26 @@ public class ServiceManager {
             this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
             logger.error(ex.getMessage());
         }
-        return serviceInfo;
-
+        return subscriberInfo;
     }
 
     /**
-     * This method will add a service
+     * This method will create subscriber
      *
-     * @param ServiceInfo, service info
+     * @param userInfo, subscriber Info
+     *
      */
-    public void createService(ServiceInfo serviceInfo) {
+    public void createSubscriber(UserInfo userInfo) throws ParseException {
         Connection connection = null;
         try {
             connection = Database.getInstance().getConnection();
-            service = new Service(connection);
-            this.serviceId = service.createService(serviceInfo);
-            this.responseCode = ResponseCodes.SUCCESS;
+            subscriber = new Subscriber(connection);
+            user = new User(connection);
+            String userId = user.createUser(userInfo);
+            userInfo.setUserId(userId);
+            subscriber.createSubscriber(userInfo);
             connection.close();
+            this.responseCode = ResponseCodes.SUCCESS;
         } catch (SQLException ex) {
             try {
                 if (connection != null) {
@@ -127,18 +140,19 @@ public class ServiceManager {
     }
 
     /**
-     * This method will update a service
+     * This method will update subscriber
      *
-     * @param ServiceInfo, service info
+     * @param userInfo, subscriber Info
+     *
      */
-    public void updateServiceInfo(ServiceInfo serviceInfo) {
+    public String updateSubscriber(UserInfo userInfo) throws ParseException {
         Connection connection = null;
         try {
             connection = Database.getInstance().getConnection();
-            service = new Service(connection);
-            service.updateServiceInfo(serviceInfo);
-            this.responseCode = ResponseCodes.SUCCESS;
+            subscriber = new Subscriber(connection);
+            subscriber.updateSubscriber(userInfo);
             connection.close();
+            this.responseCode = ResponseCodes.SUCCESS;
         } catch (SQLException ex) {
             try {
                 if (connection != null) {
@@ -152,7 +166,9 @@ public class ServiceManager {
             this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
             logger.error(ex.getMessage());
         }
-
+        return "";
     }
+
+
 
 }

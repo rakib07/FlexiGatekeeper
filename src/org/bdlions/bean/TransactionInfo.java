@@ -21,8 +21,8 @@ public class TransactionInfo {
     private int transactionStatusId;
     private String cellNumber;
     private String description;
-    private int createdOn;
-    private int modifiedOn;
+    private String createdOn;
+    private String modifiedOn;
     public TransactionInfo()
     {
         balanceIn = 0;
@@ -103,21 +103,23 @@ public class TransactionInfo {
         this.description = description;
     }
 
-    public int getCreatedOn() {
+    public String getCreatedOn() {
         return createdOn;
     }
 
-    public void setCreatedOn(int createdOn) {
+    public void setCreatedOn(String createdOn) {
         this.createdOn = createdOn;
     }
 
-    public int getModifiedOn() {
+    public String getModifiedOn() {
         return modifiedOn;
     }
 
-    public void setModifiedOn(int modifiedOn) {
+    public void setModifiedOn(String modifiedOn) {
         this.modifiedOn = modifiedOn;
     }
+
+
     @Override
     public String toString() {
         ObjectMapper mapper = new ObjectMapper();
@@ -128,5 +130,16 @@ public class TransactionInfo {
             ex.printStackTrace();
         }
         return json;
+    }
+    
+     public static TransactionInfo getTransctionInfo(String jsonContent) {
+        TransactionInfo transctionInfo = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            transctionInfo = mapper.readValue(jsonContent, TransactionInfo.class);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return transctionInfo;
     }
 }

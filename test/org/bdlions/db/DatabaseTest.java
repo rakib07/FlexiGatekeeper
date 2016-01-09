@@ -6,6 +6,7 @@
 package org.bdlions.db;
 
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import org.bdlions.bean.TransactionInfo;
@@ -61,12 +62,12 @@ public class DatabaseTest {
     
    
     //@Test
-    public void createSubscriberLibrary() throws DBSetupException, SQLException{
+    public void createSubscriberLibrary() throws DBSetupException, SQLException, ParseException{
         UserInfo userInfo = new UserInfo();
         userInfo.setReferenceUserName("ru40");
         userInfo.setMaxMembers(3);
-        userInfo.setRegistrationDate(12345);
-        userInfo.setExpiredDate(123456789);
+        userInfo.setRegistrationDate("12345");
+        userInfo.setExpiredDate("123456789");
         userInfo.setIpAddress("192.168.1.40");
         
         UserServiceInfo userServiceInfo = new UserServiceInfo();

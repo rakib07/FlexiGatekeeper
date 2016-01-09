@@ -2,6 +2,7 @@ package org.bdlions.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.List;
 import org.bdlions.bean.SessionInfo;
 import org.bdlions.bean.UserInfo;
@@ -19,6 +20,7 @@ import org.bdlions.exceptions.ServiceExpireException;
 import org.bdlions.exceptions.SubscriptionExpireException;
 import org.bdlions.exceptions.UnRegisterIPException;
 import org.bdlions.sessions.SessionManager;
+import org.bdlions.utility.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,29 +45,29 @@ public class AuthManager {
     public void setResponseCode(int responseCode) {
         this.responseCode = responseCode;
     }
-    
+
     /**
      * This method will create a new subscriber
      *
      * @param userInfo, user info
      * @param userServiceInfoList, user service info list
      */
-    public void createSubscriber(UserInfo userInfo, List<UserServiceInfo> userServiceInfoList) {
+    public void createSubscriber(UserInfo userInfo, List<UserServiceInfo> userServiceInfoList) throws ParseException {
         //validate the userInfo where required fields are
         //referenceUserName, referenceUserPassword, registrationDate, expiredDate, maxMembers, ipAddress
         Connection connection = null;
         try {
             connection = Database.getInstance().getConnection();
             connection.setAutoCommit(false);
-            
+
             user = new User(connection);
             subscriber = new Subscriber(connection);
             service = new Service(connection);
-            
+
             String userId = user.createUser(userInfo);
             userInfo.setUserId(userId);
             subscriber.createSubscriber(userInfo);
-            
+
             for (UserServiceInfo userServiceInfo : userServiceInfoList) {
                 //validate the userServiceInfo where required fields are
                 //serviceId, registrationDate, expiredDate
@@ -79,21 +81,20 @@ public class AuthManager {
             this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
             logger.error(ex.getMessage());
             try {
-                if(connection != null){
+                if (connection != null) {
                     connection.rollback();
                     connection.close();
                 }
             } catch (SQLException ex1) {
                 logger.error(ex1.getMessage());
-            }            
+            }
         } catch (DBSetupException ex) {
             this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
             logger.error(ex.getMessage());
         }
     }
-    
-    public UserInfo getSubscriberInfo(UserInfo userInfo)
-    {
+
+    public UserInfo getSubscriberInfo(UserInfo userInfo) {
         Connection connection = null;
         try {
             connection = Database.getInstance().getConnection();
@@ -104,11 +105,10 @@ public class AuthManager {
         } catch (SQLException ex) {
             this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
             logger.error(ex.getMessage());
-            if(connection != null){
-                try{
+            if (connection != null) {
+                try {
                     connection.close();
-                }
-                catch(SQLException ex1){
+                } catch (SQLException ex1) {
                     logger.error(ex1.getMessage());
                 }
             }
@@ -133,23 +133,25 @@ public class AuthManager {
         //referenceUserName, referenceUserPassword, ipaddress,
 
         //now a dummy time is used
-        int currentTime = 1;
+//        int currentTime = 1;
+        String currentDate = DateUtils.getCurrentDate();
         Connection connection = null;
         //check where there maximum members under a subscriber is not exceeded
         try {
             connection = Database.getInstance().getConnection();
             connection.setAutoCommit(false);
-            
+
             user = new User(connection);
             subscriber = new Subscriber(connection);
-            
+
             UserInfo subscriberInfo = subscriber.getSubscriberInfo(userInfo);
             if (subscriberInfo.getUserId() == null) {
                 //request from invalid ip address
                 logger.error("request from invalid ip address.");
                 throw new UnRegisterIPException();
             }
-            if (subscriberInfo.getExpiredDate() < currentTime) {
+            String expDate = subscriberInfo.getExpiredDate();
+            if (subscriberInfo.getExpiredDate().compareTo(currentDate) < 0) {
                 //subscription is expired
                 logger.error("Subscription expired.");
                 throw new SubscriptionExpireException();
@@ -162,19 +164,18 @@ public class AuthManager {
             userInfo.setSubscriberId(subscriberInfo.getUserId());
             String userId = user.createUser(userInfo);
             userInfo.setUserId(userId);
-            
+
             connection.commit();
             connection.close();
             this.responseCode = ResponseCodes.SUCCESS;
         } catch (SQLException ex) {
             this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
             logger.error(ex.getMessage());
-            if(connection != null){
-                try{
+            if (connection != null) {
+                try {
                     connection.rollback();
                     connection.close();
-                }
-                catch(SQLException ex1){
+                } catch (SQLException ex1) {
                     logger.error(ex1.getMessage());
                 }
             }
@@ -183,51 +184,47 @@ public class AuthManager {
             logger.error(ex.getMessage());
         }
     }
-    
+
     /**
      * This method will return session info
+     *
      * @param userInfo, user info
      * @param APIKey, api key
      * @throws SubscriptionExpireException
      * @throws ServiceExpireException
      * @return String, session info
      */
-    public String getSessionInfo(UserInfo userInfo, String APIKey) throws SubscriptionExpireException, ServiceExpireException
-    {
+    public String getSessionInfo(UserInfo userInfo, String APIKey) throws SubscriptionExpireException, ServiceExpireException {
         Connection connection = null;
         SessionInfo sessionInfo = new SessionInfo();
         try {
             connection = Database.getInstance().getConnection();
-            session = new Session(connection); 
+            session = new Session(connection);
             transaction = new Transaction(connection);
             double availableBalance = transaction.getAvailableBalance(APIKey);
-            if(availableBalance <= 0)
-            {
+            if (availableBalance <= 0) {
                 //insufficient balance
                 return sessionInfo.toString();
             }
             sessionInfo = session.getSessionInfo(userInfo, APIKey);
-            
-            
+
             //put session info into the hashmap at service api server
-            
             connection.close();
         } catch (SQLException ex) {
             try {
-                if(connection != null){
+                if (connection != null) {
                     connection.close();
                 }
             } catch (SQLException ex1) {
                 logger.error(ex1.getMessage());
             }
         } catch (DBSetupException ex) {
-            
+
         }
         return sessionInfo.toString();
     }
-    
-    public static void main(String args[])
-    {
+
+    public static void main(String args[]) {
         System.out.println((int) (System.currentTimeMillis() / 1000L));
     }
 }
