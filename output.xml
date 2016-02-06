@@ -11,7 +11,7 @@
     <!-- Variables used for JUnit testin -->
     <property name="test.report.dir" location="report" />
     <!-- Define the classpath which includes the junit.jar and the classes after compiling-->
-    <path id="junit.class.path">
+    <path id="lib.class.path">
         <fileset dir="lib">
             <include name="**/*.jar" />
         </fileset>
@@ -32,12 +32,13 @@
     <!-- Compiles the java code (including the usage of library for JUnit -->
     <target name="compile" depends="clean, makedir">
         <javac srcdir="${src.dir}" destdir="${build.dir}">
-            <classpath refid="junit.class.path" />
+            <classpath refid="lib.class.path" />
         </javac>
         <copy todir="${build.dir}">
             <fileset dir="${src.dir}" includes="**/*.properties">
                 <exclude name="database.properties"/>
                 <exclude name="log4j.properties"/>
+				<exclude name="server.properties"/>
             </fileset>
         </copy>
         <copy todir="${dist.dir}">
@@ -53,10 +54,12 @@
             </manifest>
         </jar>
         <jar destfile="${dist.dir}/library.jar" filesetmanifest="mergewithoutmain">
-            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/jackson-annotations-2.6.0.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/activemq-all-5.12.0.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="${lib.dir}/jackson-annotations-2.6.0.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/jackson-core-2.6.1.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/jackson-databind-2.6.1.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/javassist.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="${lib.dir}/junit-4.10.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/log4j-1.2.17.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/mysql-connector-java-5.1.34-bin.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/netty-buffer-4.0.31.Final.jar"/>
@@ -76,7 +79,7 @@
     <!-- Output is XML, could also be plain-->
     <target name="junit" depends="compile">
         <junit printsummary="on" fork="true" haltonfailure="yes">
-            <classpath refid="junit.class.path" />
+            <classpath refid="lib.class.path" />
             <classpath>
                 <pathelement location="${build.dir}" />
             </classpath>
@@ -92,7 +95,7 @@
             </batchtest>
         </junit>
     </target>
-    <target name="main" depends="compile, junit">
+    <target name="main" depends="compile">
         <description>Main target</description>
     </target>
 </project>

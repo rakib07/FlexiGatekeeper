@@ -6,6 +6,7 @@
 package org.bdlions.server;
 
 import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
 
 /**
  *
@@ -13,6 +14,10 @@ import io.vertx.core.Vertx;
  */
 public class ServerExecutor {
     public static void main(String[] args){
+        //run Sample java web server
+        VertxOptions options = new VertxOptions(); 
+        //server execution time
+        options.setMaxEventLoopExecuteTime(Long.MAX_VALUE);
         
         //run Authentication server
         Vertx authVerticle = Vertx.vertx();

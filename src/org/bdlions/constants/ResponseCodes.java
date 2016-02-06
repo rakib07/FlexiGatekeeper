@@ -19,4 +19,5 @@ public class ResponseCodes {
     public static final int ERROR_CODE_DB_SQL_EXCEPTION = 5005;
     public static final int ERROR_CODE_DB_SETUP_EXCEPTION = 5006;
     public static final int ERROR_CODE_SERVER_EXCEPTION = 5007;
+    public static final int ERROR_CODE_UPDATE_TRANSACTION_STATUS_FAILED = 5008;
 }

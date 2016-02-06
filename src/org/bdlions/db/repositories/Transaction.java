@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.bdlions.bean.TransactionInfo;
+import org.bdlions.bean.UserServiceInfo;
 import org.bdlions.db.query.QueryField;
 import org.bdlions.db.query.QueryManager;
 import org.bdlions.db.query.helper.EasyStatement;
@@ -27,6 +28,27 @@ public class Transaction {
     private Transaction(){}
     public Transaction(Connection connection) {
         this.connection = connection;
+    }
+    
+    /**
+     * This method will return user service info based on API Key
+     * @param APIKey, API Key
+     * @return UserServiceInfo, user service info
+     * @throws DBSetupException
+     * @throws SQLException
+     */
+    public UserServiceInfo getUserServiceInfo(String APIKey) throws DBSetupException, SQLException
+    {
+        UserServiceInfo userServiceInfo = new UserServiceInfo();
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_USER_SERVICE_INFO);){
+            stmt.setString(QueryField.API_KEY, APIKey);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                userServiceInfo.setServiceId(rs.getInt(QueryField.SERVICE_ID));
+                //if required set other fields
+            }
+        }
+        return userServiceInfo;
     }
     
     /**
@@ -54,6 +76,21 @@ public class Transaction {
             stmt.executeUpdate();
         }
         return transactionId;
+    }
+    
+    /**
+     * This method will update transaction status
+     * @param transactionInfo, transaction info
+     * @throws DBSetupException
+     * @throws SQLException
+     */
+    public void updateTransactionStatus(TransactionInfo transactionInfo) throws DBSetupException, SQLException
+    {
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.UPDATE_TRANSACTION_STATUS);){
+            stmt.setInt(QueryField.TRANSACTION_STATUS_ID, transactionInfo.getTransactionStatusId());
+            stmt.setString(QueryField.TRANSACTION_ID, transactionInfo.getTransactionId());
+            stmt.executeUpdate();        
+        }
     }
     
     /**

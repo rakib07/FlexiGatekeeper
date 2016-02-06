@@ -78,7 +78,7 @@ public class AuthServer extends AbstractVerticle {
                         userInfo.setIpAddress("192.168.1.30");
 
                         UserServiceInfo userServiceInfo = new UserServiceInfo();
-                        userServiceInfo.setServiceId(Services.SERVICE_TYPE_ID_BKASH_SEND_MONEY);
+                        userServiceInfo.setServiceId(Services.SERVICE_TYPE_ID_BKASH_CASHIN);
                         userServiceInfo.setAPIKey(APIKey);
                         userServiceInfo.setRegistrationDate(1449141369);
                         userServiceInfo.setExpiredDate(2140000000); 

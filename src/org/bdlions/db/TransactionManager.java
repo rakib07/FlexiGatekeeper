@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import org.bdlions.activemq.Producer;
 import org.bdlions.bean.TransactionInfo;
+import org.bdlions.bean.UserServiceInfo;
 import org.bdlions.constants.ResponseCodes;
 import org.bdlions.constants.Transactions;
 import org.bdlions.db.repositories.Transaction;
@@ -81,15 +82,73 @@ public class TransactionManager {
         Connection connection = null;
         try {
             connection = Database.getInstance().getConnection();
+            connection.setAutoCommit(false);
             transaction = new Transaction(connection);
             
             //check available balance of the user if required
             
             transactionInfo.setTransactionStatusId(Transactions.TRANSACTION_STATUS_PENDING);
             transactionInfo.setTransactionTypeId(Transactions.TRANSACTION_TYPE_USE_SERVICE);
-            this.transactionId = transaction.createTransaction(transactionInfo);            
+            this.transactionId = transaction.createTransaction(transactionInfo);  
+            transactionInfo.setTransactionId(this.transactionId);
+            UserServiceInfo userServiceInfo = transaction.getUserServiceInfo(transactionInfo.getAPIKey());
+            transactionInfo.setServiceId(userServiceInfo.getServiceId());
+            
+            //activemq to enqueue a new transaction
+            Producer producer = new Producer();
+            System.out.println(transactionInfo.toString());
+            producer.setMessage(transactionInfo.toString());
+            producer.produce();
+            this.responseCode = ResponseCodes.SUCCESS;
+            
+            connection.commit();
             connection.close();
         } catch (SQLException ex) {
+            try {
+                if(connection != null){
+                    connection.rollback();
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
+        } catch (DBSetupException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
+            logger.error(ex.getMessage());
+        }
+        catch (Exception ex) {            
+            try {
+                if(connection != null){
+                    connection.rollback();
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }
+            this.responseCode = ResponseCodes.ERROR_CODE_SERVER_EXCEPTION;
+            logger.error(ex.getMessage());
+        }        
+    }
+    
+    /**
+     * This method will update transaction status
+     * @param transactionInfo, transaction info
+     */
+    public void updateTransactionStatus(TransactionInfo transactionInfo)
+    {
+        Connection connection = null;
+        try {
+            connection = Database.getInstance().getConnection();
+            transaction = new Transaction(connection);
+            
+            transaction.updateTransactionStatus(transactionInfo);            
+            this.responseCode = ResponseCodes.SUCCESS;
+            connection.close();
+        } catch (SQLException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
             try {
                 if(connection != null){
                     connection.close();
@@ -97,23 +156,8 @@ public class TransactionManager {
             } catch (SQLException ex1) {
                 logger.error(ex1.getMessage());
             }
-            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
         } catch (DBSetupException ex) {
             this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
-            logger.error(ex.getMessage());
-        }
-        
-        //activemq to enqueue a new transaction
-        try
-        {
-            Producer producer = new Producer();
-            producer.setMessage(transactionInfo.toString());
-            producer.produce();
-            this.responseCode = ResponseCodes.SUCCESS;
-        }
-        catch(Exception ex)
-        {
-            this.responseCode = ResponseCodes.ERROR_CODE_SERVER_EXCEPTION;
             logger.error(ex.getMessage());
         }
     }

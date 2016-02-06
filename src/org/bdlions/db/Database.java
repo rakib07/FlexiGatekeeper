@@ -129,7 +129,7 @@ public class Database {
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.callback_functions"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.transaction_statuses"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.transaction_types"));
-            statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.transactions"));
+            //statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.transactions"));
         }
     }
     

@@ -75,6 +75,34 @@ public class ServiceAPIServer extends AbstractVerticle {
             HttpServerResponse response = routingContext.response();
             response.end(resultEvent.toString());
         });
+        
+        router.route("/updatetransactionstatus*").handler(BodyHandler.create());
+        router.post("/updatetransactionstatus").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String transactionId = routingContext.request().getParam("transactionid");
+            String statusId = routingContext.request().getParam("statusid");
+            
+            try
+            {
+                TransactionInfo transactionInfo = new TransactionInfo();
+                transactionInfo.setTransactionId(transactionId);
+                transactionInfo.setTransactionStatusId(Integer.parseInt(statusId));
+                
+                TransactionManager transactionManager = new TransactionManager();
+                transactionManager.updateTransactionStatus(transactionInfo);
+                
+                int responseCode = transactionManager.getResponseCode();
+                resultEvent.setResponseCode(responseCode);                
+            }
+            catch(Exception ex)
+            {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_UPDATE_TRANSACTION_STATUS_FAILED);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
+            
+        });
 
         server.requestHandler(router::accept).listen(3030);
     }

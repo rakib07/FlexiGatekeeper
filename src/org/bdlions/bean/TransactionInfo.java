@@ -18,6 +18,7 @@ public class TransactionInfo {
     private double balanceIn;
     private double balanceOut;
     private int transactionTypeId;
+    private int serviceId;
     private int transactionStatusId;
     private String cellNumber;
     private String description;
@@ -118,6 +119,15 @@ public class TransactionInfo {
     public void setModifiedOn(int modifiedOn) {
         this.modifiedOn = modifiedOn;
     }
+
+    public int getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(int serviceId) {
+        this.serviceId = serviceId;
+    }
+    
     @Override
     public String toString() {
         ObjectMapper mapper = new ObjectMapper();
