@@ -2,10 +2,12 @@ package org.bdlions.activemq;
 
 import javax.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.bdlions.constants.Services;
 import org.bdlions.utility.ServerPropertyProvider;
 
 public class Producer {
     private String message = null;
+    private String serviceQueueName = "";
 
     public String getMessage() {
         return message;
@@ -13,6 +15,51 @@ public class Producer {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+    
+    public void setServiceQueueName(int serviceId)
+    {
+        if(serviceId == Services.SERVICE_TYPE_ID_BKASH_CASHIN)
+        {
+            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_BKASHCASHIN");
+        }
+        if(serviceId == Services.SERVICE_TYPE_ID_DBBL_CASHIN)
+        {
+            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_DBBLCASHIN");
+        }
+        if(serviceId == Services.SERVICE_TYPE_ID_MCASH_CASHIN)
+        {
+            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_MCASHCASHIN");
+        }
+        if(serviceId == Services.SERVICE_TYPE_ID_UCASH_CASHIN)
+        {
+            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_UKASHCASHIN");
+        }
+        if(serviceId == Services.SERVICE_TYPE_ID_TOPUP_GP)
+        {
+            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_TOPUPGP");
+        }
+        if(serviceId == Services.SERVICE_TYPE_ID_TOPUP_ROBI)
+        {
+            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_TOPUPROBI");
+        }
+        if(serviceId == Services.SERVICE_TYPE_ID_TOPUP_BANGLALINK)
+        {
+            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_TOPUPBANGLALINK");
+        }
+        if(serviceId == Services.SERVICE_TYPE_ID_TOPUP_AIRTEL)
+        {
+            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_TOPUPAIRTEL");
+        }
+        if(serviceId == Services.SERVICE_TYPE_ID_TOPUP_TELETALK)
+        {
+            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_TOPUPTELETALK");
+        }
+    }
+    
+    public String getServiceQueueName()
+    {
+        return this.serviceQueueName;
     }
     
     public void produce() throws Exception
@@ -35,7 +82,7 @@ public class Producer {
         // Create a reference to the queue test_queue in this session. Note
         //  that ActiveMQ has auto-creation enabled by default, so this JMS
         //  destination will be created on the broker automatically
-        Queue queue = session.createQueue(ServerPropertyProvider.get("activemq_queue_name"));
+        Queue queue = session.createQueue(this.getServiceQueueName());
 
         // Create a producer for test_queue
         MessageProducer producer = session.createProducer(queue);

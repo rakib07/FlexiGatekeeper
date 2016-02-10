@@ -98,6 +98,7 @@ public class TransactionManager {
             Producer producer = new Producer();
             System.out.println(transactionInfo.toString());
             producer.setMessage(transactionInfo.toString());
+            producer.setServiceQueueName(transactionInfo.getServiceId());
             producer.produce();
             this.responseCode = ResponseCodes.SUCCESS;
             

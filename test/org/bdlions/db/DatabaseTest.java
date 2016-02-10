@@ -54,7 +54,7 @@ public class DatabaseTest {
     // @Test
     // public void hello() {}
     
-    //@Test
+    @Test
     public void setUpDatabase() throws DBSetupException, SQLException{
         Database.getInstance();
     }
@@ -122,7 +122,7 @@ public class DatabaseTest {
         transactionManager.addTransaction(transactionInfo);
     }
     
-    @Test
+    //@Test
     public void addUserTransaction()
     {
         TransactionInfo transactionInfo = new TransactionInfo();
