@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import org.bdlions.activemq.Producer;
 import org.bdlions.bean.TransactionInfo;
 import org.bdlions.bean.UserServiceInfo;
+import org.bdlions.callback.CallbackTransactionManager;
 import org.bdlions.constants.ResponseCodes;
 import org.bdlions.constants.Transactions;
 import org.bdlions.db.repositories.Transaction;
@@ -144,7 +145,9 @@ public class TransactionManager {
             connection = Database.getInstance().getConnection();
             transaction = new Transaction(connection);
             
-            transaction.updateTransactionStatus(transactionInfo);            
+            transaction.updateTransactionStatus(transactionInfo); 
+            CallbackTransactionManager callbackTransactionManager = new CallbackTransactionManager();
+            callbackTransactionManager.updateTransactionStatus(transactionInfo.getTransactionId(), transactionInfo.getTransactionStatusId(), transactionInfo.getSenderCellNumber());
             this.responseCode = ResponseCodes.SUCCESS;
             connection.close();
         } catch (SQLException ex) {

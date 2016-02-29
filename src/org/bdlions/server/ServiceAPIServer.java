@@ -11,6 +11,8 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import java.util.ArrayList;
+import java.util.List;
 import org.bdlions.bean.TransactionInfo;
 import org.bdlions.constants.ResponseCodes;
 import org.bdlions.db.TransactionManager;
@@ -76,17 +78,46 @@ public class ServiceAPIServer extends AbstractVerticle {
             response.end(resultEvent.toString());
         });
         
+        router.route("/addmultipletransactions*").handler(BodyHandler.create());
+        router.post("/addmultipletransactions").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            
+            List<TransactionInfo> transactionList = new ArrayList<>();
+            TransactionInfo transactonInfo1 = new TransactionInfo();
+            transactonInfo1.setId(1);
+            transactonInfo1.setTransactionId("trnx1");
+            
+            TransactionInfo transactonInfo2 = new TransactionInfo();
+            transactonInfo2.setId(2);
+            transactonInfo2.setTransactionId("trnx2");
+            
+            TransactionInfo transactonInfo3 = new TransactionInfo();
+            transactonInfo3.setId(3);
+            transactonInfo3.setTransactionId("trnx3");
+            
+            transactionList.add(transactonInfo1);
+            transactionList.add(transactonInfo2);
+            transactionList.add(transactonInfo3);
+            
+            resultEvent.setResult(transactionList);
+            resultEvent.setResponseCode(ResponseCodes.SUCCESS);
+            
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
+        });
+        
         router.route("/updatetransactionstatus*").handler(BodyHandler.create());
         router.post("/updatetransactionstatus").handler((RoutingContext routingContext) -> {
             ResultEvent resultEvent = new ResultEvent();
             String transactionId = routingContext.request().getParam("transactionid");
             String statusId = routingContext.request().getParam("statusid");
-            
+            String senderCellNumber = routingContext.request().getParam("sendercellnumber");
             try
             {
                 TransactionInfo transactionInfo = new TransactionInfo();
                 transactionInfo.setTransactionId(transactionId);
                 transactionInfo.setTransactionStatusId(Integer.parseInt(statusId));
+                transactionInfo.setSenderCellNumber(senderCellNumber);
                 
                 TransactionManager transactionManager = new TransactionManager();
                 transactionManager.updateTransactionStatus(transactionInfo);
@@ -103,7 +134,7 @@ public class ServiceAPIServer extends AbstractVerticle {
             response.end(resultEvent.toString());
             
         });
-
+        
         server.requestHandler(router::accept).listen(3030);
     }
 }

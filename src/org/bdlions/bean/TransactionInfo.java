@@ -20,6 +20,7 @@ public class TransactionInfo {
     private int transactionTypeId;
     private int serviceId;
     private int transactionStatusId;
+    private String senderCellNumber;
     private String cellNumber;
     private String description;
     private int createdOn;
@@ -88,6 +89,14 @@ public class TransactionInfo {
         this.transactionStatusId = transactionStatusId;
     }
 
+    public String getSenderCellNumber() {
+        return senderCellNumber;
+    }
+
+    public void setSenderCellNumber(String senderCellNumber) {
+        this.senderCellNumber = senderCellNumber;
+    }
+    
     public String getCellNumber() {
         return cellNumber;
     }
