@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.bdlions.utility.ServerPropertyProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,16 +21,17 @@ import org.slf4j.LoggerFactory;
  */
 public class CallbackTransactionManager {
     private static final String USER_AGENT = "Mozilla/5.0";
-    private static final String TRANSACTION_STATUS_UPDATE_URL = "http://app.sportzweb.com/rechargeserver/callbackws/update_transaction_status";
+    private static String TRANSACTION_STATUS_UPDATE_URL;
     private static final Logger logger = LoggerFactory.getLogger(CallbackTransactionManager.class.getName());
     public CallbackTransactionManager()
     {
-    
+        
     }
     
     public void updateTransactionStatus(String transactionId, int statusId, String senderCellNumber)
     {
         try {
+            this.TRANSACTION_STATUS_UPDATE_URL = ServerPropertyProvider.get("CALLBACK_URL");
             URL obj = new URL(TRANSACTION_STATUS_UPDATE_URL);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 

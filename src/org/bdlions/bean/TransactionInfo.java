@@ -6,6 +6,7 @@
 package org.bdlions.bean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.bdlions.constants.Services;
 
 /**
  *
@@ -19,6 +20,7 @@ public class TransactionInfo {
     private double balanceOut;
     private int transactionTypeId;
     private int serviceId;
+    private int packageId;
     private int transactionStatusId;
     private String senderCellNumber;
     private String cellNumber;
@@ -31,6 +33,7 @@ public class TransactionInfo {
         balanceOut = 0;
         cellNumber = "";
         description = "";
+        packageId = Services.PACKAGE_TYPE_ID_PREPAID;
     }
 
     public int getId() {
@@ -135,6 +138,14 @@ public class TransactionInfo {
 
     public void setServiceId(int serviceId) {
         this.serviceId = serviceId;
+    }
+
+    public int getPackageId() {
+        return packageId;
+    }
+
+    public void setPackageId(int packageId) {
+        this.packageId = packageId;
     }
     
     @Override

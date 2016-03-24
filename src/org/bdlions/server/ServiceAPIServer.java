@@ -5,9 +5,12 @@
  */
 package org.bdlions.server;
 
+import com.fasterxml.jackson.databind.JsonSerializer;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -39,6 +42,7 @@ public class ServiceAPIServer extends AbstractVerticle {
         //router.route("/addtransaction").handler((RoutingContext routingContext) -> {
         router.route("/addtransaction*").handler(BodyHandler.create());
         router.post("/addtransaction").handler((RoutingContext routingContext) -> {
+            HttpServerResponse response = routingContext.response();
             ResultEvent resultEvent = new ResultEvent();
             String userId = "";
             String sessionId = "";
@@ -47,6 +51,7 @@ public class ServiceAPIServer extends AbstractVerticle {
             String APIKey = routingContext.request().getParam("APIKey");
             String amount = routingContext.request().getParam("amount");
             String cellNumber = routingContext.request().getParam("cell_no");
+            String packageId = routingContext.request().getParam("package_id");
             String description = routingContext.request().getParam("description");
             
             TransactionInfo transactionInfo = new TransactionInfo();
@@ -55,26 +60,36 @@ public class ServiceAPIServer extends AbstractVerticle {
             transactionInfo.setDescription(description);
             try
             {
+                transactionInfo.setPackageId(Integer.parseInt(packageId));
+            }
+            catch(Exception ex)
+            {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_OPERATOR_PACKAGE_ID);
+                logger.error(ex.getMessage());
+                response.end(resultEvent.toString());
+                return;
+            }
+            try
+            {
                 transactionInfo.setBalanceOut(Double.parseDouble(amount));
-                
-                TransactionManager transactionManager = new TransactionManager();
-                transactionManager.addTransaction(transactionInfo);
-
-                int responseCode = transactionManager.getResponseCode();
-
-                resultEvent.setResponseCode(responseCode);
-                if(responseCode == ResponseCodes.SUCCESS)
-                {
-                    transactionInfo.setTransactionId(transactionManager.getTransactionId());
-                    resultEvent.setResult(transactionInfo);
-                }
             }
             catch(Exception ex)
             {
                 resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
                 logger.error(ex.getMessage());
+                response.end(resultEvent.toString());
+                return;
             }
-            HttpServerResponse response = routingContext.response();
+              
+            TransactionManager transactionManager = new TransactionManager();
+            transactionManager.addTransaction(transactionInfo);
+            int responseCode = transactionManager.getResponseCode();
+            resultEvent.setResponseCode(responseCode);
+            if(responseCode == ResponseCodes.SUCCESS)
+            {
+                transactionInfo.setTransactionId(transactionManager.getTransactionId());
+                resultEvent.setResult(transactionInfo);
+            }
             response.end(resultEvent.toString());
         });
         
@@ -131,6 +146,36 @@ public class ServiceAPIServer extends AbstractVerticle {
                 logger.error(ex.getMessage());
             }
             HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
+            
+        });
+        router.route("/sendsms*").handler(BodyHandler.create());
+        router.post("/sendsms").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String cellList = routingContext.request().getParam("cell_list");
+            String message = routingContext.request().getParam("message");
+            System.out.println(cellList);
+            JsonArray jsonArray = new JsonArray(cellList);
+            JsonArray ja = new JsonArray();
+            for(int counter = 0 ; counter < jsonArray.size(); counter++)
+            {
+                System.out.println(jsonArray.getValue(counter));
+                
+                JsonObject jsonObject = new JsonObject(jsonArray.getValue(counter).toString());
+                String id = jsonObject.getString("id");
+                String cellNo = jsonObject.getString("cell_no");
+                System.out.println(id);
+                System.out.println(cellNo);
+                
+                JsonObject jO = new JsonObject();
+                jO.put("id", id);
+                jO.put("cell_no", cellNo);
+                
+                ja.add(jO);
+            }
+            System.out.println(ja.toString());
+            HttpServerResponse response = routingContext.response();
+            resultEvent.setResult(ja.toString());
             response.end(resultEvent.toString());
             
         });
