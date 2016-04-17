@@ -16,6 +16,7 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import java.util.ArrayList;
 import java.util.List;
+import org.bdlions.bean.SMSTransactionInfo;
 import org.bdlions.bean.TransactionInfo;
 import org.bdlions.constants.ResponseCodes;
 import org.bdlions.db.TransactionManager;
@@ -149,35 +150,62 @@ public class ServiceAPIServer extends AbstractVerticle {
             response.end(resultEvent.toString());
             
         });
+        /**
+         * post method to send bulk sms
+         * @param cellnumberlist, cell number list
+         * @param sms, sms body
+         * @param APIKey, APIKey
+         * @param livetestflag, flag of transaction
+        */
         router.route("/sendsms*").handler(BodyHandler.create());
         router.post("/sendsms").handler((RoutingContext routingContext) -> {
-            ResultEvent resultEvent = new ResultEvent();
-            String cellList = routingContext.request().getParam("cell_list");
-            String message = routingContext.request().getParam("message");
-            System.out.println(cellList);
-            JsonArray jsonArray = new JsonArray(cellList);
-            JsonArray ja = new JsonArray();
-            for(int counter = 0 ; counter < jsonArray.size(); counter++)
-            {
-                System.out.println(jsonArray.getValue(counter));
-                
-                JsonObject jsonObject = new JsonObject(jsonArray.getValue(counter).toString());
-                String id = jsonObject.getString("id");
-                String cellNo = jsonObject.getString("cell_no");
-                System.out.println(id);
-                System.out.println(cellNo);
-                
-                JsonObject jO = new JsonObject();
-                jO.put("id", id);
-                jO.put("cell_no", cellNo);
-                
-                ja.add(jO);
-            }
-            System.out.println(ja.toString());
             HttpServerResponse response = routingContext.response();
-            resultEvent.setResult(ja.toString());
-            response.end(resultEvent.toString());
-            
+            ResultEvent resultEvent = new ResultEvent();
+            SMSTransactionInfo smsTransactionInfo = new SMSTransactionInfo();
+            String cellNumberList = routingContext.request().getParam("cellnumberlist");
+            String sms = routingContext.request().getParam("sms");
+            String APIKey = routingContext.request().getParam("APIKey");
+            String liveTestFlag = routingContext.request().getParam("livetestflag");
+            smsTransactionInfo.setLiveTestFlag(liveTestFlag);
+            smsTransactionInfo.setSms(sms);
+            smsTransactionInfo.setAPIKey(APIKey);
+            JsonArray cellNumberArray = new JsonArray(cellNumberList);
+            //JsonArray ja = new JsonArray();
+            for(int counter = 0 ; counter < cellNumberArray.size(); counter++)
+            {
+                JsonObject jsonObject = new JsonObject(cellNumberArray.getValue(counter).toString());
+                String id = jsonObject.getString("id");
+                String cellNo = jsonObject.getString("cell_no");                
+                smsTransactionInfo.getCellNumberList().add(cellNo);
+                
+                
+                //System.out.println(id);
+                //System.out.println(cellNo);
+                
+                //JsonObject jO = new JsonObject();
+                //jO.put("id", id);
+                //jO.put("cell_no", cellNo);
+                
+                //ja.add(jO);
+            }
+            try
+            {
+                TransactionManager transactionManager = new TransactionManager();
+                transactionManager.addSMSTransaction(smsTransactionInfo);
+                int responseCode = transactionManager.getResponseCode();
+                resultEvent.setResponseCode(responseCode);
+                if(responseCode == ResponseCodes.SUCCESS)
+                {
+                    smsTransactionInfo.setTransactionId(transactionManager.getTransactionId());
+                    resultEvent.setResult(smsTransactionInfo);
+                }
+            }
+            catch(Exception ex)
+            {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_SERVER_EXCEPTION);
+                logger.error(ex.toString());
+            }
+            response.end(resultEvent.toString());            
         });
         
         server.requestHandler(router::accept).listen(3030);

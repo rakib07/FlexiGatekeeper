@@ -8,8 +8,11 @@ package org.bdlions.db.repositories;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
+import org.bdlions.bean.SMSTransactionInfo;
 import org.bdlions.bean.TransactionInfo;
 import org.bdlions.bean.UserServiceInfo;
+import org.bdlions.db.Database;
 import org.bdlions.db.query.QueryField;
 import org.bdlions.db.query.QueryManager;
 import org.bdlions.db.query.helper.EasyStatement;
@@ -25,7 +28,7 @@ public class Transaction {
     /***
      * Restrict to call without connection
      */
-    private Transaction(){}
+    public Transaction(){}
     public Transaction(Connection connection) {
         this.connection = connection;
     }
@@ -40,7 +43,7 @@ public class Transaction {
     public UserServiceInfo getUserServiceInfo(String APIKey) throws DBSetupException, SQLException
     {
         UserServiceInfo userServiceInfo = new UserServiceInfo();
-        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_USER_SERVICE_INFO);){
+        try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.GET_USER_SERVICE_INFO);){
             stmt.setString(QueryField.API_KEY, APIKey);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -62,7 +65,7 @@ public class Transaction {
     {
         int currentTime = Utils.getCurrentUnixTime();
         String transactionId = Utils.getTransactionId();
-        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.CREATE_TRANSACTION)) {
+        try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.CREATE_TRANSACTION)) {
             stmt.setString(QueryField.TRANSACTION_ID, transactionId);
             stmt.setString(QueryField.API_KEY, transactionInfo.getAPIKey());
             stmt.setDouble(QueryField.BALANCE_IN, transactionInfo.getBalanceIn());
@@ -76,6 +79,54 @@ public class Transaction {
             stmt.executeUpdate();
         }
         return transactionId;
+    }
+    
+    /**
+     * This method will add sms details
+     * @param smsTransactionInfo sms transaction info
+     * @throws DBSetupException
+     * @throws java.sql.SQLException
+     * @author nazmul hasan on 17th April 2016
+     */
+    public void createSMSDetails(SMSTransactionInfo smsTransactionInfo) throws DBSetupException, SQLException
+    {
+        int currentTime = Utils.getCurrentUnixTime();
+        try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.ADD_SMS_DETAILS)) {
+            stmt.setString(QueryField.TRANSACTION_ID, smsTransactionInfo.getTransactionId());
+            stmt.setString(QueryField.API_KEY, smsTransactionInfo.getAPIKey());
+            stmt.setString(QueryField.SMS, smsTransactionInfo.getSms());
+            stmt.setInt(QueryField.CREATED_ON, currentTime);
+            stmt.setInt(QueryField.MODIFIED_ON, currentTime);
+            stmt.executeUpdate();
+        }
+    }
+    
+    /**
+     * This method will add sms transaction
+     * @param smsTransactionInfo sms transaction info
+     * @throws DBSetupException
+     * @throws SQLException
+     * @author nazmul hasan on 17th April 2016
+     */
+    public void createSMSTransaction(SMSTransactionInfo smsTransactionInfo) throws DBSetupException, SQLException
+    {
+        int currentTime = Utils.getCurrentUnixTime();
+        List<String> cellNumberList = smsTransactionInfo.getCellNumberList();
+        int length = cellNumberList.size();
+        //try to use insert batch instead of loop
+        for(int counter = 0; counter < length ; counter++)
+        {
+            String cellNumber = cellNumberList.get(counter);
+            try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.CREATE_SMS_TRANSACTION)) {
+                stmt.setString(QueryField.TRANSACTION_ID, smsTransactionInfo.getTransactionId());
+                stmt.setString(QueryField.TRANSACTION_CELL_NUMBER, cellNumber);
+                stmt.setInt(QueryField.TRANSACTION_STATUS_ID, smsTransactionInfo.getTransactionStatusId());
+                stmt.setInt(QueryField.CREATED_ON, currentTime);
+                stmt.setInt(QueryField.MODIFIED_ON, currentTime);
+                stmt.executeUpdate();
+            }
+        }
+        
     }
     
     /**

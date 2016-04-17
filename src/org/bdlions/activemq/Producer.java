@@ -55,6 +55,10 @@ public class Producer {
         {
             this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_TOPUPTELETALK");
         }
+        if(serviceId == Services.SERVICE_TYPE_ID_SEND_SMS)
+        {
+            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_SENDSMS");
+        }
     }
     
     public String getServiceQueueName()

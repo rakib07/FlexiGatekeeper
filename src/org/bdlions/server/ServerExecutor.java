@@ -30,6 +30,7 @@ public class ServerExecutor {
         //run serviceAPI server
         Vertx serviceAPIVerticle = Vertx.vertx();
         serviceAPIVerticle.deployVerticle(new ServiceAPIServer());
+        System.out.println("Server has started.");
         
     }
 }

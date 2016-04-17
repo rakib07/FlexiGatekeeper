@@ -21,6 +21,8 @@ public class Services {
     public static final int SERVICE_TYPE_ID_TOPUP_AIRTEL = 104;
     public static final int SERVICE_TYPE_ID_TOPUP_TELETALK = 105;
     
+    public static final int SERVICE_TYPE_ID_SEND_SMS = 1001;
+    
     public static final int PACKAGE_TYPE_ID_PREPAID = 1;
     public static final int PACKAGE_TYPE_ID_POSTPAID = 2;
 }

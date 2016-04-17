@@ -114,11 +114,14 @@ public class Database {
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.callback_functions"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.transaction_statuses"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.transaction_types"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.table.sms_details"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.table.sms_transactions"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.transactions"));
             
             //create relations
             statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_services"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.sms_transactions"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.rel.transactions"));
             
             //insert data

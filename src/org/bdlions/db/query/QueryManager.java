@@ -18,6 +18,8 @@ public final class QueryManager {
     public static final String GET_SUBSCRIBER_TOTAL_MEMBERS = "db.query.get-subscriber-total-members";
     public static final String GET_USER_SUBSCRIBER_SERVICE_INFO = "db.query.get-user-subscriber-service-info";
     public static final String GET_USER_SERVICE_INFO = "db.query.get-user-service-info";
+    public static final String ADD_SMS_DETAILS = "db.query.add-sms-details";
+    public static final String CREATE_SMS_TRANSACTION = "db.query.create-sms-transaction";
     public static final String CREATE_TRANSACTION = "db.query.create-transaction";
     public static final String GET_CURRENT_BALANCE = "db.query.get-current-balance";
     public static final String ADD_SERVICE = "db.query.add-service";

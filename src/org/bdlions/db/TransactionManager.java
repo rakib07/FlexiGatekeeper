@@ -8,6 +8,7 @@ package org.bdlions.db;
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.bdlions.activemq.Producer;
+import org.bdlions.bean.SMSTransactionInfo;
 import org.bdlions.bean.TransactionInfo;
 import org.bdlions.bean.UserServiceInfo;
 import org.bdlions.callback.CallbackTransactionManager;
@@ -15,6 +16,7 @@ import org.bdlions.constants.ResponseCodes;
 import org.bdlions.constants.Transactions;
 import org.bdlions.db.repositories.Transaction;
 import org.bdlions.exceptions.DBSetupException;
+import org.bdlions.utility.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,6 +105,84 @@ public class TransactionManager {
             producer.produce();
             this.responseCode = ResponseCodes.SUCCESS;
             
+            connection.commit();
+            connection.close();
+        } catch (SQLException ex) {
+            try {
+                if(connection != null){
+                    connection.rollback();
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
+        } catch (DBSetupException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
+            logger.error(ex.getMessage());
+        }
+        catch (Exception ex) {            
+            try {
+                if(connection != null){
+                    connection.rollback();
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }
+            this.responseCode = ResponseCodes.ERROR_CODE_SERVER_EXCEPTION;
+            logger.error(ex.getMessage());
+        }        
+    }
+    
+    /**
+     * This method will send multiple sms
+     * @param smsTranactionInfo, sms transaction info
+    */
+    public void addSMSTransaction(SMSTransactionInfo smsTranactionInfo)
+    {
+        Connection connection = null;
+        try {
+            if(smsTranactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_WEBSERVER_TEST))
+            {
+                this.responseCode = ResponseCodes.SUCCESS;
+                this.transactionId = Utils.getTransactionId();
+                return;            
+            }
+            connection = Database.getInstance().getConnection();
+            connection.setAutoCommit(false);
+            transaction = new Transaction();
+            
+            //check available balance of the user if required
+            //right now user balance is not deducted from the database for sending sms
+            TransactionInfo transactionInfo = new TransactionInfo();
+            transactionInfo.setAPIKey(smsTranactionInfo.getAPIKey());
+            transactionInfo.setTransactionStatusId(Transactions.TRANSACTION_STATUS_PENDING);
+            transactionInfo.setTransactionTypeId(Transactions.TRANSACTION_TYPE_USE_SERVICE);
+            this.transactionId = transaction.createTransaction(transactionInfo);  
+            transactionInfo.setTransactionId(this.transactionId);
+            
+            smsTranactionInfo.setTransactionId(transactionId);
+            transaction.createSMSDetails(smsTranactionInfo);
+            
+            smsTranactionInfo.setTransactionStatusId(Transactions.TRANSACTION_STATUS_PENDING);
+            transaction.createSMSTransaction(smsTranactionInfo);            
+            
+            UserServiceInfo userServiceInfo = transaction.getUserServiceInfo(transactionInfo.getAPIKey());
+            smsTranactionInfo.setServiceId(userServiceInfo.getServiceId());
+            
+            System.out.println(smsTranactionInfo.toString());
+            
+            if(smsTranactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LOCALSERVER_TEST) || smsTranactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LIVE))
+            {
+                //activemq to enqueue a new transaction
+                Producer producer = new Producer();
+                producer.setMessage(smsTranactionInfo.toString());
+                producer.setServiceQueueName(smsTranactionInfo.getServiceId());
+                producer.produce();
+            }            
+            this.responseCode = ResponseCodes.SUCCESS;            
             connection.commit();
             connection.close();
         } catch (SQLException ex) {

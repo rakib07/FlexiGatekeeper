@@ -17,4 +17,9 @@ public class Transactions {
     public static final int TRANSACTION_STATUS_SUCCESS = 2;
     public static final int TRANSACTION_STATUS_FAILED = 3;
     public static final int TRANSACTION_STATUS_CANCELLED = 4;
+    
+    public static final String TRANSACTION_FLAG_LIVE =             "LIVE";
+    public static final String TRANSACTION_FLAG_WEBSERVER_TEST =   "WEBSERVERTEST";
+    public static final String TRANSACTION_FLAG_WEBSERVICE_TEST =  "WEBSERVICETEST";
+    public static final String TRANSACTION_FLAG_LOCALSERVER_TEST = "LOCALSERVERTEST";
 }
