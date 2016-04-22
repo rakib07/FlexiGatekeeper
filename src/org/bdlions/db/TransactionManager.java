@@ -84,6 +84,12 @@ public class TransactionManager {
     {
         Connection connection = null;
         try {
+            if(transactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_WEBSERVER_TEST))
+            {
+                this.responseCode = ResponseCodes.SUCCESS;
+                this.transactionId = Utils.getTransactionId();
+                return;            
+            }
             connection = Database.getInstance().getConnection();
             connection.setAutoCommit(false);
             transaction = new Transaction(connection);
@@ -97,12 +103,16 @@ public class TransactionManager {
             UserServiceInfo userServiceInfo = transaction.getUserServiceInfo(transactionInfo.getAPIKey());
             transactionInfo.setServiceId(userServiceInfo.getServiceId());
             
-            //activemq to enqueue a new transaction
-            Producer producer = new Producer();
-            System.out.println(transactionInfo.toString());
-            producer.setMessage(transactionInfo.toString());
-            producer.setServiceQueueName(transactionInfo.getServiceId());
-            producer.produce();
+            if(transactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LOCALSERVER_TEST) || transactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LIVE))
+            {
+                //activemq to enqueue a new transaction
+                Producer producer = new Producer();
+                System.out.println(transactionInfo.toString());
+                producer.setMessage(transactionInfo.toString());
+                producer.setServiceQueueName(transactionInfo.getServiceId());
+                producer.produce();
+            }
+            
             this.responseCode = ResponseCodes.SUCCESS;
             
             connection.commit();

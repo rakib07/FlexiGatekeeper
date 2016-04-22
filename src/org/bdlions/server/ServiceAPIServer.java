@@ -54,11 +54,12 @@ public class ServiceAPIServer extends AbstractVerticle {
             String cellNumber = routingContext.request().getParam("cell_no");
             String packageId = routingContext.request().getParam("package_id");
             String description = routingContext.request().getParam("description");
-            
+            String liveTestFlag = routingContext.request().getParam("livetestflag");
             TransactionInfo transactionInfo = new TransactionInfo();
             transactionInfo.setAPIKey(APIKey);
             transactionInfo.setCellNumber(cellNumber);
             transactionInfo.setDescription(description);
+            transactionInfo.setLiveTestFlag(liveTestFlag);
             try
             {
                 transactionInfo.setPackageId(Integer.parseInt(packageId));

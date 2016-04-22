@@ -27,6 +27,7 @@ public class TransactionInfo {
     private String description;
     private int createdOn;
     private int modifiedOn;
+    private String liveTestFlag = "";
     public TransactionInfo()
     {
         balanceIn = 0;
@@ -146,6 +147,14 @@ public class TransactionInfo {
 
     public void setPackageId(int packageId) {
         this.packageId = packageId;
+    }
+
+    public String getLiveTestFlag() {
+        return liveTestFlag;
+    }
+
+    public void setLiveTestFlag(String liveTestFlag) {
+        this.liveTestFlag = liveTestFlag;
     }
     
     @Override
