@@ -14,6 +14,8 @@ import org.bdlions.constants.Services;
  */
 public class TransactionInfo {
     private int id;
+    //this field will be used to map transactionId when user will send multiple transaction request at a time
+    private String referenceId;
     private String transactionId;
     private String APIKey;
     private double balanceIn;
@@ -45,6 +47,14 @@ public class TransactionInfo {
         this.id = id;
     }
 
+    public String getReferenceId() {
+        return referenceId;
+    }
+
+    public void setReferenceId(String referenceId) {
+        this.referenceId = referenceId;
+    }
+    
     public String getTransactionId() {
         return transactionId;
     }

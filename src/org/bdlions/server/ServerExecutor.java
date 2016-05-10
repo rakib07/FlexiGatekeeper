@@ -7,6 +7,7 @@ package org.bdlions.server;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import org.bdlions.activemq.MessageQServer;
 
 /**
  *
@@ -31,6 +32,7 @@ public class ServerExecutor {
         Vertx serviceAPIVerticle = Vertx.vertx();
         serviceAPIVerticle.deployVerticle(new ServiceAPIServer());
         System.out.println("Server has started.");
+        MessageQServer.getInstance().start(); 
         
     }
 }

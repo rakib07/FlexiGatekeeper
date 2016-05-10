@@ -18,9 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.bdlions.bean.SMSTransactionInfo;
 import org.bdlions.bean.TransactionInfo;
+import org.bdlions.bean.UserServiceInfo;
 import org.bdlions.constants.ResponseCodes;
 import org.bdlions.db.TransactionManager;
 import org.bdlions.response.ResultEvent;
+import org.bdlions.utility.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,25 +100,37 @@ public class ServiceAPIServer extends AbstractVerticle {
         router.route("/addmultipletransactions*").handler(BodyHandler.create());
         router.post("/addmultipletransactions").handler((RoutingContext routingContext) -> {
             ResultEvent resultEvent = new ResultEvent();
-            
-            List<TransactionInfo> transactionList = new ArrayList<>();
-            TransactionInfo transactonInfo1 = new TransactionInfo();
-            transactonInfo1.setId(1);
-            transactonInfo1.setTransactionId("trnx1");
-            
-            TransactionInfo transactonInfo2 = new TransactionInfo();
-            transactonInfo2.setId(2);
-            transactonInfo2.setTransactionId("trnx2");
-            
-            TransactionInfo transactonInfo3 = new TransactionInfo();
-            transactonInfo3.setId(3);
-            transactonInfo3.setTransactionId("trnx3");
-            
-            transactionList.add(transactonInfo1);
-            transactionList.add(transactonInfo2);
-            transactionList.add(transactonInfo3);
-            
-            resultEvent.setResult(transactionList);
+            List<TransactionInfo> transactionInfoList = new ArrayList<>();
+            String transactionList = routingContext.request().getParam("transction_list");
+            String liveTestFlag = routingContext.request().getParam("livetestflag");
+            JsonArray transactionArray = new JsonArray(transactionList);
+            TransactionManager transactionManager = new TransactionManager();
+            for(int counter = 0 ; counter < transactionArray.size(); counter++)
+            {
+                JsonObject jsonObject = new JsonObject(transactionArray.getValue(counter).toString());
+                String id = jsonObject.getString("id"); 
+                String cellNo = jsonObject.getString("cell_no"); 
+                String APIKey = jsonObject.getString("APIKey"); 
+                
+                TransactionInfo transactionInfo = new TransactionInfo();
+                transactionInfo.setAPIKey(APIKey);
+                transactionInfo.setLiveTestFlag(liveTestFlag);
+                transactionInfo.setCellNumber(cellNo);
+                transactionInfo.setReferenceId(id);
+                //transactionInfo.setTransactionId(Utils.getTransactionId());
+                
+                //UserServiceInfo userServiceInfo = transactionManager.getUserServiceInfo(APIKey);
+                //transactionInfo.setServiceId(userServiceInfo.getServiceId());
+                
+                transactionManager.addTransaction(transactionInfo);
+                int responseCode = transactionManager.getResponseCode();
+                if(responseCode == ResponseCodes.SUCCESS)
+                {
+                    transactionInfo.setTransactionId(transactionManager.getTransactionId());
+                }  
+                transactionInfoList.add(transactionInfo);
+            }            
+            resultEvent.setResult(transactionInfoList);
             resultEvent.setResponseCode(ResponseCodes.SUCCESS);
             
             HttpServerResponse response = routingContext.response();

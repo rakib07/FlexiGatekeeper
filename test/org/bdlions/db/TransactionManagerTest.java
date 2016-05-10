@@ -12,8 +12,15 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.bdlions.bean.SMSTransactionInfo;
 import org.bdlions.bean.TransactionInfo;
 import org.bdlions.exceptions.DBSetupException;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -111,4 +118,34 @@ public class TransactionManagerTest {
             System.out.println(ex.toString());
         }
     }
+    
+    @Test
+    public void addSMSTransactionTest() throws DBSetupException, SQLException{
+        SMSTransactionInfo smsTransactionInfo = new SMSTransactionInfo();
+        smsTransactionInfo.setSms("Hello World!");
+        smsTransactionInfo.setAPIKey("key1001");
+        smsTransactionInfo.getCellNumberList().add("01678112509");
+        //smsTransactionInfo.getCellNumberList().add("01712341213");
+        smsTransactionInfo.setLiveTestFlag("LOCALSERVERTEST");
+        System.out.println(smsTransactionInfo.toString());
+        JSONObject messageObj;
+        try {
+            messageObj = new JSONObject(smsTransactionInfo.toString());
+            String sms = (String) messageObj.get("sms");
+            JSONArray temp = messageObj.getJSONArray("cellNumberList");
+            int length = temp.length();
+            if (length > 0) {
+                for (int i = 0; i < length; i++) {
+                    System.out.println(temp.getString(i));
+                }
+            }
+        } catch (JSONException ex) {
+            Logger.getLogger(TransactionManagerTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        TransactionManager transactionManager = new TransactionManager();
+        transactionManager.addSMSTransaction(smsTransactionInfo);
+    }
+    
+
 }

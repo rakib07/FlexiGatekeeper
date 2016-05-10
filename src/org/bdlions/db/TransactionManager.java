@@ -45,6 +45,30 @@ public class TransactionManager {
     }
     
     /**
+    * This method will return user service info
+    * @param APIKey APIKey
+    * @return UserServiceInfo UserServiceInfo
+    */
+    public UserServiceInfo getUserServiceInfo(String APIKey)
+    {
+        UserServiceInfo userServiceInfo = new UserServiceInfo();
+        transaction = new Transaction();
+        try
+        {
+            userServiceInfo = transaction.getUserServiceInfo(APIKey);
+            this.responseCode = ResponseCodes.SUCCESS;
+        }
+        catch (SQLException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
+        } catch (DBSetupException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
+            logger.error(ex.getMessage());
+        }        
+        return userServiceInfo;
+    }
+    
+    /**
      * This method will add a user payment as transaction
      * @param transactionInfo, transaction info
      */
@@ -100,6 +124,7 @@ public class TransactionManager {
             transactionInfo.setTransactionTypeId(Transactions.TRANSACTION_TYPE_USE_SERVICE);
             this.transactionId = transaction.createTransaction(transactionInfo);  
             transactionInfo.setTransactionId(this.transactionId);
+            
             UserServiceInfo userServiceInfo = transaction.getUserServiceInfo(transactionInfo.getAPIKey());
             transactionInfo.setServiceId(userServiceInfo.getServiceId());
             
