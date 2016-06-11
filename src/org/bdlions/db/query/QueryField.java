@@ -36,4 +36,7 @@ public class QueryField {
     public static final String TRANSACTION_DESCRIPTION= "description";
     public static final String CURRENT_BALANCE = "current_balance";
     public static final String SMS = "sms";
+    public static final String SIM_NO = "sim_no";
+    public static final String DESCRIPTION = "description";
+    public static final String CATEGORY_ID = "category_id";
 }

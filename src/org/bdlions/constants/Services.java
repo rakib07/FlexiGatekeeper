@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.bdlions.constants;
 
 /**
@@ -25,4 +20,18 @@ public class Services {
     
     public static final int PACKAGE_TYPE_ID_PREPAID = 1;
     public static final int PACKAGE_TYPE_ID_POSTPAID = 2;
+    
+    public static final int SIM_SERVICE_TYPE_ID_BKASH = 1;
+    public static final int SIM_SERVICE_TYPE_ID_DBBL = 2;
+    public static final int SIM_SERVICE_TYPE_ID_MCASH = 3;
+    public static final int SIM_SERVICE_TYPE_ID_UCASH = 4;
+    
+    public static final int SIM_SERVICE_TYPE_ID_GP = 101;
+    public static final int SIM_SERVICE_TYPE_ID_ROBI = 102;
+    public static final int SIM_SERVICE_TYPE_ID_BANGLALINK = 103;
+    public static final int SIM_SERVICE_TYPE_ID_AIRTEL = 104;
+    public static final int SIM_SERVICE_TYPE_ID_TELETALK = 105;
+    
+    public static final int PACKAGE_TYPE_ID_PERSONAL = 1;
+    public static final int PACKAGE_TYPE_ID_AGENT = 2;
 }

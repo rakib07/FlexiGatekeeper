@@ -111,8 +111,9 @@ public class Database {
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.users"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.subscribers"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.subscribers_services"));
-            statement.executeUpdate(DbSetupQueryProvider.get("db.table.sims"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.sim_services"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.table.sims"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.table.sims_services"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.sim_load_transactions"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.callback_functions"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.transaction_statuses"));
@@ -124,13 +125,14 @@ public class Database {
             //create relations
             statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers_services"));
-            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.sim_services"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.rel.sims_services"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.rel.sim_load_transactions"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.rel.sms_transactions"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.rel.transactions"));
             
             //insert data
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.services"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.sim_services"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.users"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.subscribers"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.defaultData.subscribers_services"));

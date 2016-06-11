@@ -15,6 +15,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.bdlions.bean.SIMInfo;
+import org.bdlions.bean.SIMServiceInfo;
 import org.bdlions.bean.TransactionInfo;
 import org.bdlions.bean.UserInfo;
 import org.bdlions.bean.UserServiceInfo;
@@ -22,6 +24,7 @@ import org.bdlions.constants.ResponseCodes;
 import org.bdlions.constants.Services;
 import org.bdlions.db.AuthManager;
 import org.bdlions.db.Database;
+import org.bdlions.db.SIMManager;
 import org.bdlions.db.TransactionManager;
 import org.bdlions.exceptions.DBSetupException;
 import org.bdlions.exceptions.MaxMemberRegException;
@@ -51,6 +54,118 @@ public class AuthServer extends AbstractVerticle {
         router.route("/").handler((RoutingContext routingContext) -> {
             HttpServerResponse response = routingContext.response();
             response.end("Authentication server");
+        });
+        
+        router.route("/addsim*").handler(BodyHandler.create());
+        router.post("/addsim").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String simNo = routingContext.request().getParam("sim_no");
+            String description = routingContext.request().getParam("description");
+            String currentBalanceStr = routingContext.request().getParam("current_balance");
+            double currentBalance = 0;
+            try
+            {
+                currentBalance = Double.parseDouble(currentBalanceStr);
+            }
+            catch(Exception ex){
+                logger.error(ex.getMessage());
+            }           
+            
+            try {
+                SIMManager simManager = new SIMManager();
+                SIMInfo simInfo = new SIMInfo();
+                simInfo.setSimNo(simNo);
+                simInfo.setDescription(description);
+                
+                SIMServiceInfo simServiceInfo = new SIMServiceInfo();
+                simServiceInfo.setCurrentBalance(currentBalance);
+                simServiceInfo.setId(Services.SIM_SERVICE_TYPE_ID_BKASH);
+                simServiceInfo.setCategoryId(Services.PACKAGE_TYPE_ID_AGENT);
+                
+                simInfo.getSimServiceList().add(simServiceInfo);
+                simManager.addSIM(simInfo);
+                resultEvent.setResponseCode(simManager.getResponseCode());
+                resultEvent.setResult(simInfo);
+
+            } catch (Exception ex) {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
+        });
+        
+        router.route("/editsim*").handler(BodyHandler.create());
+        router.post("/editsim").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String simNo = routingContext.request().getParam("sim_no");
+            String description = routingContext.request().getParam("description");
+            String currentBalanceStr = routingContext.request().getParam("current_balance");
+            double currentBalance = 0;
+            try
+            {
+                currentBalance = Double.parseDouble(currentBalanceStr);
+            }
+            catch(Exception ex){
+                logger.error(ex.getMessage());
+            }           
+            
+            try {
+                SIMManager simManager = new SIMManager();
+                SIMInfo simInfo = new SIMInfo();
+                simInfo.setSimNo(simNo);
+                simInfo.setDescription(description);
+                
+                SIMServiceInfo simServiceInfo = new SIMServiceInfo();
+                simServiceInfo.setCurrentBalance(currentBalance);
+                simServiceInfo.setId(Services.SIM_SERVICE_TYPE_ID_BKASH);
+                simServiceInfo.setCategoryId(Services.PACKAGE_TYPE_ID_AGENT);
+                
+                simInfo.getSimServiceList().add(simServiceInfo);
+                simManager.updateSIMInfo(simInfo);
+                resultEvent.setResponseCode(simManager.getResponseCode());
+                resultEvent.setResult(simInfo);
+
+            } catch (Exception ex) {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
+        });
+        
+        router.route("/getsiminfo*").handler(BodyHandler.create());
+        router.post("/getsiminfo").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String simNo = routingContext.request().getParam("sim_no");
+            try {
+                SIMManager simManager = new SIMManager();
+                SIMInfo simInfo = simManager.getSIMInfo(simNo);
+                resultEvent.setResponseCode(ResponseCodes.SUCCESS);
+                resultEvent.setResult(simInfo);
+            } catch (Exception ex) {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
+        });
+        
+        router.route("/getallsims*").handler(BodyHandler.create());
+        router.post("/getallsims").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            try {
+                SIMManager simManager = new SIMManager();
+                List<SIMInfo> simList = simManager.getAllSIMs();
+                resultEvent.setResponseCode(ResponseCodes.SUCCESS);
+                resultEvent.setResult(simList);
+
+            } catch (Exception ex) {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
         });
 
         router.route("/registersubscriber*").handler(BodyHandler.create());
@@ -426,7 +541,7 @@ public class AuthServer extends AbstractVerticle {
             }
             HttpServerResponse response = routingContext.response();
             response.end(serviceProfitRankList.toString());
-        });
+        });        
         server.requestHandler(router::accept).listen(4040);
     }
 

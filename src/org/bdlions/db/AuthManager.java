@@ -18,7 +18,6 @@ import org.bdlions.exceptions.MaxMemberRegException;
 import org.bdlions.exceptions.ServiceExpireException;
 import org.bdlions.exceptions.SubscriptionExpireException;
 import org.bdlions.exceptions.UnRegisterIPException;
-import org.bdlions.sessions.SessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
