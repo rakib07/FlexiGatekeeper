@@ -7,7 +7,11 @@ package org.bdlions.server;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.bdlions.activemq.MessageQServer;
+import org.bdlions.db.Database;
+import org.bdlions.exceptions.DBSetupException;
 
 /**
  *
@@ -15,6 +19,13 @@ import org.bdlions.activemq.MessageQServer;
  */
 public class ServerExecutor {
     public static void main(String[] args){
+        //initializing database
+        try {
+            Database.getInstance();
+        } catch (DBSetupException ex) {
+            System.out.println("Database setup exception. Please contact System Administrator.");
+            return;            
+        }
         //run Sample java web server
         VertxOptions options = new VertxOptions(); 
         //server execution time

@@ -189,6 +189,20 @@ public class TransactionManager {
             connection.setAutoCommit(false);
             transaction = new Transaction();
             
+            UserServiceInfo userServiceInfo = transaction.getUserServiceInfo(smsTranactionInfo.getAPIKey());
+            smsTranactionInfo.setServiceId(userServiceInfo.getServiceId());
+            if(smsTranactionInfo.getServiceId() == 0)
+            {
+                this.responseCode = ResponseCodes.ERROR_CODE_UNAUTHENTICATED_SERVICE;
+                try {
+                    connection.rollback();
+                    connection.close();
+                } catch (SQLException ex1) {
+                    logger.error(ex1.getMessage());
+                }
+                return;
+            }
+            
             //check available balance of the user if required
             //right now user balance is not deducted from the database for sending sms
             TransactionInfo transactionInfo = new TransactionInfo();
@@ -204,18 +218,15 @@ public class TransactionManager {
             smsTranactionInfo.setTransactionStatusId(Transactions.TRANSACTION_STATUS_PENDING);
             transaction.createSMSTransaction(smsTranactionInfo);            
             
-            UserServiceInfo userServiceInfo = transaction.getUserServiceInfo(transactionInfo.getAPIKey());
-            smsTranactionInfo.setServiceId(userServiceInfo.getServiceId());
-            
             System.out.println(smsTranactionInfo.toString());
             
             if(smsTranactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LOCALSERVER_TEST) || smsTranactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LIVE))
-            {
+            {                
                 //activemq to enqueue a new transaction
                 Producer producer = new Producer();
                 producer.setMessage(smsTranactionInfo.toString());
                 producer.setServiceQueueName(smsTranactionInfo.getServiceId());
-                producer.produce();
+                producer.produce();                
             }            
             this.responseCode = ResponseCodes.SUCCESS;            
             connection.commit();

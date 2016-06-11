@@ -217,7 +217,7 @@ public class ServiceAPIServer extends AbstractVerticle {
             }
             catch(Exception ex)
             {
-                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_SERVER_EXCEPTION);
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_WEBSERVICE_PROCESS_EXCEPTION);
                 logger.error(ex.toString());
             }
             response.end(resultEvent.toString());            

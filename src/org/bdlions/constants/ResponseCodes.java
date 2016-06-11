@@ -21,4 +21,7 @@ public class ResponseCodes {
     public static final int ERROR_CODE_SERVER_EXCEPTION = 5007;
     public static final int ERROR_CODE_UPDATE_TRANSACTION_STATUS_FAILED = 5008;
     public static final int ERROR_CODE_INVALID_OPERATOR_PACKAGE_ID = 5009;
+    public static final int ERROR_CODE_WEBSERVICE_PROCESS_EXCEPTION = 5010;
+    public static final int ERROR_CODE_ACTIVEMQ_EXCEPTION = 5011;
+    public static final int ERROR_CODE_UNAUTHENTICATED_SERVICE = 5012;
 }
