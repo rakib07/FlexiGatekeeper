@@ -9,8 +9,10 @@ import java.util.List;
  * @author nazmul hasan
  */
 public class SIMInfo {
+    private String identifier;//local server identifier of a sim
     private String simNo;
     private String description;
+    private int status;// 1 = Active, 0 = Inactive
     private List<SIMServiceInfo> simServiceList = new ArrayList<>();
     private int createdOn;
     private int modifiedOn;
@@ -19,6 +21,14 @@ public class SIMInfo {
     
     }
 
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+    
     public String getSimNo() {
         return simNo;
     }
@@ -35,6 +45,14 @@ public class SIMInfo {
         this.description = description;
     }
 
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+    
     public List<SIMServiceInfo> getSimServiceList() {
         return simServiceList;
     }

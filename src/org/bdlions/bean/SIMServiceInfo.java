@@ -7,11 +7,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author nazmul hasan
  */
 public class SIMServiceInfo {
-    private int id;
-    private String title;
+    private int id;//1 = BKash, 2 = DBBL, 3 = MCASH, 4 = UCASH
+    private String title;//BKash, DBBL, MCASH, UCASH
     private double currentBalance;
-    private int categoryId;
-    private String categoryTitle;
+    private int categoryId;//1 = Personal, 2 = agent
+    private String categoryTitle;//Personal or Agent
     private int createdOn;
     private int modifiedOn;
     public SIMServiceInfo()

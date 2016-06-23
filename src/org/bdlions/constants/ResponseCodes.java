@@ -24,4 +24,5 @@ public class ResponseCodes {
     public static final int ERROR_CODE_WEBSERVICE_PROCESS_EXCEPTION = 5010;
     public static final int ERROR_CODE_ACTIVEMQ_EXCEPTION = 5011;
     public static final int ERROR_CODE_UNAUTHENTICATED_SERVICE = 5012;
+    public static final int ERROR_CODE_NO_CONSUMER = 5013;
 }

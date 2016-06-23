@@ -60,6 +60,7 @@ public class AuthServer extends AbstractVerticle {
         router.post("/addsim").handler((RoutingContext routingContext) -> {
             ResultEvent resultEvent = new ResultEvent();
             String simNo = routingContext.request().getParam("sim_no");
+            String identifier = routingContext.request().getParam("identifier");
             String description = routingContext.request().getParam("description");
             String currentBalanceStr = routingContext.request().getParam("current_balance");
             double currentBalance = 0;
@@ -69,13 +70,24 @@ public class AuthServer extends AbstractVerticle {
             }
             catch(Exception ex){
                 logger.error(ex.getMessage());
-            }           
+            } 
+            String statusStr = routingContext.request().getParam("status");
+            int status = 0;
+            try
+            {
+                status = Integer.parseInt(statusStr);
+            }
+            catch(Exception ex){
+                logger.error(ex.getMessage());
+            } 
             
             try {
                 SIMManager simManager = new SIMManager();
                 SIMInfo simInfo = new SIMInfo();
                 simInfo.setSimNo(simNo);
+                simInfo.setIdentifier(identifier);
                 simInfo.setDescription(description);
+                simInfo.setStatus(status);
                 
                 SIMServiceInfo simServiceInfo = new SIMServiceInfo();
                 simServiceInfo.setCurrentBalance(currentBalance);
@@ -83,6 +95,7 @@ public class AuthServer extends AbstractVerticle {
                 simServiceInfo.setCategoryId(Services.PACKAGE_TYPE_ID_AGENT);
                 
                 simInfo.getSimServiceList().add(simServiceInfo);
+                
                 simManager.addSIM(simInfo);
                 resultEvent.setResponseCode(simManager.getResponseCode());
                 resultEvent.setResult(simInfo);
@@ -99,6 +112,7 @@ public class AuthServer extends AbstractVerticle {
         router.post("/editsim").handler((RoutingContext routingContext) -> {
             ResultEvent resultEvent = new ResultEvent();
             String simNo = routingContext.request().getParam("sim_no");
+            String identifier = routingContext.request().getParam("identifier");
             String description = routingContext.request().getParam("description");
             String currentBalanceStr = routingContext.request().getParam("current_balance");
             double currentBalance = 0;
@@ -109,12 +123,22 @@ public class AuthServer extends AbstractVerticle {
             catch(Exception ex){
                 logger.error(ex.getMessage());
             }           
-            
+            String statusStr = routingContext.request().getParam("status");
+            int status = 0;
+            try
+            {
+                status = Integer.parseInt(statusStr);
+            }
+            catch(Exception ex){
+                logger.error(ex.getMessage());
+            } 
             try {
                 SIMManager simManager = new SIMManager();
                 SIMInfo simInfo = new SIMInfo();
                 simInfo.setSimNo(simNo);
+                simInfo.setIdentifier(identifier);
                 simInfo.setDescription(description);
+                simInfo.setStatus(status);
                 
                 SIMServiceInfo simServiceInfo = new SIMServiceInfo();
                 simServiceInfo.setCurrentBalance(currentBalance);
@@ -159,6 +183,24 @@ public class AuthServer extends AbstractVerticle {
                 List<SIMInfo> simList = simManager.getAllSIMs();
                 resultEvent.setResponseCode(ResponseCodes.SUCCESS);
                 resultEvent.setResult(simList);
+
+            } catch (Exception ex) {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
+        });
+        
+        router.route("/checksimbalance*").handler(BodyHandler.create());
+        router.post("/checksimbalance").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String simNo = routingContext.request().getParam("sim_no");
+            try {
+                SIMManager simManager = new SIMManager();
+                SIMInfo simInfo = simManager.getSIMInfo(simNo);
+                simManager.generateSIMBalance(simInfo);
+                resultEvent.setResponseCode(ResponseCodes.SUCCESS);
 
             } catch (Exception ex) {
                 resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);

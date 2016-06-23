@@ -19,10 +19,13 @@ public class Producer {
     
     public void setServiceQueueName(int serviceId)
     {
+        //if we have several local server then dynamically provide the identifier of local server
+        String localServerIdentifier = "ls1";
         if(serviceId == Services.SERVICE_TYPE_ID_BKASH_CASHIN)
         {
-            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_BKASHCASHIN");
+            this.serviceQueueName = localServerIdentifier+"_"+ServerPropertyProvider.get("SERVICE_QUEUE_BKASH_CASHIN");
         }
+        
         if(serviceId == Services.SERVICE_TYPE_ID_DBBL_CASHIN)
         {
             this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_DBBLCASHIN");
@@ -59,6 +62,11 @@ public class Producer {
         {
             this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_SENDSMS");
         }
+    }
+    
+    public void setBkashCheckBalanceQueueName(String localServerIdentifier)
+    {
+        this.serviceQueueName = localServerIdentifier+"_"+ServerPropertyProvider.get("SERVICE_QUEUE_BKASH_CHECK_BALANCE");
     }
     
     public String getServiceQueueName()

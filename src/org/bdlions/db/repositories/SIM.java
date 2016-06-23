@@ -34,7 +34,9 @@ public class SIM {
         int currentTime = Utils.getCurrentUnixTime();
         try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.ADD_SIM)) {
             stmt.setString(QueryField.SIM_NO, simInfo.getSimNo());
+            stmt.setString(QueryField.IDENTIFIER, simInfo.getIdentifier());
             stmt.setString(QueryField.DESCRIPTION, simInfo.getDescription());
+            stmt.setInt(QueryField.STATUS, simInfo.getStatus());
             stmt.setInt(QueryField.CREATED_ON, currentTime);
             stmt.setInt(QueryField.MODIFIED_ON, currentTime);
             stmt.executeUpdate();
@@ -70,7 +72,9 @@ public class SIM {
             while (rs.next()) {
                 SIMInfo simInfo = new SIMInfo();
                 simInfo.setSimNo(rs.getString("sim_no"));
+                simInfo.setIdentifier(rs.getString("identifier"));
                 simInfo.setDescription(rs.getString("description"));
+                simInfo.setStatus(rs.getInt("status"));
                 SIMServiceInfo simServiceInfo = new SIMServiceInfo();
                 simServiceInfo.setCurrentBalance(rs.getDouble("current_balance"));
                 simServiceInfo.setCreatedOn(rs.getInt("created_on"));
@@ -97,9 +101,13 @@ public class SIM {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 simInfo.setSimNo(rs.getString("sim_no"));
+                simInfo.setIdentifier(rs.getString("identifier"));
                 simInfo.setDescription(rs.getString("description"));
+                simInfo.setStatus(rs.getInt("status"));
                 SIMServiceInfo simServiceInfo = new SIMServiceInfo();
                 simServiceInfo.setCurrentBalance(rs.getDouble("current_balance"));
+                simServiceInfo.setId(rs.getInt("service_id"));
+                simServiceInfo.setCategoryId(rs.getInt("category_id"));
                 simInfo.getSimServiceList().add(simServiceInfo);
             }
         }
@@ -115,7 +123,9 @@ public class SIM {
     public void updateSIMInfo(SIMInfo simInfo) throws DBSetupException, SQLException
     {
         try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.UPDATE_SIM_INFO);){
+            stmt.setString(QueryField.IDENTIFIER, simInfo.getIdentifier());
             stmt.setString(QueryField.DESCRIPTION, simInfo.getDescription());
+            stmt.setInt(QueryField.STATUS, simInfo.getStatus());
             stmt.setString(QueryField.SIM_NO, simInfo.getSimNo());
             stmt.executeUpdate();        
         }
@@ -141,5 +151,5 @@ public class SIM {
                 stmt.executeUpdate();        
             }
         }        
-    }    
+    }  
 }

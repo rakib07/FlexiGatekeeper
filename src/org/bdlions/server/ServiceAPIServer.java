@@ -16,10 +16,14 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import java.util.ArrayList;
 import java.util.List;
+import org.bdlions.bean.SIMInfo;
+import org.bdlions.bean.SIMServiceInfo;
 import org.bdlions.bean.SMSTransactionInfo;
 import org.bdlions.bean.TransactionInfo;
 import org.bdlions.bean.UserServiceInfo;
 import org.bdlions.constants.ResponseCodes;
+import org.bdlions.constants.Services;
+import org.bdlions.db.SIMManager;
 import org.bdlions.db.TransactionManager;
 import org.bdlions.response.ResultEvent;
 import org.bdlions.utility.Utils;
@@ -143,24 +147,56 @@ public class ServiceAPIServer extends AbstractVerticle {
             String transactionId = routingContext.request().getParam("transactionid");
             String statusId = routingContext.request().getParam("statusid");
             String senderCellNumber = routingContext.request().getParam("sendercellnumber");
+            String balanceStr = routingContext.request().getParam("balance");
+            double balance = 0;
             try
             {
-                TransactionInfo transactionInfo = new TransactionInfo();
-                transactionInfo.setTransactionId(transactionId);
-                transactionInfo.setTransactionStatusId(Integer.parseInt(statusId));
-                transactionInfo.setSenderCellNumber(senderCellNumber);
-                
-                TransactionManager transactionManager = new TransactionManager();
-                transactionManager.updateTransactionStatus(transactionInfo);
-                
-                int responseCode = transactionManager.getResponseCode();
-                resultEvent.setResponseCode(responseCode);                
+                balance = Double.parseDouble(balanceStr);
             }
             catch(Exception ex)
             {
-                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_UPDATE_TRANSACTION_STATUS_FAILED);
-                logger.error(ex.getMessage());
+                
             }
+            try
+            {
+                SIMManager simManager = new SIMManager();
+                SIMInfo simInfo = new SIMInfo();
+                simInfo.setSimNo(senderCellNumber);
+                SIMServiceInfo simServiceInfo = new SIMServiceInfo();
+                simServiceInfo.setCurrentBalance(balance);
+                simServiceInfo.setId(Services.SIM_SERVICE_TYPE_ID_BKASH);
+                simInfo.getSimServiceList().add(simServiceInfo);
+                simManager.updateSIMServiceBalanceInfo(simInfo);
+                
+                int responseCode = simManager.getResponseCode();
+                resultEvent.setResponseCode(responseCode); 
+            }
+            catch(Exception ex)
+            {
+                
+            }
+            if(!transactionId.equals(""))
+            {
+                try
+                {
+                    TransactionInfo transactionInfo = new TransactionInfo();
+                    transactionInfo.setTransactionId(transactionId);
+                    transactionInfo.setTransactionStatusId(Integer.parseInt(statusId));
+                    transactionInfo.setSenderCellNumber(senderCellNumber);
+
+                    TransactionManager transactionManager = new TransactionManager();
+                    transactionManager.updateTransactionStatus(transactionInfo);
+
+                    int responseCode = transactionManager.getResponseCode();
+                    resultEvent.setResponseCode(responseCode);  
+                }
+                catch(Exception ex)
+                {
+                    resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_UPDATE_TRANSACTION_STATUS_FAILED);
+                    logger.error(ex.getMessage());
+                }
+            }
+            
             HttpServerResponse response = routingContext.response();
             response.end(resultEvent.toString());
             
