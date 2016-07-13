@@ -8,6 +8,7 @@ package org.bdlions.db.repositories;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import org.bdlions.bean.SMSTransactionInfo;
 import org.bdlions.bean.TransactionInfo;
@@ -74,6 +75,7 @@ public class Transaction {
             stmt.setInt(QueryField.TRANSACTION_STATUS_ID, transactionInfo.getTransactionStatusId());
             stmt.setString(QueryField.TRANSACTION_CELL_NUMBER, transactionInfo.getCellNumber());
             stmt.setString(QueryField.TRANSACTION_DESCRIPTION, transactionInfo.getDescription());
+            stmt.setBoolean(QueryField.EDITABLE, transactionInfo.isEditable());
             stmt.setInt(QueryField.CREATED_ON, currentTime);
             stmt.setInt(QueryField.MODIFIED_ON, currentTime);
             stmt.executeUpdate();
@@ -162,5 +164,67 @@ public class Transaction {
             }
         } 
         return currentBalance;
+    }
+    
+    public TransactionInfo getTransactionInfo(String transactionId)  throws DBSetupException, SQLException
+    {
+        TransactionInfo transactionInfo = new TransactionInfo();
+        try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.GET_TRANSACTION_INFO);){
+            stmt.setString(QueryField.TRANSACTION_ID, transactionId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                transactionInfo.setTransactionId(rs.getString(QueryField.TRANSACTION_ID));
+                transactionInfo.setAPIKey(rs.getString(QueryField.API_KEY));
+                transactionInfo.setBalanceIn(rs.getDouble(QueryField.BALANCE_IN));
+                transactionInfo.setBalanceOut(rs.getDouble(QueryField.BALANCE_OUT));
+                transactionInfo.setTransactionStatusId(rs.getInt(QueryField.TRANSACTION_STATUS_ID));
+                transactionInfo.setTransactionTypeId(rs.getInt(QueryField.TRANSACTION_TYPE_ID));
+                transactionInfo.setCellNumber(rs.getString(QueryField.TRANSACTION_CELL_NUMBER));
+                transactionInfo.setDescription(rs.getString(QueryField.TRANSACTION_DESCRIPTION));
+                transactionInfo.setEditable(rs.getBoolean(QueryField.EDITABLE));
+            }
+        }
+        return transactionInfo;
+    }
+    
+    public List<TransactionInfo> getEditableTransactionList()  throws DBSetupException, SQLException
+    {
+        List<TransactionInfo> transactionList = new ArrayList<>();
+        try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.GET_EDITABLE_TRANSACTION_INFO);){
+            stmt.setBoolean(QueryField.EDITABLE, Boolean.TRUE);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                TransactionInfo transactionInfo = new TransactionInfo();
+                transactionInfo.setTransactionId(rs.getString(QueryField.TRANSACTION_ID));
+                transactionInfo.setServiceId(rs.getInt(QueryField.SERVICE_ID));
+                transactionInfo.setAPIKey(rs.getString(QueryField.API_KEY));
+                transactionInfo.setBalanceIn(rs.getDouble(QueryField.BALANCE_IN));
+                transactionInfo.setBalanceOut(rs.getDouble(QueryField.BALANCE_OUT));
+                transactionInfo.setTransactionStatusId(rs.getInt(QueryField.TRANSACTION_STATUS_ID));
+                transactionInfo.setTransactionTypeId(rs.getInt(QueryField.TRANSACTION_TYPE_ID));
+                transactionInfo.setCellNumber(rs.getString(QueryField.TRANSACTION_CELL_NUMBER));
+                transactionInfo.setDescription(rs.getString(QueryField.TRANSACTION_DESCRIPTION));
+                transactionInfo.setCreatedOn(rs.getInt(QueryField.CREATED_ON));
+                transactionInfo.setEditable(rs.getBoolean(QueryField.EDITABLE));
+                transactionList.add(transactionInfo);
+            }
+        }
+        return transactionList;
+    }
+    
+    public void updateTransactionInfo(TransactionInfo transactionInfo) throws DBSetupException, SQLException
+    {
+        try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.UPDATE_TRANSACTION_INFO);){
+            stmt.setString(QueryField.API_KEY, transactionInfo.getAPIKey());
+            stmt.setDouble(QueryField.BALANCE_IN, transactionInfo.getBalanceIn());
+            stmt.setDouble(QueryField.BALANCE_OUT, transactionInfo.getBalanceOut());
+            stmt.setInt(QueryField.TRANSACTION_STATUS_ID, transactionInfo.getTransactionStatusId());
+            stmt.setInt(QueryField.TRANSACTION_TYPE_ID, transactionInfo.getTransactionTypeId());
+            stmt.setString(QueryField.TRANSACTION_CELL_NUMBER, transactionInfo.getCellNumber());
+            stmt.setString(QueryField.TRANSACTION_DESCRIPTION, transactionInfo.getDescription());
+            stmt.setBoolean(QueryField.EDITABLE, transactionInfo.isEditable());
+            stmt.setString(QueryField.TRANSACTION_ID, transactionInfo.getTransactionId());
+            stmt.executeUpdate();        
+        }
     }
 }

@@ -22,4 +22,8 @@ public class Transactions {
     public static final String TRANSACTION_FLAG_WEBSERVER_TEST =   "WEBSERVERTEST";
     public static final String TRANSACTION_FLAG_WEBSERVICE_TEST =  "WEBSERVICETEST";
     public static final String TRANSACTION_FLAG_LOCALSERVER_TEST = "LOCALSERVERTEST";
+    
+    public static final int BUFFER_PROCESS_TYPE_ADD_TRANSACTION = 1;
+    public static final int BUFFER_PROCESS_TYPE_UPDATE_TRANSACTION = 2;
+    public static final int BUFFER_PROCESS_TYPE_ACTIVEMQ = 3;
 }

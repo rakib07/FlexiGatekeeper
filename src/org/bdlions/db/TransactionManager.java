@@ -7,6 +7,8 @@ package org.bdlions.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import org.bdlions.activemq.Producer;
 import org.bdlions.bean.SMSTransactionInfo;
 import org.bdlions.bean.TransactionInfo;
@@ -37,6 +39,10 @@ public class TransactionManager {
     public String getTransactionId()
     {
         return this.transactionId;
+    }
+
+    public void setResponseCode(int responseCode) {
+        this.responseCode = responseCode;
     }
     
     public int getResponseCode()
@@ -128,15 +134,15 @@ public class TransactionManager {
             UserServiceInfo userServiceInfo = transaction.getUserServiceInfo(transactionInfo.getAPIKey());
             transactionInfo.setServiceId(userServiceInfo.getServiceId());
             
-            if(transactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LOCALSERVER_TEST) || transactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LIVE))
-            {
-                //activemq to enqueue a new transaction
-                Producer producer = new Producer();
-                System.out.println(transactionInfo.toString());
-                producer.setMessage(transactionInfo.toString());
-                producer.setServiceQueueName(transactionInfo.getServiceId());
-                producer.produce();
-            }
+//            if(transactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LOCALSERVER_TEST) || transactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LIVE))
+//            {
+//                //activemq to enqueue a new transaction
+//                Producer producer = new Producer();
+//                System.out.println(transactionInfo.toString());
+//                producer.setMessage(transactionInfo.toString());
+//                producer.setServiceQueueName(transactionInfo.getServiceId());
+//                producer.produce();
+//            }
             
             this.responseCode = ResponseCodes.SUCCESS;
             
@@ -290,5 +296,84 @@ public class TransactionManager {
             this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
             logger.error(ex.getMessage());
         }
+    }
+    
+    public TransactionInfo getTransactionInfo(String transactionId)
+    {
+        TransactionInfo transactionInfo = new TransactionInfo();
+        Connection connection = null;
+        try {
+            connection = Database.getInstance().getConnection();
+            transaction = new Transaction();            
+            transactionInfo = transaction.getTransactionInfo(transactionId); 
+            this.responseCode = ResponseCodes.SUCCESS;
+            connection.close();
+        } catch (SQLException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
+            try {
+                if(connection != null){
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }
+        } catch (DBSetupException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
+            logger.error(ex.getMessage());
+        }
+        return transactionInfo;
+    }
+    
+    public void updateTransactionInfo(TransactionInfo transactionInfo)
+    {
+        Connection connection = null;
+        try {
+            connection = Database.getInstance().getConnection();
+            transaction = new Transaction();            
+            transaction.updateTransactionInfo(transactionInfo); 
+            this.responseCode = ResponseCodes.SUCCESS;
+            connection.close();
+        } catch (SQLException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
+            try {
+                if(connection != null){
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }
+        } catch (DBSetupException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
+            logger.error(ex.getMessage());
+        }
+    }
+    
+    public List<TransactionInfo> getEditableTransactionList()
+    {
+        List<TransactionInfo> transactionList = new ArrayList<>();
+        Connection connection = null;
+        try {
+            connection = Database.getInstance().getConnection();
+            transaction = new Transaction();            
+            transactionList = transaction.getEditableTransactionList(); 
+            this.responseCode = ResponseCodes.SUCCESS;
+            
+        } catch (SQLException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
+            try {
+                if(connection != null){
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }
+        } catch (DBSetupException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
+            logger.error(ex.getMessage());
+        }
+        return transactionList;
     }
 }

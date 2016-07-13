@@ -64,9 +64,9 @@ public class Producer {
         }
     }
     
-    public void setBkashCheckBalanceQueueName(String localServerIdentifier)
+    public void setBkashCheckBalanceQueueName(String simNo)
     {
-        this.serviceQueueName = localServerIdentifier+"_"+ServerPropertyProvider.get("SERVICE_QUEUE_BKASH_CHECK_BALANCE");
+        this.serviceQueueName = simNo+"_"+ServerPropertyProvider.get("SERVICE_QUEUE_CHECK_BALANCE");
     }
     
     public String getServiceQueueName()

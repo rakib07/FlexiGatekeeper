@@ -214,7 +214,7 @@ public class SIMManager {
                     Producer producer = new Producer();
                     producer.setMessage(transactionInfo.toString());
                     System.out.println("Executing the transaction:"+transactionInfo.toString());
-                    producer.setBkashCheckBalanceQueueName(simInfo.getIdentifier());
+                    producer.setBkashCheckBalanceQueueName(simInfo.getSimNo());
                     producer.produce();
                 }                
             }            

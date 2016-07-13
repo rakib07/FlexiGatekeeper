@@ -72,6 +72,8 @@
             <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/vertx-core-3.1.0.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/vertx-service-factory-3.1.0.jar"/>
             <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/vertx-web-3.1.0.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="${lib.dir}/commons-email-1.4.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="${lib.dir}/javax.mail.jar"/>
         </jar>
     </target>
 

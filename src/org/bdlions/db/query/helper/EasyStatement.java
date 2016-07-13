@@ -253,6 +253,23 @@ public class EasyStatement implements Statement {
             logger.debug("Set value: {} to column: {} at indexes[{}]", new Object[]{value, name, indexes[i]});
         }
     }
+    
+    /**
+     * Sets a parameter.
+     *
+     * @param name parameter name
+     * @param value parameter value
+     * @throws SQLException if an error occurred
+     * @throws IllegalArgumentException if the parameter does not exist
+     * @see PreparedStatement#setInt(int, int)
+     */
+    public void setBoolean(String name, boolean value) throws SQLException {
+        int[] indexes = getIndexes(name);
+        for (int i = 0; i < indexes.length; i++) {
+            statement.setBoolean(indexes[i], value);
+            logger.debug("Set value: {} to column: {} at indexes[{}]", new Object[]{value, name, indexes[i]});
+        }
+    }
 
     /**
      * Sets a parameter.

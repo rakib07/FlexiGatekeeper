@@ -56,6 +56,19 @@ public class TransactionManagerTest {
     //
     // @Test
     // public void hello() {}
+    //@Test
+    public void getTransactionInfoTest() throws DBSetupException, SQLException{
+        TransactionManager transactionManager = new TransactionManager();
+        TransactionInfo transactionInfo = transactionManager.getTransactionInfo("f5t8pthm2o42dm2f3c01ia8s1p");
+    }
+    
+    @Test
+    public void updateTransactionInfoTest() throws DBSetupException, SQLException{
+        TransactionManager transactionManager = new TransactionManager();
+        TransactionInfo transactionInfo = transactionManager.getTransactionInfo("f5t8pthm2o42dm2f3c01ia8s1p");
+        transactionInfo.setBalanceOut(50);
+        transactionManager.updateTransactionInfo(transactionInfo);
+    }
     
     //@Test
     public void addTransactionTest() throws DBSetupException, SQLException{
@@ -119,7 +132,7 @@ public class TransactionManagerTest {
         }
     }
     
-    @Test
+    //@Test
     public void addSMSTransactionTest() throws DBSetupException, SQLException{
         SMSTransactionInfo smsTransactionInfo = new SMSTransactionInfo();
         smsTransactionInfo.setSms("Hello World!");

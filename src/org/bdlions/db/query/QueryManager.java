@@ -29,6 +29,8 @@ public final class QueryManager {
     public static final String GET_ALL_SIMS = "db.query.get-all-sims";
     public static final String UPDATE_SIM_INFO = "db.query.update-sim-info";
     public static final String UPDATE_SIM_SERVICE_BALANCE_INFO = "db.query.update-sim-service-balance-info";
-    
+    public static final String GET_TRANSACTION_INFO = "db.query.get-transaction-info";
+    public static final String GET_EDITABLE_TRANSACTION_INFO = "db.query.get-editable-transaction-info";
+    public static final String UPDATE_TRANSACTION_INFO = "db.query.update-transaction-info";
     public static final String UPDATE_TRANSACTION_STATUS = "db.query.update-transaction-status";
 }

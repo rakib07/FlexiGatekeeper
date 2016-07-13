@@ -30,6 +30,7 @@ public class TransactionInfo {
     private int createdOn;
     private int modifiedOn;
     private String liveTestFlag = "";
+    private boolean editable = Boolean.FALSE;
     public TransactionInfo()
     {
         balanceIn = 0;
@@ -166,6 +167,15 @@ public class TransactionInfo {
     public void setLiveTestFlag(String liveTestFlag) {
         this.liveTestFlag = liveTestFlag;
     }
+
+    public boolean isEditable() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+    }
+    
     
     @Override
     public String toString() {

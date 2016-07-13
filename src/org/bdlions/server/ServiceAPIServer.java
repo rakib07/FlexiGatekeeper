@@ -5,7 +5,6 @@
  */
 package org.bdlions.server;
 
-import com.fasterxml.jackson.databind.JsonSerializer;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
@@ -20,13 +19,14 @@ import org.bdlions.bean.SIMInfo;
 import org.bdlions.bean.SIMServiceInfo;
 import org.bdlions.bean.SMSTransactionInfo;
 import org.bdlions.bean.TransactionInfo;
-import org.bdlions.bean.UserServiceInfo;
 import org.bdlions.constants.ResponseCodes;
 import org.bdlions.constants.Services;
+import org.bdlions.constants.Transactions;
+import org.bdlions.db.BufferManager;
 import org.bdlions.db.SIMManager;
 import org.bdlions.db.TransactionManager;
 import org.bdlions.response.ResultEvent;
-import org.bdlions.utility.Utils;
+import org.bdlions.utility.Email;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,6 +66,7 @@ public class ServiceAPIServer extends AbstractVerticle {
             transactionInfo.setCellNumber(cellNumber);
             transactionInfo.setDescription(description);
             transactionInfo.setLiveTestFlag(liveTestFlag);
+            transactionInfo.setEditable(Boolean.TRUE);
             try
             {
                 transactionInfo.setPackageId(Integer.parseInt(packageId));
@@ -89,13 +90,52 @@ public class ServiceAPIServer extends AbstractVerticle {
                 return;
             }
               
-            TransactionManager transactionManager = new TransactionManager();
-            transactionManager.addTransaction(transactionInfo);
-            int responseCode = transactionManager.getResponseCode();
+            //TransactionManager transactionManager = new TransactionManager();
+            //transactionManager.addTransaction(transactionInfo);
+            
+            BufferManager bufferManager = new BufferManager();
+            bufferManager.processBuffer(transactionInfo, Transactions.BUFFER_PROCESS_TYPE_ADD_TRANSACTION);
+            int responseCode = bufferManager.getTransactionManager().getResponseCode();
+            
             resultEvent.setResponseCode(responseCode);
             if(responseCode == ResponseCodes.SUCCESS)
             {
-                transactionInfo.setTransactionId(transactionManager.getTransactionId());
+                transactionInfo.setTransactionId(bufferManager.getTransactionManager().getTransactionId());
+                resultEvent.setResult(transactionInfo);
+            }
+            response.end(resultEvent.toString());
+        });
+        
+        router.route("/updatetransactioninfo*").handler(BodyHandler.create());
+        router.post("/updatetransactioninfo").handler((RoutingContext routingContext) -> {
+            HttpServerResponse response = routingContext.response();
+            ResultEvent resultEvent = new ResultEvent();
+            String transactionId = routingContext.request().getParam("transaction_id");
+            String amount = routingContext.request().getParam("amount");
+            String cellNumber = routingContext.request().getParam("cell_no");
+            TransactionInfo transactionInfo = new TransactionInfo();
+            transactionInfo.setTransactionId(transactionId);
+            transactionInfo.setCellNumber(cellNumber);
+            transactionInfo.setEditable(Boolean.TRUE);
+            try
+            {
+                transactionInfo.setBalanceOut(Double.parseDouble(amount));
+            }
+            catch(Exception ex)
+            {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                logger.error(ex.getMessage());
+                response.end(resultEvent.toString());
+                return;
+            }
+              
+            
+            BufferManager bufferManager = new BufferManager();
+            bufferManager.processBuffer(transactionInfo, Transactions.BUFFER_PROCESS_TYPE_UPDATE_TRANSACTION);
+            int responseCode = bufferManager.getTransactionManager().getResponseCode();
+            resultEvent.setResponseCode(responseCode);
+            if(responseCode == ResponseCodes.SUCCESS)
+            {
                 resultEvent.setResult(transactionInfo);
             }
             response.end(resultEvent.toString());
@@ -104,10 +144,12 @@ public class ServiceAPIServer extends AbstractVerticle {
         router.route("/addmultipletransactions*").handler(BodyHandler.create());
         router.post("/addmultipletransactions").handler((RoutingContext routingContext) -> {
             ResultEvent resultEvent = new ResultEvent();
+            HttpServerResponse response = routingContext.response();
             List<TransactionInfo> transactionInfoList = new ArrayList<>();
             String transactionList = routingContext.request().getParam("transction_list");
             String liveTestFlag = routingContext.request().getParam("livetestflag");
             JsonArray transactionArray = new JsonArray(transactionList);
+            BufferManager bufferManager = new BufferManager();
             TransactionManager transactionManager = new TransactionManager();
             for(int counter = 0 ; counter < transactionArray.size(); counter++)
             {
@@ -115,9 +157,34 @@ public class ServiceAPIServer extends AbstractVerticle {
                 String id = jsonObject.getString("id"); 
                 String cellNo = jsonObject.getString("cell_no"); 
                 String APIKey = jsonObject.getString("APIKey"); 
+                String packageId = jsonObject.getString("operator_type_id");
+                String amount = jsonObject.getString("amount");
                 
                 TransactionInfo transactionInfo = new TransactionInfo();
+                transactionInfo.setEditable(Boolean.TRUE);
                 transactionInfo.setAPIKey(APIKey);
+                try
+                {
+                    transactionInfo.setPackageId(Integer.parseInt(packageId));
+                }
+                catch(Exception ex)
+                {
+                    resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_OPERATOR_PACKAGE_ID);
+                    logger.error(ex.getMessage());
+                    response.end(resultEvent.toString());
+                    return;
+                }
+                try
+                {
+                    transactionInfo.setBalanceOut(Double.parseDouble(amount));
+                }
+                catch(Exception ex)
+                {
+                    resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                    logger.error(ex.getMessage());
+                    response.end(resultEvent.toString());
+                    return;
+                }
                 transactionInfo.setLiveTestFlag(liveTestFlag);
                 transactionInfo.setCellNumber(cellNo);
                 transactionInfo.setReferenceId(id);
@@ -126,18 +193,19 @@ public class ServiceAPIServer extends AbstractVerticle {
                 //UserServiceInfo userServiceInfo = transactionManager.getUserServiceInfo(APIKey);
                 //transactionInfo.setServiceId(userServiceInfo.getServiceId());
                 
-                transactionManager.addTransaction(transactionInfo);
-                int responseCode = transactionManager.getResponseCode();
+                //transactionManager.addTransaction(transactionInfo);
+                bufferManager.processBuffer(transactionInfo, Transactions.BUFFER_PROCESS_TYPE_ADD_TRANSACTION);
+                int responseCode = bufferManager.getTransactionManager().getResponseCode();
                 if(responseCode == ResponseCodes.SUCCESS)
                 {
                     transactionInfo.setTransactionId(transactionManager.getTransactionId());
-                }  
+                } 
+                //what will you do if response code is not success?
                 transactionInfoList.add(transactionInfo);
             }            
             resultEvent.setResult(transactionInfoList);
-            resultEvent.setResponseCode(ResponseCodes.SUCCESS);
+            resultEvent.setResponseCode(ResponseCodes.SUCCESS);            
             
-            HttpServerResponse response = routingContext.response();
             response.end(resultEvent.toString());
         });
         
@@ -256,6 +324,17 @@ public class ServiceAPIServer extends AbstractVerticle {
                 resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_WEBSERVICE_PROCESS_EXCEPTION);
                 logger.error(ex.toString());
             }
+            response.end(resultEvent.toString());            
+        });
+        
+        router.route("/sendemail*").handler(BodyHandler.create());
+        router.post("/sendemail").handler((RoutingContext routingContext) -> {
+            HttpServerResponse response = routingContext.response();
+            ResultEvent resultEvent = new ResultEvent();
+            String receiverEmail = routingContext.request().getParam("email");
+            String message = routingContext.request().getParam("message");
+            Email email = new Email();
+            email.sendEmail(receiverEmail, message);
             response.end(resultEvent.toString());            
         });
         

@@ -25,4 +25,5 @@ public class ResponseCodes {
     public static final int ERROR_CODE_ACTIVEMQ_EXCEPTION = 5011;
     public static final int ERROR_CODE_UNAUTHENTICATED_SERVICE = 5012;
     public static final int ERROR_CODE_NO_CONSUMER = 5013;
+    public static final int ERROR_CODE_UPDATE_TRANSACTION_NOT_ALLOWED = 5014;
 }

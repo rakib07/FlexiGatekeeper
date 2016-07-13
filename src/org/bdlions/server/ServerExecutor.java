@@ -9,7 +9,10 @@ import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.activemq.camel.component.ActiveMQComponent;
 import org.bdlions.activemq.MessageQServer;
+import org.bdlions.db.ActiveMQManager;
+import org.bdlions.db.BufferManager;
 import org.bdlions.db.Database;
 import org.bdlions.exceptions.DBSetupException;
 
@@ -32,18 +35,22 @@ public class ServerExecutor {
         options.setMaxEventLoopExecuteTime(Long.MAX_VALUE);
         
         //run Authentication server
-        Vertx authVerticle = Vertx.vertx();
+        Vertx authVerticle = Vertx.vertx(options);
         authVerticle.deployVerticle(new AuthServer());
         
         //run keepalive server
-        Vertx keepAliveVerticle = Vertx.vertx();
+        Vertx keepAliveVerticle = Vertx.vertx(options);
         keepAliveVerticle.deployVerticle(new KeepAliveServer());
         
         //run serviceAPI server
-        Vertx serviceAPIVerticle = Vertx.vertx();
+        Vertx serviceAPIVerticle = Vertx.vertx(options);
         serviceAPIVerticle.deployVerticle(new ServiceAPIServer());
         System.out.println("Server has started.");
-        MessageQServer.getInstance().start(); 
+        MessageQServer.getInstance().start();
+        
+        BufferManager bufferManager = new BufferManager();
+        ActiveMQManager activeMQManager = new ActiveMQManager(bufferManager, "activemqmanager");
+        activeMQManager.start();
         
     }
 }
