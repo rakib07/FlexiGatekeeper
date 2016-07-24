@@ -536,6 +536,26 @@ public class AuthServer extends AbstractVerticle {
             HttpServerResponse response = routingContext.response();
             response.end(topCustomerList.toString());
         });
+        
+        router.route("/getbaseurl*").handler(BodyHandler.create());
+        router.post("/getbaseurl").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String code = routingContext.request().getParam("code");
+            try {
+                //for testing purpose we have dont it. late base url will be retrived from the database.
+                if(code.equals("c1"))
+                {
+                    String baseUrl = "http://209.74.107.235/rimitel/";
+                    resultEvent.setResult(baseUrl);
+                    resultEvent.setResponseCode(ResponseCodes.SUCCESS);
+                }
+            } catch (Exception ex) {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
+        });
 
         router.route("/getServiceProfitList*").handler(BodyHandler.create());
         router.post("/getServiceProfitList").handler((RoutingContext routingContext) -> {
