@@ -17,10 +17,10 @@ public class Producer {
         this.message = message;
     }
     
-    public void setServiceQueueName(int serviceId)
+    public void setServiceQueueName(int serviceId, String localServerIdentifier)
     {
         //if we have several local server then dynamically provide the identifier of local server
-        String localServerIdentifier = "ls1";
+        //String localServerIdentifier = "ls1";
         if(serviceId == Services.SERVICE_TYPE_ID_BKASH_CASHIN)
         {
             this.serviceQueueName = localServerIdentifier+"_"+ServerPropertyProvider.get("SERVICE_QUEUE_BKASH_CASHIN");
@@ -56,7 +56,7 @@ public class Producer {
         }
         if(serviceId == Services.SERVICE_TYPE_ID_TOPUP_TELETALK)
         {
-            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_TOPUPTELETALK");
+            this.serviceQueueName = localServerIdentifier+"_"+ServerPropertyProvider.get("SERVICE_QUEUE_TOPUPTELETALK");
         }
         if(serviceId == Services.SERVICE_TYPE_ID_SEND_SMS)
         {
@@ -64,7 +64,7 @@ public class Producer {
         }
     }
     
-    public void setBkashCheckBalanceQueueName(String simNo)
+    public void setCheckBalanceQueueName(String simNo)
     {
         this.serviceQueueName = simNo+"_"+ServerPropertyProvider.get("SERVICE_QUEUE_CHECK_BALANCE");
     }

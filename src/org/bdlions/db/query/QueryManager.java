@@ -33,4 +33,7 @@ public final class QueryManager {
     public static final String GET_EDITABLE_TRANSACTION_INFO = "db.query.get-editable-transaction-info";
     public static final String UPDATE_TRANSACTION_INFO = "db.query.update-transaction-info";
     public static final String UPDATE_TRANSACTION_STATUS = "db.query.update-transaction-status";
+    public static final String GET_BASE_URL_OP_CODE = "db.query.get-base-url-op-code";
+    public static final String GET_BASE_URL_TRANSACTION_ID = "db.query.get-base-url-transaction-id";
+    public static final String GET_LOCAL_SERVER_IDENTIFIER = "db.query.get-local-server-identifier";
 }

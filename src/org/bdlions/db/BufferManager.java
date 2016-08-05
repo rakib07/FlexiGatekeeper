@@ -64,48 +64,68 @@ public class BufferManager {
         {
             System.out.println("ProcessType:"+processType);
             List<TransactionInfo> transactionList = transactionManager.getEditableTransactionList();
-            for(int counter = 0; counter < transactionList.size(); counter++)
+            int transactionListSize = transactionList.size();
+            if(transactionListSize > 0)
             {
-                TransactionInfo editableTransactionInfo = new TransactionInfo();
-                editableTransactionInfo = transactionList.get(counter);
-                System.out.println(editableTransactionInfo.getTransactionId());
-                int currentTime = Utils.getCurrentUnixTime();
-                int createdOn = editableTransactionInfo.getCreatedOn();
-                if(currentTime >= createdOn + bufferTime)
+                AuthManager authManager = new AuthManager();
+                String lsIdentifier = "";
+                String baseURL = "";
+                for(int counter = 0; counter < transactionList.size(); counter++)
                 {
-                    System.out.println("We need to update editable status of this transaction.");
-                    editableTransactionInfo.setEditable(Boolean.FALSE);
-                    transactionManager.updateTransactionInfo(editableTransactionInfo);
-                    //forward the transaction to activemq                    
-                    try
+                    TransactionInfo editableTransactionInfo = new TransactionInfo();
+                    editableTransactionInfo = transactionList.get(counter);
+                    System.out.println(editableTransactionInfo.getTransactionId());
+                    int currentTime = Utils.getCurrentUnixTime();
+                    int createdOn = editableTransactionInfo.getCreatedOn();
+                    if(currentTime >= createdOn + bufferTime)
                     {
-                        //if(editableTransactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LOCALSERVER_TEST) || editableTransactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LIVE))
+                        System.out.println("We need to update editable status of this transaction.");
+                        editableTransactionInfo.setEditable(Boolean.FALSE);
+                        transactionManager.updateTransactionInfo(editableTransactionInfo);
+                        //forward the transaction to activemq
+                        if(lsIdentifier == null || lsIdentifier.equals(""))
                         {
-                            //activemq to enqueue a new transaction
-                            Producer producer = new Producer();
-                            System.out.println(editableTransactionInfo.toString());
-                            producer.setMessage(editableTransactionInfo.toString());
-                            producer.setServiceQueueName(editableTransactionInfo.getServiceId());
-                            producer.produce();
+                            lsIdentifier = authManager.getLSIdentifier(editableTransactionInfo.getAPIKey());
                         }
+                        if(baseURL == null || baseURL.equals(""))
+                        {
+                            baseURL = authManager.getBaseURLTransactionId(editableTransactionInfo.getTransactionId());
+                        }
+                        if(lsIdentifier != null && !lsIdentifier.equals(""))
+                        {
+                            try
+                            {
+                                //if(editableTransactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LOCALSERVER_TEST) || editableTransactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LIVE))
+                                {
+                                    //activemq to enqueue a new transaction
+                                    Producer producer = new Producer();
+                                    System.out.println(editableTransactionInfo.toString());
+                                    producer.setMessage(editableTransactionInfo.toString());
+                                    producer.setServiceQueueName(editableTransactionInfo.getServiceId(), lsIdentifier);
+                                    System.out.println("Queue name:"+producer.getServiceQueueName());
+                                    producer.produce();
+                                }
+                            }
+                            catch(Exception ex)
+                            {
+
+                            }
+                            //execute callback function to update editable at webserver
+                            try
+                            {
+                                CallbackTransactionManager callbackTransactionManager = new CallbackTransactionManager();
+                                callbackTransactionManager.setBaseURL(baseURL);
+                                callbackTransactionManager.updateTransactionEditableStatus(editableTransactionInfo.getTransactionId(), editableTransactionInfo.isEditable());
+                            }
+                            catch(Exception ex)
+                            {
+
+                            }
+                        }                        
                     }
-                    catch(Exception ex)
-                    {
-                        
-                    }
-                    //execute callback function to update editable at webserver
-                    try
-                    {
-                        CallbackTransactionManager callbackTransactionManager = new CallbackTransactionManager();
-                        callbackTransactionManager.updateTransactionEditableStatus(editableTransactionInfo.getTransactionId(), editableTransactionInfo.isEditable());
-                    }
-                    catch(Exception ex)
-                    {
-                    
-                    }
+
                 }
-                
-            }
+            }            
         }        
     }
 }

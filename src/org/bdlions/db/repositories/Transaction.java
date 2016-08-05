@@ -29,7 +29,7 @@ public class Transaction {
     /***
      * Restrict to call without connection
      */
-    public Transaction(){}
+    private Transaction(){}
     public Transaction(Connection connection) {
         this.connection = connection;
     }
@@ -44,7 +44,7 @@ public class Transaction {
     public UserServiceInfo getUserServiceInfo(String APIKey) throws DBSetupException, SQLException
     {
         UserServiceInfo userServiceInfo = new UserServiceInfo();
-        try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.GET_USER_SERVICE_INFO);){
+        try (EasyStatement stmt = new EasyStatement(this.connection, QueryManager.GET_USER_SERVICE_INFO);){
             stmt.setString(QueryField.API_KEY, APIKey);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -66,7 +66,7 @@ public class Transaction {
     {
         int currentTime = Utils.getCurrentUnixTime();
         String transactionId = Utils.getTransactionId();
-        try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.CREATE_TRANSACTION)) {
+        try (EasyStatement stmt = new EasyStatement(this.connection, QueryManager.CREATE_TRANSACTION)) {
             stmt.setString(QueryField.TRANSACTION_ID, transactionId);
             stmt.setString(QueryField.API_KEY, transactionInfo.getAPIKey());
             stmt.setDouble(QueryField.BALANCE_IN, transactionInfo.getBalanceIn());
@@ -93,7 +93,7 @@ public class Transaction {
     public void createSMSDetails(SMSTransactionInfo smsTransactionInfo) throws DBSetupException, SQLException
     {
         int currentTime = Utils.getCurrentUnixTime();
-        try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.ADD_SMS_DETAILS)) {
+        try (EasyStatement stmt = new EasyStatement(this.connection, QueryManager.ADD_SMS_DETAILS)) {
             stmt.setString(QueryField.TRANSACTION_ID, smsTransactionInfo.getTransactionId());
             stmt.setString(QueryField.API_KEY, smsTransactionInfo.getAPIKey());
             stmt.setString(QueryField.SMS, smsTransactionInfo.getSms());
@@ -119,7 +119,7 @@ public class Transaction {
         for(int counter = 0; counter < length ; counter++)
         {
             String cellNumber = cellNumberList.get(counter);
-            try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.CREATE_SMS_TRANSACTION)) {
+            try (EasyStatement stmt = new EasyStatement(this.connection, QueryManager.CREATE_SMS_TRANSACTION)) {
                 stmt.setString(QueryField.TRANSACTION_ID, smsTransactionInfo.getTransactionId());
                 stmt.setString(QueryField.TRANSACTION_CELL_NUMBER, cellNumber);
                 stmt.setInt(QueryField.TRANSACTION_STATUS_ID, smsTransactionInfo.getTransactionStatusId());
@@ -139,7 +139,7 @@ public class Transaction {
      */
     public void updateTransactionStatus(TransactionInfo transactionInfo) throws DBSetupException, SQLException
     {
-        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.UPDATE_TRANSACTION_STATUS);){
+        try (EasyStatement stmt = new EasyStatement(this.connection, QueryManager.UPDATE_TRANSACTION_STATUS);){
             stmt.setInt(QueryField.TRANSACTION_STATUS_ID, transactionInfo.getTransactionStatusId());
             stmt.setString(QueryField.TRANSACTION_ID, transactionInfo.getTransactionId());
             stmt.executeUpdate();        
@@ -156,7 +156,7 @@ public class Transaction {
     public double getAvailableBalance(String APIKey) throws DBSetupException, SQLException
     {
         double currentBalance = 0;
-        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_CURRENT_BALANCE);){
+        try (EasyStatement stmt = new EasyStatement(this.connection, QueryManager.GET_CURRENT_BALANCE);){
             stmt.setString(QueryField.API_KEY, APIKey);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -169,7 +169,7 @@ public class Transaction {
     public TransactionInfo getTransactionInfo(String transactionId)  throws DBSetupException, SQLException
     {
         TransactionInfo transactionInfo = new TransactionInfo();
-        try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.GET_TRANSACTION_INFO);){
+        try (EasyStatement stmt = new EasyStatement(this.connection, QueryManager.GET_TRANSACTION_INFO);){
             stmt.setString(QueryField.TRANSACTION_ID, transactionId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -190,7 +190,7 @@ public class Transaction {
     public List<TransactionInfo> getEditableTransactionList()  throws DBSetupException, SQLException
     {
         List<TransactionInfo> transactionList = new ArrayList<>();
-        try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.GET_EDITABLE_TRANSACTION_INFO);){
+        try (EasyStatement stmt = new EasyStatement(this.connection, QueryManager.GET_EDITABLE_TRANSACTION_INFO);){
             stmt.setBoolean(QueryField.EDITABLE, Boolean.TRUE);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -214,7 +214,7 @@ public class Transaction {
     
     public void updateTransactionInfo(TransactionInfo transactionInfo) throws DBSetupException, SQLException
     {
-        try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.UPDATE_TRANSACTION_INFO);){
+        try (EasyStatement stmt = new EasyStatement(this.connection, QueryManager.UPDATE_TRANSACTION_INFO);){
             stmt.setString(QueryField.API_KEY, transactionInfo.getAPIKey());
             stmt.setDouble(QueryField.BALANCE_IN, transactionInfo.getBalanceIn());
             stmt.setDouble(QueryField.BALANCE_OUT, transactionInfo.getBalanceOut());

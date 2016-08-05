@@ -150,7 +150,6 @@ public class ServiceAPIServer extends AbstractVerticle {
             String liveTestFlag = routingContext.request().getParam("livetestflag");
             JsonArray transactionArray = new JsonArray(transactionList);
             BufferManager bufferManager = new BufferManager();
-            TransactionManager transactionManager = new TransactionManager();
             for(int counter = 0 ; counter < transactionArray.size(); counter++)
             {
                 JsonObject jsonObject = new JsonObject(transactionArray.getValue(counter).toString());
@@ -198,7 +197,7 @@ public class ServiceAPIServer extends AbstractVerticle {
                 int responseCode = bufferManager.getTransactionManager().getResponseCode();
                 if(responseCode == ResponseCodes.SUCCESS)
                 {
-                    transactionInfo.setTransactionId(transactionManager.getTransactionId());
+                    transactionInfo.setTransactionId(bufferManager.getTransactionManager().getTransactionId());
                 } 
                 //what will you do if response code is not success?
                 transactionInfoList.add(transactionInfo);
@@ -223,26 +222,9 @@ public class ServiceAPIServer extends AbstractVerticle {
             }
             catch(Exception ex)
             {
-                
+                logger.error(ex.getMessage());
             }
-            try
-            {
-                SIMManager simManager = new SIMManager();
-                SIMInfo simInfo = new SIMInfo();
-                simInfo.setSimNo(senderCellNumber);
-                SIMServiceInfo simServiceInfo = new SIMServiceInfo();
-                simServiceInfo.setCurrentBalance(balance);
-                simServiceInfo.setId(Services.SIM_SERVICE_TYPE_ID_BKASH);
-                simInfo.getSimServiceList().add(simServiceInfo);
-                simManager.updateSIMServiceBalanceInfo(simInfo);
-                
-                int responseCode = simManager.getResponseCode();
-                resultEvent.setResponseCode(responseCode); 
-            }
-            catch(Exception ex)
-            {
-                
-            }
+            
             if(!transactionId.equals(""))
             {
                 try
@@ -261,6 +243,29 @@ public class ServiceAPIServer extends AbstractVerticle {
                 catch(Exception ex)
                 {
                     resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_UPDATE_TRANSACTION_STATUS_FAILED);
+                    logger.error(ex.getMessage());
+                }
+            }
+            else
+            {
+                //before updating sim balance check different parameters.
+                //right now it is assumed that we are upting bkash sim balance only
+                try
+                {
+                    SIMManager simManager = new SIMManager();
+                    SIMInfo simInfo = new SIMInfo();
+                    simInfo.setSimNo(senderCellNumber);
+                    SIMServiceInfo simServiceInfo = new SIMServiceInfo();
+                    simServiceInfo.setCurrentBalance(balance);
+                    simServiceInfo.setId(Services.SIM_SERVICE_TYPE_ID_BKASH);
+                    simInfo.getSimServiceList().add(simServiceInfo);
+                    simManager.updateSIMServiceBalanceInfo(simInfo);
+
+                    int responseCode = simManager.getResponseCode();
+                    resultEvent.setResponseCode(responseCode); 
+                }
+                catch(Exception ex)
+                {
                     logger.error(ex.getMessage());
                 }
             }

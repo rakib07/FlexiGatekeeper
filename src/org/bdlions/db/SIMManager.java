@@ -42,7 +42,7 @@ public class SIMManager {
         try
         {
             connection = Database.getInstance().getConnection();
-            sim = new SIM();
+            sim = new SIM(connection);
             sim.addSIM(simInfo);
             connection.close();
             this.responseCode = ResponseCodes.SUCCESS;
@@ -77,7 +77,7 @@ public class SIMManager {
         try
         {
             connection = Database.getInstance().getConnection();
-            sim = new SIM();
+            sim = new SIM(connection);
             simInfo = sim.getSIMInfo(simNo);
             connection.close();
         }
@@ -111,7 +111,7 @@ public class SIMManager {
         try
         {
             connection = Database.getInstance().getConnection();
-            sim = new SIM();
+            sim = new SIM(connection);
             simList = sim.getAllSIMs();
             connection.close();
         }
@@ -145,7 +145,7 @@ public class SIMManager {
         {
             connection = Database.getInstance().getConnection();
             connection.setAutoCommit(false);
-            sim = new SIM();
+            sim = new SIM(connection);
             sim.updateSIMInfo(simInfo);
             sim.updateSIMServiceBalanceInfo(simInfo);
             connection.commit();
@@ -175,7 +175,7 @@ public class SIMManager {
         try
         {
             connection = Database.getInstance().getConnection();
-            sim = new SIM();
+            sim = new SIM(connection);
             sim.updateSIMServiceBalanceInfo(simInfo);
             connection.close();
             this.responseCode = ResponseCodes.SUCCESS;
@@ -214,7 +214,7 @@ public class SIMManager {
                     Producer producer = new Producer();
                     producer.setMessage(transactionInfo.toString());
                     System.out.println("Executing the transaction:"+transactionInfo.toString());
-                    producer.setBkashCheckBalanceQueueName(simInfo.getSimNo());
+                    producer.setCheckBalanceQueueName(simInfo.getSimNo());
                     producer.produce();
                 }                
             }            

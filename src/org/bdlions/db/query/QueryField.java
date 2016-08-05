@@ -42,4 +42,7 @@ public class QueryField {
     public static final String DESCRIPTION = "description";
     public static final String STATUS = "status";
     public static final String CATEGORY_ID = "category_id";
+    public static final String OP_CODE = "op_code";
+    public static final String BASE_URL = "base_url";
+    public static final String LS_IDENTIFIER = "ls_identifier";
 }

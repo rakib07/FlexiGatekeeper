@@ -21,19 +21,27 @@ import org.slf4j.LoggerFactory;
  */
 public class CallbackTransactionManager {
     private static final String USER_AGENT = "Mozilla/5.0";
-    private static String TRANSACTION_STATUS_UPDATE_URL;
-    private static String TRANSACTION_EDITABLE_STATUS_UPDATE_URL;
+    private String baseURL;
     private static final Logger logger = LoggerFactory.getLogger(CallbackTransactionManager.class.getName());
     public CallbackTransactionManager()
     {
         
     }
+
+    public void setBaseURL(String baseURL) {
+        this.baseURL = baseURL;
+    }
     
     public void updateTransactionStatus(String transactionId, int statusId, String senderCellNumber)
     {
+        logger.debug("baseURL:"+baseURL);
+        logger.debug("transactionId:"+transactionId);
+        logger.debug("statusId:"+statusId);
+        logger.debug("senderCellNumber:"+senderCellNumber);
         try {
-            this.TRANSACTION_STATUS_UPDATE_URL = ServerPropertyProvider.get("CALLBACK_URL");
-            URL obj = new URL(TRANSACTION_STATUS_UPDATE_URL);
+            String transactionStatusPath = ServerPropertyProvider.get("CALLBACK_URL");
+            URL obj = new URL(this.baseURL+transactionStatusPath);
+            logger.debug("url:"+baseURL+transactionStatusPath);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
             //add reuqest header
@@ -64,7 +72,8 @@ public class CallbackTransactionManager {
                         //if (result != null && result.equals(ResponseCode.SUCCESS)) {
                         if (result != null) {
                             //check valid response with response code
-                            System.out.println("CallbackTransactionManager:response:"+result);
+                            System.out.println("CallbackTransactionManager->updateTransactionStatus:response:"+result);
+                            logger.debug("CallbackTransactionManager->updateTransactionStatus:response:"+result);
                         }
                         else
                         {
@@ -91,8 +100,8 @@ public class CallbackTransactionManager {
     public void updateTransactionEditableStatus(String transactionId, boolean editable)
     {
         try {
-            this.TRANSACTION_EDITABLE_STATUS_UPDATE_URL = ServerPropertyProvider.get("CALLBACK_URL_UPDATE_TRANSACTION_EDITABLE_STATUS");
-            URL obj = new URL(TRANSACTION_EDITABLE_STATUS_UPDATE_URL);
+            String transactionEditableStatusPath = ServerPropertyProvider.get("CALLBACK_URL_UPDATE_TRANSACTION_EDITABLE_STATUS");
+            URL obj = new URL(this.baseURL+transactionEditableStatusPath);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
             //add reuqest header
@@ -123,7 +132,8 @@ public class CallbackTransactionManager {
                         //if (result != null && result.equals(ResponseCode.SUCCESS)) {
                         if (result != null) {
                             //check valid response with response code
-                            System.out.println("CallbackTransactionManager:response:"+result);
+                            System.out.println("CallbackTransactionManager->updateTransactionEditableStatus:response:"+result);
+                            logger.debug("CallbackTransactionManager->updateTransactionEditableStatus:response:"+result);
                         }
                         else
                         {

@@ -62,7 +62,7 @@ public class TransactionManagerTest {
         TransactionInfo transactionInfo = transactionManager.getTransactionInfo("f5t8pthm2o42dm2f3c01ia8s1p");
     }
     
-    @Test
+    //@Test
     public void updateTransactionInfoTest() throws DBSetupException, SQLException{
         TransactionManager transactionManager = new TransactionManager();
         TransactionInfo transactionInfo = transactionManager.getTransactionInfo("f5t8pthm2o42dm2f3c01ia8s1p");
@@ -82,11 +82,12 @@ public class TransactionManagerTest {
         transactionManager.addTransaction(transactionInfo);
     }
     
-    //@Test
+    @Test
     public void updateTransactionStatusTest() throws DBSetupException, SQLException{
         TransactionInfo transactionInfo = new TransactionInfo();
-        transactionInfo.setTransactionId("cqajvooe9sr5vsr4gprkbqnvk0");
+        transactionInfo.setTransactionId("6v9aefbeo3bubucb3999mpac37");
         transactionInfo.setTransactionStatusId(2);
+        transactionInfo.setSenderCellNumber("8801712341213");
         
         TransactionManager transactionManager = new TransactionManager();
         transactionManager.updateTransactionStatus(transactionInfo);

@@ -8,6 +8,7 @@ import org.bdlions.bean.UserInfo;
 import org.bdlions.bean.UserServiceInfo;
 import org.bdlions.constants.ResponseCodes;
 import org.bdlions.db.query.helper.EasyStatement;
+import org.bdlions.db.repositories.General;
 import org.bdlions.db.repositories.User;
 import org.bdlions.db.repositories.Service;
 import org.bdlions.db.repositories.Session;
@@ -223,6 +224,78 @@ public class AuthManager {
             
         }
         return sessionInfo.toString();
+    }
+    
+    public String getBaseURLOPCode(String opCode)
+    {
+        String baseURL = "";
+        Connection connection = null;
+        try {
+            connection = Database.getInstance().getConnection();
+            General general = new General(connection);
+            baseURL = general.getBaseURLOPCode(opCode);
+            connection.close();
+        } catch (SQLException ex) {
+            try {
+                if(connection != null){
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }
+            logger.error(ex.getMessage());
+        } catch (DBSetupException ex) {
+            logger.error(ex.getMessage());
+        }
+        return baseURL;
+    }
+    
+    public String getBaseURLTransactionId(String transactionId)
+    {
+        String baseURL = "";
+        Connection connection = null;
+        try {
+            connection = Database.getInstance().getConnection();
+            General general = new General(connection);
+            baseURL = general.getBaseURLTransactionId(transactionId);
+            connection.close();
+        } catch (SQLException ex) {
+            try {
+                if(connection != null){
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }
+            logger.error(ex.getMessage());
+        } catch (DBSetupException ex) {
+            logger.error(ex.getMessage());
+        }
+        return baseURL;
+    }
+    
+    public String getLSIdentifier(String apiKey)
+    {
+        String lsIdentifier = "";
+        Connection connection = null;
+        try {
+            connection = Database.getInstance().getConnection();
+            General general = new General(connection);
+            lsIdentifier = general.getLSIdentifier(apiKey);
+            connection.close();
+        } catch (SQLException ex) {
+            try {
+                if(connection != null){
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }
+            logger.error(ex.getMessage());
+        } catch (DBSetupException ex) {
+            logger.error(ex.getMessage());
+        }
+        return lsIdentifier;
     }
     
     public static void main(String args[])

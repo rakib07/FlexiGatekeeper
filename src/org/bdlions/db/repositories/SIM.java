@@ -1,12 +1,12 @@
 package org.bdlions.db.repositories;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.bdlions.bean.SIMInfo;
 import org.bdlions.bean.SIMServiceInfo;
-import org.bdlions.db.Database;
 import org.bdlions.db.query.QueryField;
 import org.bdlions.db.query.QueryManager;
 import org.bdlions.db.query.helper.EasyStatement;
@@ -18,10 +18,16 @@ import org.bdlions.utility.Utils;
  * @author nazmul hasan
  */
 public class SIM {
-    public SIM()
+    private Connection connection;
+    /***
+     * Restrict to call without connection
+     */
+    private SIM(){}
+    public SIM(Connection connection)
     {
-    
+        this.connection = connection;
     }
+    
     
     /**
      * This method will add a new SIM into the database
@@ -32,7 +38,7 @@ public class SIM {
     public void addSIM(SIMInfo simInfo) throws DBSetupException, SQLException
     {
         int currentTime = Utils.getCurrentUnixTime();
-        try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.ADD_SIM)) {
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_SIM)) {
             stmt.setString(QueryField.SIM_NO, simInfo.getSimNo());
             stmt.setString(QueryField.IDENTIFIER, simInfo.getIdentifier());
             stmt.setString(QueryField.DESCRIPTION, simInfo.getDescription());
@@ -45,7 +51,7 @@ public class SIM {
         {
             //right now we are storing one service under one sim
             SIMServiceInfo simServiceInfo = simInfo.getSimServiceList().get(0);
-            try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.ADD_SIM_SERVICE)) {
+            try (EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_SIM_SERVICE)) {
                 stmt.setString(QueryField.SIM_NO, simInfo.getSimNo());
                 stmt.setInt(QueryField.SERVICE_ID, simServiceInfo.getId());
                 stmt.setInt(QueryField.CATEGORY_ID, simServiceInfo.getCategoryId());
@@ -67,7 +73,7 @@ public class SIM {
     public List<SIMInfo> getAllSIMs() throws DBSetupException, SQLException
     {
         List<SIMInfo> simList = new ArrayList<>();
-        try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.GET_ALL_SIMS);){
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_ALL_SIMS);){
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 SIMInfo simInfo = new SIMInfo();
@@ -96,7 +102,7 @@ public class SIM {
     public SIMInfo getSIMInfo(String simNo) throws DBSetupException, SQLException
     {
         SIMInfo simInfo = new SIMInfo();
-        try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.GET_SIM_INFO);){
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_SIM_INFO);){
             stmt.setString(QueryField.SIM_NO, simNo);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -122,7 +128,7 @@ public class SIM {
      */
     public void updateSIMInfo(SIMInfo simInfo) throws DBSetupException, SQLException
     {
-        try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.UPDATE_SIM_INFO);){
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.UPDATE_SIM_INFO);){
             stmt.setString(QueryField.IDENTIFIER, simInfo.getIdentifier());
             stmt.setString(QueryField.DESCRIPTION, simInfo.getDescription());
             stmt.setInt(QueryField.STATUS, simInfo.getStatus());
@@ -143,7 +149,7 @@ public class SIM {
         if(simInfo.getSimServiceList().size() > 0)
         {
             SIMServiceInfo simServiceInfo = simInfo.getSimServiceList().get(0);
-            try (EasyStatement stmt = new EasyStatement(Database.getInstance().getConnection(), QueryManager.UPDATE_SIM_SERVICE_BALANCE_INFO);){
+            try (EasyStatement stmt = new EasyStatement(connection, QueryManager.UPDATE_SIM_SERVICE_BALANCE_INFO);){
                 stmt.setDouble(QueryField.CURRENT_BALANCE, simServiceInfo.getCurrentBalance());
                 stmt.setInt(QueryField.MODIFIED_ON, currentTime);
                 stmt.setString(QueryField.SIM_NO, simInfo.getSimNo());

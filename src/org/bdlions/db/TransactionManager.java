@@ -58,15 +58,26 @@ public class TransactionManager {
     public UserServiceInfo getUserServiceInfo(String APIKey)
     {
         UserServiceInfo userServiceInfo = new UserServiceInfo();
-        transaction = new Transaction();
+        Connection connection = null;
+        
         try
         {
+            connection = Database.getInstance().getConnection();
+            transaction = new Transaction(connection);
             userServiceInfo = transaction.getUserServiceInfo(APIKey);
             this.responseCode = ResponseCodes.SUCCESS;
+            connection.close();
         }
         catch (SQLException ex) {
             this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
             logger.error(ex.getMessage());
+            try {
+                if(connection != null){
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }
         } catch (DBSetupException ex) {
             this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
             logger.error(ex.getMessage());
@@ -193,7 +204,7 @@ public class TransactionManager {
             }
             connection = Database.getInstance().getConnection();
             connection.setAutoCommit(false);
-            transaction = new Transaction();
+            transaction = new Transaction(connection);
             
             UserServiceInfo userServiceInfo = transaction.getUserServiceInfo(smsTranactionInfo.getAPIKey());
             smsTranactionInfo.setServiceId(userServiceInfo.getServiceId());
@@ -231,7 +242,9 @@ public class TransactionManager {
                 //activemq to enqueue a new transaction
                 Producer producer = new Producer();
                 producer.setMessage(smsTranactionInfo.toString());
-                producer.setServiceQueueName(smsTranactionInfo.getServiceId());
+                //Set local server identifier based on api key.///////////////
+                String localServerIdentifier = "";
+                producer.setServiceQueueName(smsTranactionInfo.getServiceId(), localServerIdentifier);
                 producer.produce();                
             }            
             this.responseCode = ResponseCodes.SUCCESS;            
@@ -278,7 +291,11 @@ public class TransactionManager {
             transaction = new Transaction(connection);
             
             transaction.updateTransactionStatus(transactionInfo); 
+            
+            AuthManager authManager = new AuthManager();
+            String baseURL = authManager.getBaseURLTransactionId(transactionInfo.getTransactionId());
             CallbackTransactionManager callbackTransactionManager = new CallbackTransactionManager();
+            callbackTransactionManager.setBaseURL(baseURL);
             callbackTransactionManager.updateTransactionStatus(transactionInfo.getTransactionId(), transactionInfo.getTransactionStatusId(), transactionInfo.getSenderCellNumber());
             this.responseCode = ResponseCodes.SUCCESS;
             connection.close();
@@ -304,7 +321,7 @@ public class TransactionManager {
         Connection connection = null;
         try {
             connection = Database.getInstance().getConnection();
-            transaction = new Transaction();            
+            transaction = new Transaction(connection);            
             transactionInfo = transaction.getTransactionInfo(transactionId); 
             this.responseCode = ResponseCodes.SUCCESS;
             connection.close();
@@ -330,7 +347,7 @@ public class TransactionManager {
         Connection connection = null;
         try {
             connection = Database.getInstance().getConnection();
-            transaction = new Transaction();            
+            transaction = new Transaction(connection);            
             transaction.updateTransactionInfo(transactionInfo); 
             this.responseCode = ResponseCodes.SUCCESS;
             connection.close();
@@ -356,7 +373,7 @@ public class TransactionManager {
         Connection connection = null;
         try {
             connection = Database.getInstance().getConnection();
-            transaction = new Transaction();            
+            transaction = new Transaction(connection);            
             transactionList = transaction.getEditableTransactionList(); 
             this.responseCode = ResponseCodes.SUCCESS;
             
