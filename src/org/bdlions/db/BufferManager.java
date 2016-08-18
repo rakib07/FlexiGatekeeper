@@ -2,6 +2,7 @@ package org.bdlions.db;
 
 import java.util.List;
 import org.bdlions.activemq.Producer;
+import org.bdlions.activemq.ServerFuture;
 import org.bdlions.bean.TransactionInfo;
 import org.bdlions.callback.CallbackTransactionManager;
 import org.bdlions.constants.ResponseCodes;
@@ -96,6 +97,8 @@ public class BufferManager {
                             try
                             {
                                 //if(editableTransactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LOCALSERVER_TEST) || editableTransactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LIVE))
+                                //right now for demols1 we are testing android local server
+                                if(!lsIdentifier.equals("demols1"))
                                 {
                                     //activemq to enqueue a new transaction
                                     Producer producer = new Producer();
@@ -105,10 +108,14 @@ public class BufferManager {
                                     System.out.println("Queue name:"+producer.getServiceQueueName());
                                     producer.produce();
                                 }
+                                else
+                                {
+                                    ServerFuture.getInstance().setTransaction(lsIdentifier, editableTransactionInfo.toString());
+                                }
                             }
                             catch(Exception ex)
                             {
-
+                                logger.error(ex.toString());
                             }
                             //execute callback function to update editable at webserver
                             try
@@ -119,7 +126,7 @@ public class BufferManager {
                             }
                             catch(Exception ex)
                             {
-
+                                logger.error(ex.toString());
                             }
                         }                        
                     }

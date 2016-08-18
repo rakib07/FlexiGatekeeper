@@ -27,6 +27,7 @@ import org.bdlions.db.SIMManager;
 import org.bdlions.db.TransactionManager;
 import org.bdlions.response.ResultEvent;
 import org.bdlions.utility.Email;
+import org.bdlions.utility.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,9 +90,16 @@ public class ServiceAPIServer extends AbstractVerticle {
                 response.end(resultEvent.toString());
                 return;
             }
-              
-            //TransactionManager transactionManager = new TransactionManager();
-            //transactionManager.addTransaction(transactionInfo);
+            
+            //for web server test transaction we are returning back from here
+            if(transactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_WEBSERVER_TEST))
+            {
+                resultEvent.setResponseCode(ResponseCodes.SUCCESS);
+                transactionInfo.setTransactionId(Utils.getTransactionId());
+                resultEvent.setResult(transactionInfo);
+                response.end(resultEvent.toString());
+                return;           
+            }
             
             BufferManager bufferManager = new BufferManager();
             bufferManager.processBuffer(transactionInfo, Transactions.BUFFER_PROCESS_TYPE_ADD_TRANSACTION);
@@ -101,41 +109,6 @@ public class ServiceAPIServer extends AbstractVerticle {
             if(responseCode == ResponseCodes.SUCCESS)
             {
                 transactionInfo.setTransactionId(bufferManager.getTransactionManager().getTransactionId());
-                resultEvent.setResult(transactionInfo);
-            }
-            response.end(resultEvent.toString());
-        });
-        
-        router.route("/updatetransactioninfo*").handler(BodyHandler.create());
-        router.post("/updatetransactioninfo").handler((RoutingContext routingContext) -> {
-            HttpServerResponse response = routingContext.response();
-            ResultEvent resultEvent = new ResultEvent();
-            String transactionId = routingContext.request().getParam("transaction_id");
-            String amount = routingContext.request().getParam("amount");
-            String cellNumber = routingContext.request().getParam("cell_no");
-            TransactionInfo transactionInfo = new TransactionInfo();
-            transactionInfo.setTransactionId(transactionId);
-            transactionInfo.setCellNumber(cellNumber);
-            transactionInfo.setEditable(Boolean.TRUE);
-            try
-            {
-                transactionInfo.setBalanceOut(Double.parseDouble(amount));
-            }
-            catch(Exception ex)
-            {
-                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
-                logger.error(ex.getMessage());
-                response.end(resultEvent.toString());
-                return;
-            }
-              
-            
-            BufferManager bufferManager = new BufferManager();
-            bufferManager.processBuffer(transactionInfo, Transactions.BUFFER_PROCESS_TYPE_UPDATE_TRANSACTION);
-            int responseCode = bufferManager.getTransactionManager().getResponseCode();
-            resultEvent.setResponseCode(responseCode);
-            if(responseCode == ResponseCodes.SUCCESS)
-            {
                 resultEvent.setResult(transactionInfo);
             }
             response.end(resultEvent.toString());
@@ -187,24 +160,65 @@ public class ServiceAPIServer extends AbstractVerticle {
                 transactionInfo.setLiveTestFlag(liveTestFlag);
                 transactionInfo.setCellNumber(cellNo);
                 transactionInfo.setReferenceId(id);
-                //transactionInfo.setTransactionId(Utils.getTransactionId());
-                
-                //UserServiceInfo userServiceInfo = transactionManager.getUserServiceInfo(APIKey);
-                //transactionInfo.setServiceId(userServiceInfo.getServiceId());
-                
-                //transactionManager.addTransaction(transactionInfo);
-                bufferManager.processBuffer(transactionInfo, Transactions.BUFFER_PROCESS_TYPE_ADD_TRANSACTION);
-                int responseCode = bufferManager.getTransactionManager().getResponseCode();
-                if(responseCode == ResponseCodes.SUCCESS)
+                //for web server test transaction we are returning back from here
+                if(transactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_WEBSERVER_TEST))
                 {
-                    transactionInfo.setTransactionId(bufferManager.getTransactionManager().getTransactionId());
-                } 
-                //what will you do if response code is not success?
+                    transactionInfo.setTransactionId(Utils.getTransactionId());                    
+                }
+                else
+                {
+                    //transactionInfo.setTransactionId(Utils.getTransactionId());                
+                    //UserServiceInfo userServiceInfo = transactionManager.getUserServiceInfo(APIKey);
+                    //transactionInfo.setServiceId(userServiceInfo.getServiceId());
+                    //transactionManager.addTransaction(transactionInfo);
+                    bufferManager.processBuffer(transactionInfo, Transactions.BUFFER_PROCESS_TYPE_ADD_TRANSACTION);
+                    int responseCode = bufferManager.getTransactionManager().getResponseCode();
+                    if(responseCode == ResponseCodes.SUCCESS)
+                    {
+                        transactionInfo.setTransactionId(bufferManager.getTransactionManager().getTransactionId());
+                    } 
+                    //what will you do if response code is not success?                    
+                }     
                 transactionInfoList.add(transactionInfo);
             }            
             resultEvent.setResult(transactionInfoList);
             resultEvent.setResponseCode(ResponseCodes.SUCCESS);            
             
+            response.end(resultEvent.toString());
+        });
+        
+        router.route("/updatetransactioninfo*").handler(BodyHandler.create());
+        router.post("/updatetransactioninfo").handler((RoutingContext routingContext) -> {
+            HttpServerResponse response = routingContext.response();
+            ResultEvent resultEvent = new ResultEvent();
+            String transactionId = routingContext.request().getParam("transaction_id");
+            String amount = routingContext.request().getParam("amount");
+            String cellNumber = routingContext.request().getParam("cell_no");
+            TransactionInfo transactionInfo = new TransactionInfo();
+            transactionInfo.setTransactionId(transactionId);
+            transactionInfo.setCellNumber(cellNumber);
+            transactionInfo.setEditable(Boolean.TRUE);
+            try
+            {
+                transactionInfo.setBalanceOut(Double.parseDouble(amount));
+            }
+            catch(Exception ex)
+            {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                logger.error(ex.getMessage());
+                response.end(resultEvent.toString());
+                return;
+            }
+              
+            
+            BufferManager bufferManager = new BufferManager();
+            bufferManager.processBuffer(transactionInfo, Transactions.BUFFER_PROCESS_TYPE_UPDATE_TRANSACTION);
+            int responseCode = bufferManager.getTransactionManager().getResponseCode();
+            resultEvent.setResponseCode(responseCode);
+            if(responseCode == ResponseCodes.SUCCESS)
+            {
+                resultEvent.setResult(transactionInfo);
+            }
             response.end(resultEvent.toString());
         });
         

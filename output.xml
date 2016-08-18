@@ -37,8 +37,12 @@
         <copy todir="${build.dir}">
             <fileset dir="${src.dir}" includes="**/*.properties">
                 <exclude name="database.properties"/>
-                <exclude name="log4j.properties"/>
-				<exclude name="server.properties"/>
+                <exclude name="server.properties"/>
+            </fileset>
+        </copy>
+		<copy todir="${build.dir}">
+            <fileset dir="${src.dir}" includes="**/*.xml">
+                <exclude name="log4j.xml"/>
             </fileset>
         </copy>
         <copy todir="${dist.dir}">
@@ -74,6 +78,9 @@
             <zipfileset excludes="META-INF/*.SF" src="${lib.dir}/vertx-web-3.1.0.jar"/>
 			<zipfileset excludes="META-INF/*.SF" src="${lib.dir}/commons-email-1.4.jar"/>
 			<zipfileset excludes="META-INF/*.SF" src="${lib.dir}/javax.mail.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="${lib.dir}/mqtt-client-1.13.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="${lib.dir}/hawtdispatch-1.21.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="${lib.dir}/hawtdispatch-transport-1.22.jar"/>
         </jar>
     </target>
 

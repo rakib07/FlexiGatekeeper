@@ -10,7 +10,9 @@ import io.vertx.core.VertxOptions;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.activemq.camel.component.ActiveMQComponent;
+import org.bdlions.activemq.Broker;
 import org.bdlions.activemq.MessageQServer;
+import org.bdlions.activemq.ServerFuture;
 import org.bdlions.db.ActiveMQManager;
 import org.bdlions.db.BufferManager;
 import org.bdlions.db.Database;
@@ -47,6 +49,11 @@ public class ServerExecutor {
         serviceAPIVerticle.deployVerticle(new ServiceAPIServer());
         System.out.println("Server has started.");
         MessageQServer.getInstance().start();
+        
+        Broker broker = new Broker();
+        broker.startBroker();
+        
+        ServerFuture.getInstance();
         
         BufferManager bufferManager = new BufferManager();
         ActiveMQManager activeMQManager = new ActiveMQManager(bufferManager, "activemqmanager");
