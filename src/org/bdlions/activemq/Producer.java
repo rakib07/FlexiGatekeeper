@@ -40,11 +40,11 @@ public class Producer {
         }
         if(serviceId == Services.SERVICE_TYPE_ID_TOPUP_GP)
         {
-            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_TOPUPGP");
+            this.serviceQueueName = localServerIdentifier+"_"+ServerPropertyProvider.get("SERVICE_QUEUE_TOPUPGP");
         }
         if(serviceId == Services.SERVICE_TYPE_ID_TOPUP_ROBI)
         {
-            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_TOPUPROBI");
+            this.serviceQueueName = localServerIdentifier+"_"+ServerPropertyProvider.get("SERVICE_QUEUE_TOPUPROBI");
         }
         if(serviceId == Services.SERVICE_TYPE_ID_TOPUP_BANGLALINK)
         {

@@ -73,6 +73,7 @@ public class Transaction {
             stmt.setDouble(QueryField.BALANCE_OUT, transactionInfo.getBalanceOut());            
             stmt.setInt(QueryField.TRANSACTION_TYPE_ID, transactionInfo.getTransactionTypeId());
             stmt.setInt(QueryField.TRANSACTION_STATUS_ID, transactionInfo.getTransactionStatusId());
+            stmt.setInt(QueryField.PACKAGE_ID, transactionInfo.getPackageId());
             stmt.setString(QueryField.TRANSACTION_CELL_NUMBER, transactionInfo.getCellNumber());
             stmt.setString(QueryField.TRANSACTION_DESCRIPTION, transactionInfo.getDescription());
             stmt.setBoolean(QueryField.EDITABLE, transactionInfo.isEditable());
@@ -179,6 +180,7 @@ public class Transaction {
                 transactionInfo.setBalanceOut(rs.getDouble(QueryField.BALANCE_OUT));
                 transactionInfo.setTransactionStatusId(rs.getInt(QueryField.TRANSACTION_STATUS_ID));
                 transactionInfo.setTransactionTypeId(rs.getInt(QueryField.TRANSACTION_TYPE_ID));
+                transactionInfo.setPackageId(rs.getInt(QueryField.PACKAGE_ID));
                 transactionInfo.setCellNumber(rs.getString(QueryField.TRANSACTION_CELL_NUMBER));
                 transactionInfo.setDescription(rs.getString(QueryField.TRANSACTION_DESCRIPTION));
                 transactionInfo.setEditable(rs.getBoolean(QueryField.EDITABLE));
@@ -202,6 +204,7 @@ public class Transaction {
                 transactionInfo.setBalanceOut(rs.getDouble(QueryField.BALANCE_OUT));
                 transactionInfo.setTransactionStatusId(rs.getInt(QueryField.TRANSACTION_STATUS_ID));
                 transactionInfo.setTransactionTypeId(rs.getInt(QueryField.TRANSACTION_TYPE_ID));
+                transactionInfo.setPackageId(rs.getInt(QueryField.PACKAGE_ID));
                 transactionInfo.setCellNumber(rs.getString(QueryField.TRANSACTION_CELL_NUMBER));
                 transactionInfo.setDescription(rs.getString(QueryField.TRANSACTION_DESCRIPTION));
                 transactionInfo.setCreatedOn(rs.getInt(QueryField.CREATED_ON));
@@ -220,6 +223,7 @@ public class Transaction {
             stmt.setDouble(QueryField.BALANCE_OUT, transactionInfo.getBalanceOut());
             stmt.setInt(QueryField.TRANSACTION_STATUS_ID, transactionInfo.getTransactionStatusId());
             stmt.setInt(QueryField.TRANSACTION_TYPE_ID, transactionInfo.getTransactionTypeId());
+            stmt.setInt(QueryField.PACKAGE_ID, transactionInfo.getPackageId());
             stmt.setString(QueryField.TRANSACTION_CELL_NUMBER, transactionInfo.getCellNumber());
             stmt.setString(QueryField.TRANSACTION_DESCRIPTION, transactionInfo.getDescription());
             stmt.setBoolean(QueryField.EDITABLE, transactionInfo.isEditable());

@@ -32,6 +32,7 @@ public class QueryField {
     public static final String BALANCE_OUT = "balance_out";
     public static final String TRANSACTION_STATUS_ID = "status_id";
     public static final String TRANSACTION_TYPE_ID = "type_id";
+    public static final String PACKAGE_ID = "package_id";
     public static final String TRANSACTION_CELL_NUMBER = "cell_no";
     public static final String TRANSACTION_DESCRIPTION = "description";
     public static final String EDITABLE = "editable";
