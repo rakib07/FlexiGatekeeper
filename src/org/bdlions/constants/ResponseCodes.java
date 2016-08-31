@@ -27,4 +27,6 @@ public class ResponseCodes {
     public static final int ERROR_CODE_NO_CONSUMER = 5013;
     public static final int ERROR_CODE_UPDATE_TRANSACTION_NOT_ALLOWED = 5014;
     public static final int ERROR_CODE_INVALID_OP_CODE = 5015;
+    public static final int ERROR_CODE_SIM_BALANCE_UPDATE_FAILED = 5016;
+    
 }

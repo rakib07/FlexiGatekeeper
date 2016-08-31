@@ -315,6 +315,50 @@ public class TransactionManager {
         }
     }
     
+    /**
+     * This method will update transaction status based on stk feature
+     * @param transactionInfo, transaction info
+     */
+    public void updateLSSTKTransactionStatus(TransactionInfo transactionInfo)
+    {
+        Connection connection = null;
+        try {
+            connection = Database.getInstance().getConnection();
+            transaction = new Transaction(connection);
+            
+            String transactionId = transaction.getTransactionIdLSSTK(transactionInfo); 
+            if(transactionId != null && !transactionId.isEmpty())
+            {
+                transactionInfo.setTransactionId(transactionId);
+                transaction.updateTransactionStatusLS(transactionInfo);
+                AuthManager authManager = new AuthManager();
+                String baseURL = authManager.getBaseURLTransactionId(transactionInfo.getTransactionId());
+                CallbackTransactionManager callbackTransactionManager = new CallbackTransactionManager();
+                callbackTransactionManager.setBaseURL(baseURL);
+                callbackTransactionManager.updateTransactionStatus(transactionInfo.getTransactionId(), transactionInfo.getTransactionStatusId(), transactionInfo.getSenderCellNumber());
+                this.responseCode = ResponseCodes.SUCCESS;
+            }
+            else
+            {
+                this.responseCode = ResponseCodes.ERROR_CODE_UPDATE_TRANSACTION_STATUS_FAILED;
+            }
+            connection.close();
+        } catch (SQLException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
+            try {
+                if(connection != null){
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }
+        } catch (DBSetupException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
+            logger.error(ex.getMessage());
+        }
+    }
+    
     public TransactionInfo getTransactionInfo(String transactionId)
     {
         TransactionInfo transactionInfo = new TransactionInfo();

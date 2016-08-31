@@ -15,8 +15,11 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bdlions.bean.SIMInfo;
+import org.bdlions.bean.SIMServiceInfo;
 import org.bdlions.bean.SMSTransactionInfo;
 import org.bdlions.bean.TransactionInfo;
+import org.bdlions.constants.ResponseCodes;
 import org.bdlions.exceptions.DBSetupException;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -82,7 +85,7 @@ public class TransactionManagerTest {
         transactionManager.addTransaction(transactionInfo);
     }
     
-    @Test
+    //@Test
     public void updateTransactionStatusTest() throws DBSetupException, SQLException{
         TransactionInfo transactionInfo = new TransactionInfo();
         transactionInfo.setTransactionId("6v9aefbeo3bubucb3999mpac37");
@@ -91,6 +94,72 @@ public class TransactionManagerTest {
         
         TransactionManager transactionManager = new TransactionManager();
         transactionManager.updateTransactionStatus(transactionInfo);
+    }
+    
+    //@Test
+    public void updateTransactionStatusLSTest() throws DBSetupException, SQLException{
+        try
+        {
+            TransactionInfo transactionInfo = new TransactionInfo();
+            //updating transaction info
+            transactionInfo.setSenderCellNumber("1678112509");
+            transactionInfo.setAPIKey("demokey101");
+            transactionInfo.setCellNumber("1713297557");
+            transactionInfo.setBalanceOut(50);
+            transactionInfo.setTrxIdOperator("8pll27457c1s3r3nkau5l0aei4");
+            transactionInfo.setTransactionStatusId(2);
+
+            TransactionManager transactionManager = new TransactionManager();
+            transactionManager.updateLSSTKTransactionStatus(transactionInfo);
+            int responseCode = transactionManager.getResponseCode();
+            if(responseCode == ResponseCodes.SUCCESS)
+            {
+                try
+                {
+                    //updating SIM current balance for this service
+                    SIMManager simManager = new SIMManager();
+                    SIMInfo simInfo = new SIMInfo();
+                    simInfo.setSimNo("1678112509");
+                    SIMServiceInfo simServiceInfo = new SIMServiceInfo();
+                    simServiceInfo.setCurrentBalance(6500);
+                    simServiceInfo.setId(1);
+                    simInfo.getSimServiceList().add(simServiceInfo);
+                    simManager.updateSIMServiceBalanceInfo(simInfo);
+
+                    responseCode = simManager.getResponseCode();
+                }
+                catch(Exception ex)
+                {
+                    System.out.println(ex.toString());
+                }
+            } 
+        }
+        catch(Exception ex)
+        {
+            System.out.println(ex.toString());
+        }
+    }
+    
+    @Test
+    public void updateSIMBalanceTest() throws DBSetupException, SQLException
+    {
+        try
+        {
+            SIMManager simManager = new SIMManager();
+            SIMInfo simInfo = new SIMInfo();
+            simInfo.setSimNo("1678112509");
+            SIMServiceInfo simServiceInfo = new SIMServiceInfo();
+            simServiceInfo.setCurrentBalance(7400);
+            simServiceInfo.setId(1);
+            simInfo.getSimServiceList().add(simServiceInfo);
+            simManager.updateSIMServiceBalanceInfo(simInfo);
+
+            int responseCode = simManager.getResponseCode();
+        }
+        catch(Exception ex)
+        {
+            
+        }
     }
     
     //@Test

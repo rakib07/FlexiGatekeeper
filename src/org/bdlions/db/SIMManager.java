@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.bdlions.activemq.Producer;
 import org.bdlions.bean.SIMInfo;
+import org.bdlions.bean.SIMSMSInfo;
 import org.bdlions.bean.SIMServiceInfo;
 import org.bdlions.bean.TransactionInfo;
 import org.bdlions.constants.ResponseCodes;
@@ -205,23 +206,77 @@ public class SIMManager {
             if(simInfo.getSimServiceList().size() > 0)
             {
                 SIMServiceInfo simServiceInfo = simInfo.getSimServiceList().get(0);
+                TransactionInfo transactionInfo = new TransactionInfo();
+                boolean checkBalance = false;
                 if(simServiceInfo.getId() == Services.SIM_SERVICE_TYPE_ID_BKASH)
-                {
-                    TransactionInfo transactionInfo = new TransactionInfo();
+                {                    
                     transactionInfo.setCellNumber(simInfo.getSimNo());
                     transactionInfo.setServiceId(Services.SERVICE_TYPE_ID_BKASH_CHECKBALANCE);
-                    
-                    Producer producer = new Producer();
-                    producer.setMessage(transactionInfo.toString());
-                    System.out.println("Executing the transaction:"+transactionInfo.toString());
-                    producer.setCheckBalanceQueueName(simInfo.getSimNo());
-                    producer.produce();
-                }                
+                    checkBalance = true;
+                }
+                else if(simServiceInfo.getId() == Services.SIM_SERVICE_TYPE_ID_GP)
+                {
+                    transactionInfo.setCellNumber(simInfo.getSimNo());
+                    transactionInfo.setServiceId(Services.SERVICE_TYPE_ID_GP_CHECKBALANCE);
+                    checkBalance = true;
+                }
+                else if(simServiceInfo.getId() == Services.SIM_SERVICE_TYPE_ID_ROBI)
+                {
+                    transactionInfo.setCellNumber(simInfo.getSimNo());
+                    transactionInfo.setServiceId(Services.SERVICE_TYPE_ID_ROBI_CHECKBALANCE);
+                    checkBalance = true;
+                }
+                if(checkBalance)
+                {
+                    try {
+                        Producer producer = new Producer();
+                        producer.setMessage(transactionInfo.toString());
+                        System.out.println("Executing the check balance transaction:"+transactionInfo.toString());
+                        producer.setCheckBalanceQueueName(simInfo.getSimNo());
+                        producer.produce();
+                    } 
+                    catch (Exception ex) 
+                    {
+                        logger.debug(ex.toString());
+                    }                    
+                }
             }            
         }
         catch(Exception ex)
         {
             logger.error(ex.toString());
+        }
+    }
+    
+    /**
+     * This method will ads sim message
+     * @param simSMSInfo 
+     */
+    public void addSIMMessage(SIMSMSInfo simSMSInfo)
+    {
+        Connection connection = null;
+        try
+        {
+            connection = Database.getInstance().getConnection();
+            sim = new SIM(connection);
+            sim.addSIMMessage(simSMSInfo);
+            connection.close();
+            this.responseCode = ResponseCodes.SUCCESS;
+        }
+        catch (SQLException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
+            try {
+                if(connection != null){
+                    connection.rollback();
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }            
+        } catch (DBSetupException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
+            logger.error(ex.getMessage());
         }
     }
 }

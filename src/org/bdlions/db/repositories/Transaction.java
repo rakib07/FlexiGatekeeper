@@ -13,6 +13,7 @@ import java.util.List;
 import org.bdlions.bean.SMSTransactionInfo;
 import org.bdlions.bean.TransactionInfo;
 import org.bdlions.bean.UserServiceInfo;
+import org.bdlions.constants.Transactions;
 import org.bdlions.db.Database;
 import org.bdlions.db.query.QueryField;
 import org.bdlions.db.query.QueryManager;
@@ -142,6 +143,46 @@ public class Transaction {
     {
         try (EasyStatement stmt = new EasyStatement(this.connection, QueryManager.UPDATE_TRANSACTION_STATUS);){
             stmt.setInt(QueryField.TRANSACTION_STATUS_ID, transactionInfo.getTransactionStatusId());
+            stmt.setString(QueryField.TRANSACTION_ID, transactionInfo.getTransactionId());
+            stmt.executeUpdate();        
+        }
+    }
+    
+    /**
+     * This method will return transaction id of our system based on sms information of stk feature
+     * @param transactionInfo, transaction info
+     * @return String transaction id
+     * @throws DBSetupException
+     * @throws SQLException
+     */
+    public String getTransactionIdLSSTK(TransactionInfo transactionInfo) throws DBSetupException, SQLException
+    {
+        String transactionId = "";
+        try (EasyStatement stmt = new EasyStatement(this.connection, QueryManager.GET_TRANSACTION_ID_LS_STK);){
+            stmt.setString(QueryField.API_KEY, transactionInfo.getAPIKey());
+            stmt.setString(QueryField.TRANSACTION_CELL_NUMBER, transactionInfo.getCellNumber());
+            stmt.setDouble(QueryField.BALANCE_OUT, transactionInfo.getBalanceOut());
+            stmt.setInt(QueryField.TRANSACTION_STATUS_ID, Transactions.TRANSACTION_STATUS_PENDING);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                transactionId = rs.getString(QueryField.TRANSACTION_ID);
+            }
+        }
+        return transactionId;
+    }
+    
+    /**
+     * This method will update transaction status, sender cell number and operator transaction id
+     * @param transactionInfo, transaction info
+     * @throws DBSetupException
+     * @throws SQLException
+     */
+    public void updateTransactionStatusLS(TransactionInfo transactionInfo) throws DBSetupException, SQLException
+    {
+        try (EasyStatement stmt = new EasyStatement(this.connection, QueryManager.UPDATE_TRANSACTION_STATUS_LS);){
+            stmt.setInt(QueryField.TRANSACTION_STATUS_ID, transactionInfo.getTransactionStatusId());
+            stmt.setString(QueryField.SENDER_CELL_NUMBER, transactionInfo.getSenderCellNumber());
+            stmt.setString(QueryField.TRANSACTION_ID_OPERATOR, transactionInfo.getTrxIdOperator());
             stmt.setString(QueryField.TRANSACTION_ID, transactionInfo.getTransactionId());
             stmt.executeUpdate();        
         }

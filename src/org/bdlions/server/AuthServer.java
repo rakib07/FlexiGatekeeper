@@ -22,7 +22,9 @@ import org.bdlions.bean.UserInfo;
 import org.bdlions.bean.UserServiceInfo;
 import org.bdlions.constants.ResponseCodes;
 import org.bdlions.constants.Services;
+import org.bdlions.constants.Transactions;
 import org.bdlions.db.AuthManager;
+import org.bdlions.db.BufferManager;
 import org.bdlions.db.Database;
 import org.bdlions.db.SIMManager;
 import org.bdlions.db.TransactionManager;
@@ -91,6 +93,7 @@ public class AuthServer extends AbstractVerticle {
                 
                 SIMServiceInfo simServiceInfo = new SIMServiceInfo();
                 simServiceInfo.setCurrentBalance(currentBalance);
+                //right now we are assuming sim is for bkash agent only. Late it should be dynamic
                 simServiceInfo.setId(Services.SIM_SERVICE_TYPE_ID_BKASH);
                 simServiceInfo.setCategoryId(Services.PACKAGE_TYPE_ID_AGENT);
                 
@@ -153,6 +156,22 @@ public class AuthServer extends AbstractVerticle {
             } catch (Exception ex) {
                 resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
                 logger.error(ex.getMessage());
+            }
+            if(status == 0)
+            {
+                //stopping mqtt future client for this sim
+                try {
+                    TransactionInfo transactionInfo = new TransactionInfo();
+                    transactionInfo.setServiceId(-1);
+                    transactionInfo.setCellNumber(simNo);
+                    BufferManager bufferManager = new BufferManager();
+                    bufferManager.setLocalServerIdentifier(identifier);
+                    bufferManager.processBuffer(transactionInfo, Transactions.BUFFER_PROCESS_TYPE_MQTT_STOP_SIM);
+                } 
+                catch (Exception ex) {
+                    logger.debug(ex.toString());
+                }
+                
             }
             HttpServerResponse response = routingContext.response();
             response.end(resultEvent.toString());

@@ -20,6 +20,12 @@ public class BufferManager {
     private static final Logger logger = LoggerFactory.getLogger(BufferManager.class.getName());
     static TransactionManager transactionManager = new TransactionManager();
     static int bufferTime;
+    private static String localServerIdentifier = "";
+
+    public void setLocalServerIdentifier(String localServerIdentifier) {
+        this.localServerIdentifier = localServerIdentifier;
+    }
+    
     public BufferManager()
     {
         try
@@ -133,6 +139,14 @@ public class BufferManager {
 
                 }
             }            
-        }        
+        }  
+        else if(processType == Transactions.BUFFER_PROCESS_TYPE_MQTT_STOP_SIM)
+        {
+            try {
+                ServerFuture.getInstance().setTransaction(localServerIdentifier, transactionInfo.toString());
+            } catch (Exception ex) {
+                logger.debug(ex.toString());
+            }
+        }
     }
 }

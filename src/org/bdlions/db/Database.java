@@ -121,6 +121,7 @@ public class Database {
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.sms_details"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.sms_transactions"));
             statement.executeUpdate(DbSetupQueryProvider.get("db.table.transactions"));
+            statement.executeUpdate(DbSetupQueryProvider.get("db.table.sims_messages"));
             
             //create relations
             statement.executeUpdate(DbSetupQueryProvider.get("db.rel.subscribers"));

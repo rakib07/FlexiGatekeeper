@@ -3,6 +3,7 @@ package org.bdlions.db;
 import java.sql.SQLException;
 import java.util.List;
 import org.bdlions.bean.SIMInfo;
+import org.bdlions.bean.SIMSMSInfo;
 import org.bdlions.bean.SIMServiceInfo;
 import org.bdlions.constants.Services;
 import org.bdlions.exceptions.DBSetupException;
@@ -66,7 +67,7 @@ public class SIMManagerTest {
         System.out.println(simList.size());
     }
     
-    @Test
+    //@Test
     public void updateSIMInfoTest() throws DBSetupException, SQLException{
         SIMManager simManager = new SIMManager();
         SIMServiceInfo simServiceInfo = new SIMServiceInfo();
@@ -79,5 +80,19 @@ public class SIMManagerTest {
         simInfo.setDescription("Chittagong Branch2");
         simInfo.getSimServiceList().add(simServiceInfo);
         simManager.updateSIMInfo(simInfo);
+    }
+    
+    @Test
+    public void addSIMMessageTest() throws DBSetupException, SQLException
+    {
+        try {
+            SIMManager simManager = new SIMManager();
+            SIMSMSInfo simSMSInfo = new SIMSMSInfo();
+            simSMSInfo.setSimNo("01712341213");
+            simSMSInfo.setSender("flexiload");
+            simSMSInfo.setSms("Recharge request of TK 13.0 for mobile no. 1784863147, transaction ID BD51072117460432 is successful. Your account balance is TK 37.78.");
+            simManager.addSIMMessage(simSMSInfo);
+        } catch (Exception e) {
+        }
     }
 }

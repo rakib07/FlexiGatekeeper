@@ -16,6 +16,7 @@ import io.vertx.ext.web.handler.BodyHandler;
 import java.util.ArrayList;
 import java.util.List;
 import org.bdlions.bean.SIMInfo;
+import org.bdlions.bean.SIMSMSInfo;
 import org.bdlions.bean.SIMServiceInfo;
 import org.bdlions.bean.SMSTransactionInfo;
 import org.bdlions.bean.TransactionInfo;
@@ -287,6 +288,210 @@ public class ServiceAPIServer extends AbstractVerticle {
             HttpServerResponse response = routingContext.response();
             response.end(resultEvent.toString());
             
+        });
+        
+        router.route("/updatestktransactionstatus*").handler(BodyHandler.create());
+        router.post("/updatestktransactionstatus").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String serviceIdStr = routingContext.request().getParam("serviceId");
+            //expected format of cell number 8801711123456
+            String senderCellNumber = routingContext.request().getParam("sendercellnumber");   
+            String currentBalanceStr = routingContext.request().getParam("currentbalance");
+            String APIKey = routingContext.request().getParam("apikey");  
+            //expected format of cell number 01711123456
+            String cellNumber = routingContext.request().getParam("cellnumber");
+            String balanceStr = routingContext.request().getParam("balance");
+            //transaction id from operators
+            String transactionId = routingContext.request().getParam("transactionid");
+            String statusIdStr = routingContext.request().getParam("statusid");
+            String sender = routingContext.request().getParam("sender");
+            String sms = routingContext.request().getParam("sms");
+            int serviceId = 0;
+            try
+            {
+                serviceId = Integer.parseInt(serviceIdStr);
+            }
+            catch(Exception ex)
+            {
+                logger.debug("Invalid serviceId at updatestktransactionstatus-senderCellNumber:"+senderCellNumber+",currentBalance:"+currentBalanceStr+",APIKey:"+APIKey+",cellNumber:"+cellNumber+",balance:"+balanceStr+",transactionId:"+transactionId+",statusId:"+statusIdStr+",serviceId:"+serviceIdStr);
+                logger.debug(ex.getMessage());
+            }
+            int statusId = 0;
+            try
+            {
+                statusId = Integer.parseInt(statusIdStr);
+            }
+            catch(Exception ex)
+            {
+                logger.debug("Invalid statusId at updatestktransactionstatus-senderCellNumber:"+senderCellNumber+",currentBalance:"+currentBalanceStr+",APIKey:"+APIKey+",cellNumber:"+cellNumber+",balance:"+balanceStr+",transactionId:"+transactionId+",statusId:"+statusIdStr+",serviceId:"+serviceIdStr);
+                logger.debug(ex.getMessage());
+            }
+            double currentBalance = 0;
+            try
+            {
+                currentBalance = Double.parseDouble(currentBalanceStr);
+            }
+            catch(Exception ex)
+            {
+                logger.debug("Invalid current balance at updatestktransactionstatus-senderCellNumber:"+senderCellNumber+",currentBalance:"+currentBalanceStr+",APIKey:"+APIKey+",cellNumber:"+cellNumber+",balance:"+balanceStr+",transactionId:"+transactionId+",statusId:"+statusIdStr+",serviceId:"+serviceIdStr);
+                logger.debug(ex.getMessage());
+            }
+            double balance = 0;
+            try
+            {
+                balance = Double.parseDouble(balanceStr);
+            }
+            catch(Exception ex)
+            {
+                logger.debug("Invalid balance at updatestktransactionstatus-senderCellNumber:"+senderCellNumber+",currentBalance:"+currentBalanceStr+",APIKey:"+APIKey+",cellNumber:"+cellNumber+",balance:"+balanceStr+",transactionId:"+transactionId+",statusId:"+statusIdStr+",serviceId:"+serviceIdStr);
+                logger.debug(ex.getMessage());
+            }
+            
+            try
+            {
+                TransactionInfo transactionInfo = new TransactionInfo();
+                //updating transaction info
+                transactionInfo.setSenderCellNumber(senderCellNumber);
+                transactionInfo.setAPIKey(APIKey);
+                transactionInfo.setCellNumber(cellNumber);
+                transactionInfo.setBalanceOut(balance);
+                transactionInfo.setTrxIdOperator(transactionId);
+                transactionInfo.setTransactionStatusId(statusId);
+
+                TransactionManager transactionManager = new TransactionManager();
+                transactionManager.updateLSSTKTransactionStatus(transactionInfo);
+                int responseCode = transactionManager.getResponseCode();
+                if(responseCode == ResponseCodes.SUCCESS)
+                {
+                    try
+                    {
+                        //updating SIM current balance for this service
+                        SIMManager simManager = new SIMManager();
+                        SIMInfo simInfo = new SIMInfo();
+                        simInfo.setSimNo(senderCellNumber);
+                        SIMServiceInfo simServiceInfo = new SIMServiceInfo();
+                        simServiceInfo.setCurrentBalance(currentBalance);
+                        simServiceInfo.setId(serviceId);
+                        simInfo.getSimServiceList().add(simServiceInfo);
+                        simManager.updateSIMServiceBalanceInfo(simInfo);
+
+                        responseCode = simManager.getResponseCode();
+                        resultEvent.setResponseCode(responseCode); 
+                        
+                        SIMSMSInfo simSMSInfo = new SIMSMSInfo();
+                        simSMSInfo.setSimNo(senderCellNumber);
+                        simSMSInfo.setSender(sender);
+                        simSMSInfo.setSms(sms);
+                        simManager.addSIMMessage(simSMSInfo);
+                    }
+                    catch(Exception ex)
+                    {
+                        resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_SIM_BALANCE_UPDATE_FAILED);
+                        logger.error(ex.getMessage());
+                    }
+                }                
+                resultEvent.setResponseCode(responseCode);  
+            }
+            catch(Exception ex)
+            {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_UPDATE_TRANSACTION_STATUS_FAILED);
+                logger.error(ex.getMessage());
+            }
+            
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
+            
+        });
+        
+        //this method will update sim balance of a service
+        router.route("/updatesimbalance*").handler(BodyHandler.create());
+        router.post("/updatesimbalance").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            //sim service id
+            String serviceIdStr = routingContext.request().getParam("serviceid");
+            //8801711123456
+            String senderCellNumber = routingContext.request().getParam("sendercellnumber");
+            //current balance of the sim under the sim service
+            String balanceStr = routingContext.request().getParam("balance");
+            //sms sender title
+            String sender = routingContext.request().getParam("sender");
+            //sms text
+            String sms = routingContext.request().getParam("sms");
+            double balance = 0;
+            try
+            {
+                balance = Double.parseDouble(balanceStr);
+            }
+            catch(Exception ex)
+            {
+                logger.debug("Invalid balance at updatesimbalance-senderCellNumber:"+senderCellNumber+",balance:"+balanceStr+",serviceId:"+serviceIdStr+",sender:"+sender+",sms:"+sms);
+                logger.debug(ex.getMessage());
+            }  
+            int serviceId = 0;
+            try
+            {
+                serviceId = Integer.parseInt(serviceIdStr);
+            }
+            catch(Exception ex)
+            {
+                logger.debug("Invalid serviceId at updatesimbalance-senderCellNumber:"+senderCellNumber+",balance:"+balanceStr+",serviceId:"+serviceIdStr+",sender:"+sender+",sms:"+sms);
+                logger.debug(ex.getMessage());
+            }
+            try
+            {
+                SIMManager simManager = new SIMManager();
+                SIMInfo simInfo = new SIMInfo();
+                simInfo.setSimNo(senderCellNumber);
+                SIMServiceInfo simServiceInfo = new SIMServiceInfo();
+                simServiceInfo.setCurrentBalance(balance);
+                simServiceInfo.setId(serviceId);
+                simInfo.getSimServiceList().add(simServiceInfo);
+                simManager.updateSIMServiceBalanceInfo(simInfo);
+
+                int responseCode = simManager.getResponseCode();
+                resultEvent.setResponseCode(responseCode);
+                
+                SIMSMSInfo simSMSInfo = new SIMSMSInfo();
+                simSMSInfo.setSimNo(senderCellNumber);
+                simSMSInfo.setSender(sender);
+                simSMSInfo.setSms(sms);
+                simManager.addSIMMessage(simSMSInfo);
+            }
+            catch(Exception ex)
+            {
+                logger.debug(ex.getMessage());
+            }            
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());            
+        });
+        
+        //this method will update sim balance of a service
+        router.route("/savesimsms*").handler(BodyHandler.create());
+        router.post("/savesimsms").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            //expected format is 8801711123456
+            String senderCellNumber = routingContext.request().getParam("sendercellnumber");
+            //sms sender title
+            String sender = routingContext.request().getParam("sender");
+            //sms text
+            String sms = routingContext.request().getParam("sms");
+            try
+            {
+                SIMManager simManager = new SIMManager();
+                SIMSMSInfo simSMSInfo = new SIMSMSInfo();
+                simSMSInfo.setSimNo(senderCellNumber);
+                simSMSInfo.setSender(sender);
+                simSMSInfo.setSms(sms);
+                simManager.addSIMMessage(simSMSInfo);
+                int responseCode = simManager.getResponseCode();
+                resultEvent.setResponseCode(responseCode);
+            }
+            catch(Exception ex)
+            {
+                logger.debug(ex.getMessage());
+            }            
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());            
         });
         /**
          * post method to send bulk sms

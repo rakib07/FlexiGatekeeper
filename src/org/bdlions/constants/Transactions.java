@@ -26,4 +26,5 @@ public class Transactions {
     public static final int BUFFER_PROCESS_TYPE_ADD_TRANSACTION = 1;
     public static final int BUFFER_PROCESS_TYPE_UPDATE_TRANSACTION = 2;
     public static final int BUFFER_PROCESS_TYPE_ACTIVEMQ = 3;
+    public static final int BUFFER_PROCESS_TYPE_MQTT_STOP_SIM = 4;
 }

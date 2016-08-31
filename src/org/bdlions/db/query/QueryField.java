@@ -34,6 +34,8 @@ public class QueryField {
     public static final String TRANSACTION_TYPE_ID = "type_id";
     public static final String PACKAGE_ID = "package_id";
     public static final String TRANSACTION_CELL_NUMBER = "cell_no";
+    public static final String SENDER_CELL_NUMBER = "sender_cell_no";
+    public static final String TRANSACTION_ID_OPERATOR = "trx_id_operator";
     public static final String TRANSACTION_DESCRIPTION = "description";
     public static final String EDITABLE = "editable";
     public static final String CURRENT_BALANCE = "current_balance";
@@ -46,4 +48,6 @@ public class QueryField {
     public static final String OP_CODE = "op_code";
     public static final String BASE_URL = "base_url";
     public static final String LS_IDENTIFIER = "ls_identifier";
+    public static final String COUNTRY_CODE = "country_code";
+    public static final String SENDER = "sender";
 }

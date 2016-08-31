@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.bdlions.bean.SIMInfo;
+import org.bdlions.bean.SIMSMSInfo;
 import org.bdlions.bean.SIMServiceInfo;
 import org.bdlions.db.query.QueryField;
 import org.bdlions.db.query.QueryManager;
@@ -158,4 +159,24 @@ public class SIM {
             }
         }        
     }  
+    
+    /**
+     * This method will add sim sms into the database
+     * @param simSMSInfo
+     * @throws DBSetupException
+     * @throws SQLException
+     */
+    public void addSIMMessage(SIMSMSInfo simSMSInfo) throws DBSetupException, SQLException
+    {
+        int currentTime = Utils.getCurrentUnixTime();
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_SIM_MESSAGE)) {
+            stmt.setString(QueryField.COUNTRY_CODE, simSMSInfo.getCountryCode());
+            stmt.setString(QueryField.SIM_NO, simSMSInfo.getSimNo());
+            stmt.setString(QueryField.SENDER, simSMSInfo.getSender());
+            stmt.setString(QueryField.SMS, simSMSInfo.getSms());
+            stmt.setInt(QueryField.CREATED_ON,currentTime);
+            stmt.setInt(QueryField.MODIFIED_ON,currentTime);
+            stmt.executeUpdate();
+        }
+    }
 }

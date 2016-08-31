@@ -16,6 +16,7 @@ public class TransactionInfo {
     private int id;
     //this field will be used to map transactionId when user will send multiple transaction request at a time
     private String referenceId;
+    //transaction id of our system
     private String transactionId;
     private String APIKey;
     private double balanceIn;
@@ -25,6 +26,8 @@ public class TransactionInfo {
     private int packageId;
     private int transactionStatusId;
     private String senderCellNumber;
+    //transaction id from operator or mobile banking system
+    private String trxIdOperator;
     private String cellNumber;
     private String description;
     private int createdOn;
@@ -174,6 +177,14 @@ public class TransactionInfo {
 
     public void setEditable(boolean editable) {
         this.editable = editable;
+    }
+
+    public String getTrxIdOperator() {
+        return trxIdOperator;
+    }
+
+    public void setTrxIdOperator(String trxIdOperator) {
+        this.trxIdOperator = trxIdOperator;
     }
     
     
