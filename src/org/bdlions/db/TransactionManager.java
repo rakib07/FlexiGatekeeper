@@ -290,13 +290,13 @@ public class TransactionManager {
             connection = Database.getInstance().getConnection();
             transaction = new Transaction(connection);
             
-            transaction.updateTransactionStatus(transactionInfo); 
+            transaction.updateTransactionStatusLS(transactionInfo); 
             
             AuthManager authManager = new AuthManager();
             String baseURL = authManager.getBaseURLTransactionId(transactionInfo.getTransactionId());
             CallbackTransactionManager callbackTransactionManager = new CallbackTransactionManager();
             callbackTransactionManager.setBaseURL(baseURL);
-            callbackTransactionManager.updateTransactionStatus(transactionInfo.getTransactionId(), transactionInfo.getTransactionStatusId(), transactionInfo.getSenderCellNumber());
+            callbackTransactionManager.updateTransactionStatus(transactionInfo.getTransactionId(), transactionInfo.getTransactionStatusId(), transactionInfo.getSenderCellNumber(), transactionInfo.getTrxIdOperator());
             this.responseCode = ResponseCodes.SUCCESS;
             connection.close();
         } catch (SQLException ex) {
@@ -335,7 +335,7 @@ public class TransactionManager {
                 String baseURL = authManager.getBaseURLTransactionId(transactionInfo.getTransactionId());
                 CallbackTransactionManager callbackTransactionManager = new CallbackTransactionManager();
                 callbackTransactionManager.setBaseURL(baseURL);
-                callbackTransactionManager.updateTransactionStatus(transactionInfo.getTransactionId(), transactionInfo.getTransactionStatusId(), transactionInfo.getSenderCellNumber());
+                callbackTransactionManager.updateTransactionStatus(transactionInfo.getTransactionId(), transactionInfo.getTransactionStatusId(), transactionInfo.getSenderCellNumber(), transactionInfo.getTrxIdOperator());
                 this.responseCode = ResponseCodes.SUCCESS;
             }
             else

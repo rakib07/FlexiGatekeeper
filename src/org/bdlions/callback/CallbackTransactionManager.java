@@ -32,12 +32,13 @@ public class CallbackTransactionManager {
         this.baseURL = baseURL;
     }
     
-    public void updateTransactionStatus(String transactionId, int statusId, String senderCellNumber)
+    public void updateTransactionStatus(String transactionId, int statusId, String senderCellNumber, String trxIdOperator)
     {
         logger.debug("baseURL:"+baseURL);
         logger.debug("transactionId:"+transactionId);
         logger.debug("statusId:"+statusId);
         logger.debug("senderCellNumber:"+senderCellNumber);
+        logger.debug("trxIdOperator:"+trxIdOperator);
         try {
             String transactionStatusPath = ServerPropertyProvider.get("CALLBACK_URL");
             URL obj = new URL(this.baseURL+transactionStatusPath);
@@ -49,7 +50,7 @@ public class CallbackTransactionManager {
             con.setRequestProperty("User-Agent", USER_AGENT);
             con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
             
-            String urlParameters = "transaction_id=" + transactionId + "&status_id=" + statusId+ "&sender_cell_number=" + senderCellNumber;
+            String urlParameters = "transaction_id=" + transactionId + "&status_id=" + statusId+ "&sender_cell_number=" + senderCellNumber+ "&trx_id_operator=" + trxIdOperator;
 
             // Send post request
             con.setDoOutput(true);

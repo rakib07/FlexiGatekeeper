@@ -223,13 +223,36 @@ public class ServiceAPIServer extends AbstractVerticle {
             response.end(resultEvent.toString());
         });
         
+        //updating transaction status with other parameters for ussd call at local server
         router.route("/updatetransactionstatus*").handler(BodyHandler.create());
         router.post("/updatetransactionstatus").handler((RoutingContext routingContext) -> {
             ResultEvent resultEvent = new ResultEvent();
+            //our system transaction id
             String transactionId = routingContext.request().getParam("transactionid");
-            String statusId = routingContext.request().getParam("statusid");
+            //transaction status id
+            String statusIdStr = routingContext.request().getParam("statusid");
+            // transaction id from operator
+            //String trxIdOperator = routingContext.request().getParam("trxidoperator");            
+            //sender cell number
             String senderCellNumber = routingContext.request().getParam("sendercellnumber");
-            String balanceStr = routingContext.request().getParam("balance");
+            //sim service id of sender
+            //String serviceIdStr = routingContext.request().getParam("serviceid");
+            //current balance of sender
+            String balanceStr = routingContext.request().getParam("balance");   
+            
+            //remove the follwoing two lines after update all local servers
+            String trxIdOperator = "";
+            String serviceIdStr = "1";
+            
+            int statusId = 0;
+            try
+            {
+                statusId = Integer.parseInt(statusIdStr);
+            }
+            catch(Exception ex)
+            {
+                logger.error(ex.getMessage());
+            }
             double balance = 0;
             try
             {
@@ -240,49 +263,53 @@ public class ServiceAPIServer extends AbstractVerticle {
                 logger.error(ex.getMessage());
             }
             
-            if(!transactionId.equals(""))
+            int serviceId = 0;
+            try
             {
-                try
-                {
-                    TransactionInfo transactionInfo = new TransactionInfo();
-                    transactionInfo.setTransactionId(transactionId);
-                    transactionInfo.setTransactionStatusId(Integer.parseInt(statusId));
-                    transactionInfo.setSenderCellNumber(senderCellNumber);
-
-                    TransactionManager transactionManager = new TransactionManager();
-                    transactionManager.updateTransactionStatus(transactionInfo);
-
-                    int responseCode = transactionManager.getResponseCode();
-                    resultEvent.setResponseCode(responseCode);  
-                }
-                catch(Exception ex)
-                {
-                    resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_UPDATE_TRANSACTION_STATUS_FAILED);
-                    logger.error(ex.getMessage());
-                }
+                serviceId = Integer.parseInt(serviceIdStr);
             }
-            else
+            catch(Exception ex)
             {
-                //before updating sim balance check different parameters.
-                //right now it is assumed that we are upting bkash sim balance only
-                try
-                {
-                    SIMManager simManager = new SIMManager();
-                    SIMInfo simInfo = new SIMInfo();
-                    simInfo.setSimNo(senderCellNumber);
-                    SIMServiceInfo simServiceInfo = new SIMServiceInfo();
-                    simServiceInfo.setCurrentBalance(balance);
-                    simServiceInfo.setId(Services.SIM_SERVICE_TYPE_ID_BKASH);
-                    simInfo.getSimServiceList().add(simServiceInfo);
-                    simManager.updateSIMServiceBalanceInfo(simInfo);
+                logger.error(ex.getMessage());
+            }
+            //updating transaction status with sender cell number and operator transaction id
+            try
+            {
+                TransactionInfo transactionInfo = new TransactionInfo();
+                transactionInfo.setTransactionId(transactionId);
+                transactionInfo.setTransactionStatusId(statusId);
+                transactionInfo.setSenderCellNumber(senderCellNumber);
+                transactionInfo.setTrxIdOperator(trxIdOperator);
 
-                    int responseCode = simManager.getResponseCode();
-                    resultEvent.setResponseCode(responseCode); 
-                }
-                catch(Exception ex)
-                {
-                    logger.error(ex.getMessage());
-                }
+                TransactionManager transactionManager = new TransactionManager();
+                transactionManager.updateTransactionStatus(transactionInfo);
+
+                int responseCode = transactionManager.getResponseCode();
+                resultEvent.setResponseCode(responseCode);  
+            }
+            catch(Exception ex)
+            {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_UPDATE_TRANSACTION_STATUS_FAILED);
+                logger.error(ex.getMessage());
+            }
+            //updating sim current balance
+            try
+            {
+                SIMManager simManager = new SIMManager();
+                SIMInfo simInfo = new SIMInfo();
+                simInfo.setSimNo(senderCellNumber);
+                SIMServiceInfo simServiceInfo = new SIMServiceInfo();
+                simServiceInfo.setCurrentBalance(balance);
+                simServiceInfo.setId(serviceId);
+                simInfo.getSimServiceList().add(simServiceInfo);
+                simManager.updateSIMServiceBalanceInfo(simInfo);
+
+                int responseCode = simManager.getResponseCode();
+                resultEvent.setResponseCode(responseCode); 
+            }
+            catch(Exception ex)
+            {
+                logger.error(ex.getMessage());
             }
             
             HttpServerResponse response = routingContext.response();
@@ -450,12 +477,15 @@ public class ServiceAPIServer extends AbstractVerticle {
 
                 int responseCode = simManager.getResponseCode();
                 resultEvent.setResponseCode(responseCode);
-                
-                SIMSMSInfo simSMSInfo = new SIMSMSInfo();
-                simSMSInfo.setSimNo(senderCellNumber);
-                simSMSInfo.setSender(sender);
-                simSMSInfo.setSms(sms);
-                simManager.addSIMMessage(simSMSInfo);
+                //saving sim sms if exists (there will sms for stk feature)
+                if(sender != null && !sender.isEmpty() && sms != null && !sms.isEmpty())
+                {
+                    SIMSMSInfo simSMSInfo = new SIMSMSInfo();
+                    simSMSInfo.setSimNo(senderCellNumber);
+                    simSMSInfo.setSender(sender);
+                    simSMSInfo.setSms(sms);
+                    simManager.addSIMMessage(simSMSInfo);
+                }                
             }
             catch(Exception ex)
             {

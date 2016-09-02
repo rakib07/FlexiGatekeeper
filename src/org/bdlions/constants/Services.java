@@ -5,9 +5,10 @@ package org.bdlions.constants;
  * @author nazmul hasan
  */
 public class Services {
-    public static final int SERVICE_TYPE_ID_BKASH_CHECKBALANCE   = 5001;
-    public static final int SERVICE_TYPE_ID_GP_CHECKBALANCE      = 5002;
-    public static final int SERVICE_TYPE_ID_ROBI_CHECKBALANCE    = 5003;
+    public static final int SERVICE_TYPE_ID_BKASH_CHECKBALANCE      = 5001;
+    public static final int SERVICE_TYPE_ID_GP_CHECKBALANCE         = 5002;
+    public static final int SERVICE_TYPE_ID_ROBI_CHECKBALANCE       = 5003;
+    public static final int SERVICE_TYPE_ID_TELETALK_CHECKBALANCE   = 5004;
     
     public static final int SERVICE_TYPE_ID_BKASH_CASHIN = 1;    
     public static final int SERVICE_TYPE_ID_DBBL_CASHIN = 2;

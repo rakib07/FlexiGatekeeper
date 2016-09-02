@@ -25,9 +25,9 @@ public class TransactionInfo {
     private int serviceId;
     private int packageId;
     private int transactionStatusId;
-    private String senderCellNumber;
+    private String senderCellNumber="";
     //transaction id from operator or mobile banking system
-    private String trxIdOperator;
+    private String trxIdOperator = "";
     private String cellNumber;
     private String description;
     private int createdOn;
