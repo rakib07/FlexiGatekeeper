@@ -243,6 +243,7 @@ public class ServiceAPIServer extends AbstractVerticle {
             //remove the follwoing two lines after update all local servers
             String trxIdOperator = "";
             String serviceIdStr = "1";
+            System.out.println("Updating transaction status----------------transactionId:"+transactionId+",statusIdStr:"+statusIdStr+",trxIdOperator:"+trxIdOperator+",senderCellNumber:"+senderCellNumber+",serviceIdStr:"+serviceIdStr+",balanceStr:"+balanceStr);
             
             int statusId = 0;
             try
@@ -333,6 +334,7 @@ public class ServiceAPIServer extends AbstractVerticle {
             String statusIdStr = routingContext.request().getParam("statusid");
             String sender = routingContext.request().getParam("sender");
             String sms = routingContext.request().getParam("sms");
+            System.out.println("Updating stk transaction status----------------serviceIdStr:"+serviceIdStr+",senderCellNumber:"+senderCellNumber+",currentBalanceStr:"+currentBalanceStr+",APIKey:"+APIKey+",cellNumber:"+cellNumber+",balanceStr:"+balanceStr+",transactionId:"+transactionId+",statusIdStr:"+statusIdStr+",sender:"+sender+",sms:"+sms);
             int serviceId = 0;
             try
             {
@@ -444,6 +446,7 @@ public class ServiceAPIServer extends AbstractVerticle {
             String sender = routingContext.request().getParam("sender");
             //sms text
             String sms = routingContext.request().getParam("sms");
+            System.out.println("Updating sim balance----------------serviceIdStr:"+serviceIdStr+",senderCellNumber:"+senderCellNumber+",balanceStr:"+balanceStr+",sender:"+sender+",sms:"+sms);
             double balance = 0;
             try
             {
@@ -505,6 +508,7 @@ public class ServiceAPIServer extends AbstractVerticle {
             String sender = routingContext.request().getParam("sender");
             //sms text
             String sms = routingContext.request().getParam("sms");
+            System.out.println("Saving sim sms----------------senderCellNumber:"+senderCellNumber+",sender:"+sender+",sms:"+sms);
             try
             {
                 SIMManager simManager = new SIMManager();
