@@ -105,7 +105,7 @@ public class SIMManager {
      * @return sim list
      * @author nazmul hasan on 11th June 2016
      */
-    public List<SIMInfo> getAllSIMs() 
+    public List<SIMInfo> getAllSIMs(String identifier) 
     {
         List<SIMInfo> simList = new ArrayList<>();
         Connection connection = null;
@@ -113,7 +113,7 @@ public class SIMManager {
         {
             connection = Database.getInstance().getConnection();
             sim = new SIM(connection);
-            simList = sim.getAllSIMs();
+            simList = sim.getAllSIMs(identifier);
             connection.close();
         }
         catch (SQLException ex) {
@@ -224,6 +224,12 @@ public class SIMManager {
                 {
                     transactionInfo.setCellNumber(simInfo.getSimNo());
                     transactionInfo.setServiceId(Services.SERVICE_TYPE_ID_ROBI_CHECKBALANCE);
+                    checkBalance = true;
+                }
+                else if(simServiceInfo.getId() == Services.SIM_SERVICE_TYPE_ID_TELETALK)
+                {
+                    transactionInfo.setCellNumber(simInfo.getSimNo());
+                    transactionInfo.setServiceId(Services.SERVICE_TYPE_ID_TELETALK_CHECKBALANCE);
                     checkBalance = true;
                 }
                 if(checkBalance)

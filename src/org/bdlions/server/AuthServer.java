@@ -197,9 +197,10 @@ public class AuthServer extends AbstractVerticle {
         router.route("/getallsims*").handler(BodyHandler.create());
         router.post("/getallsims").handler((RoutingContext routingContext) -> {
             ResultEvent resultEvent = new ResultEvent();
+            String identifier = routingContext.request().getParam("identifier");
             try {
                 SIMManager simManager = new SIMManager();
-                List<SIMInfo> simList = simManager.getAllSIMs();
+                List<SIMInfo> simList = simManager.getAllSIMs(identifier);
                 resultEvent.setResponseCode(ResponseCodes.SUCCESS);
                 resultEvent.setResult(simList);
 

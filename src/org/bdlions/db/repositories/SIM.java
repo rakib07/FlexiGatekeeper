@@ -67,14 +67,16 @@ public class SIM {
     
     /**
      * This method will return all sims
+     * @param identifier
      * @return List, sim list
      * @throws DBSetupException
      * @throws SQLException
      */
-    public List<SIMInfo> getAllSIMs() throws DBSetupException, SQLException
+    public List<SIMInfo> getAllSIMs(String identifier) throws DBSetupException, SQLException
     {
         List<SIMInfo> simList = new ArrayList<>();
         try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_ALL_SIMS);){
+            stmt.setString(QueryField.IDENTIFIER, identifier);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 SIMInfo simInfo = new SIMInfo();

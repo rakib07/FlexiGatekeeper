@@ -60,10 +60,10 @@ public class SIMManagerTest {
         System.out.println(simInfo.getSimNo());
     }
     
-    //@Test
+    @Test
     public void getAllSIMs() throws DBSetupException, SQLException{
         SIMManager simManager = new SIMManager();
-        List<SIMInfo> simList = simManager.getAllSIMs();
+        List<SIMInfo> simList = simManager.getAllSIMs("demols1");
         System.out.println(simList.size());
     }
     
@@ -82,7 +82,7 @@ public class SIMManagerTest {
         simManager.updateSIMInfo(simInfo);
     }
     
-    @Test
+    //@Test
     public void addSIMMessageTest() throws DBSetupException, SQLException
     {
         try {
