@@ -28,7 +28,7 @@ public class Producer {
         
         if(serviceId == Services.SERVICE_TYPE_ID_DBBL_CASHIN)
         {
-            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_DBBLCASHIN");
+            this.serviceQueueName = localServerIdentifier+"_"+ServerPropertyProvider.get("SERVICE_QUEUE_DBBLCASHIN");
         }
         if(serviceId == Services.SERVICE_TYPE_ID_MCASH_CASHIN)
         {
@@ -36,7 +36,7 @@ public class Producer {
         }
         if(serviceId == Services.SERVICE_TYPE_ID_UCASH_CASHIN)
         {
-            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_UKASHCASHIN");
+            this.serviceQueueName = localServerIdentifier+"_"+ServerPropertyProvider.get("SERVICE_QUEUE_UKASHCASHIN");
         }
         if(serviceId == Services.SERVICE_TYPE_ID_TOPUP_GP)
         {
@@ -48,11 +48,11 @@ public class Producer {
         }
         if(serviceId == Services.SERVICE_TYPE_ID_TOPUP_BANGLALINK)
         {
-            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_TOPUPBANGLALINK");
+            this.serviceQueueName = localServerIdentifier+"_"+ServerPropertyProvider.get("SERVICE_QUEUE_TOPUPBANGLALINK");
         }
         if(serviceId == Services.SERVICE_TYPE_ID_TOPUP_AIRTEL)
         {
-            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_TOPUPAIRTEL");
+            this.serviceQueueName = localServerIdentifier+"_"+ServerPropertyProvider.get("SERVICE_QUEUE_TOPUPAIRTEL");
         }
         if(serviceId == Services.SERVICE_TYPE_ID_TOPUP_TELETALK)
         {
@@ -60,7 +60,7 @@ public class Producer {
         }
         if(serviceId == Services.SERVICE_TYPE_ID_SEND_SMS)
         {
-            this.serviceQueueName = ServerPropertyProvider.get("SERVICE_QUEUE_SENDSMS");
+            this.serviceQueueName = localServerIdentifier+"_"+ServerPropertyProvider.get("SERVICE_QUEUE_SENDSMS");
         }
     }
     

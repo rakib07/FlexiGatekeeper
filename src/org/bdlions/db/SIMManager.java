@@ -232,6 +232,18 @@ public class SIMManager {
                     transactionInfo.setServiceId(Services.SERVICE_TYPE_ID_TELETALK_CHECKBALANCE);
                     checkBalance = true;
                 }
+                else if(simServiceInfo.getId() == Services.SIM_SERVICE_TYPE_ID_AIRTEL)
+                {
+                    transactionInfo.setCellNumber(simInfo.getSimNo());
+                    transactionInfo.setServiceId(Services.SERVICE_TYPE_ID_AIRTEL_CHECKBALANCE);
+                    checkBalance = true;
+                }
+                else if(simServiceInfo.getId() == Services.SIM_SERVICE_TYPE_ID_BANGLALINK)
+                {
+                    transactionInfo.setCellNumber(simInfo.getSimNo());
+                    transactionInfo.setServiceId(Services.SERVICE_TYPE_ID_BANGLALINK_CHECKBALANCE);
+                    checkBalance = true;
+                }
                 if(checkBalance)
                 {
                     try {
