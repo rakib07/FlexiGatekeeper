@@ -1,5 +1,8 @@
 package org.bdlions.db.repositories;
 
+import java.io.PrintWriter;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,12 +16,15 @@ import org.bdlions.db.query.QueryManager;
 import org.bdlions.db.query.helper.EasyStatement;
 import org.bdlions.exceptions.DBSetupException;
 import org.bdlions.utility.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author nazmul hasan
  */
 public class SIM {
+    private final Logger logger = LoggerFactory.getLogger(SIM.class);
     private Connection connection;
     /***
      * Restrict to call without connection
@@ -170,6 +176,17 @@ public class SIM {
      */
     public void addSIMMessage(SIMSMSInfo simSMSInfo) throws DBSetupException, SQLException
     {
+        //saving sms into a text file
+        try {
+            SecureRandom random = new SecureRandom();
+            String fileName = simSMSInfo.getSimNo()+"_"+new BigInteger(130, random).toString(32);
+            PrintWriter writer = new PrintWriter("sms/"+fileName+".txt", "UTF-8");
+            writer.println(simSMSInfo.getSender());
+            writer.println( simSMSInfo.getSms());
+            writer.close();
+        } catch (Exception ex) {
+            logger.debug(ex.toString());
+        }
         int currentTime = Utils.getCurrentUnixTime();
         try (EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_SIM_MESSAGE)) {
             stmt.setString(QueryField.COUNTRY_CODE, simSMSInfo.getCountryCode());

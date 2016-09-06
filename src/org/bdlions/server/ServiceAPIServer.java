@@ -232,17 +232,14 @@ public class ServiceAPIServer extends AbstractVerticle {
             //transaction status id
             String statusIdStr = routingContext.request().getParam("statusid");
             // transaction id from operator
-            //String trxIdOperator = routingContext.request().getParam("trxidoperator");            
+            String trxIdOperator = routingContext.request().getParam("trxidoperator");            
             //sender cell number
             String senderCellNumber = routingContext.request().getParam("sendercellnumber");
             //sim service id of sender
-            //String serviceIdStr = routingContext.request().getParam("serviceid");
+            String serviceIdStr = routingContext.request().getParam("serviceid");
             //current balance of sender
             String balanceStr = routingContext.request().getParam("balance");   
             
-            //remove the follwoing two lines after update all local servers
-            String trxIdOperator = "";
-            String serviceIdStr = "1";
             System.out.println("Updating transaction status----------------transactionId:"+transactionId+",statusIdStr:"+statusIdStr+",trxIdOperator:"+trxIdOperator+",senderCellNumber:"+senderCellNumber+",serviceIdStr:"+serviceIdStr+",balanceStr:"+balanceStr);
             
             int statusId = 0;
