@@ -286,7 +286,7 @@ public class SIMManager {
             logger.error(ex.getMessage());
             try {
                 if(connection != null){
-                    connection.rollback();
+                    //connection.rollback();
                     connection.close();
                 }
             } catch (SQLException ex1) {
@@ -296,5 +296,119 @@ public class SIMManager {
             this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
             logger.error(ex.getMessage());
         }
+    }
+    
+    /**
+     * This method will return sim message
+     * @param simNo
+     * @param startTime
+     * @param endTime
+     * @param offset
+     * @param limit
+     * @return List
+     * @author nazmul hasan on 17th september 2016
+     */
+    public List<SIMSMSInfo> getSIMMessages(String simNo, int startTime, int endTime, int offset, int limit)
+    {
+        List<SIMSMSInfo> simSMSList = new ArrayList<>();
+        Connection connection = null;
+        try
+        {
+            connection = Database.getInstance().getConnection();
+            sim = new SIM(connection);
+            simSMSList = sim.getSIMMessages(simNo, startTime, endTime, offset ,limit);
+            connection.close();
+            this.responseCode = ResponseCodes.SUCCESS;
+            return simSMSList;
+        }
+        catch (SQLException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
+            try {
+                if(connection != null){
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }            
+        } catch (DBSetupException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
+            logger.error(ex.getMessage());
+        }
+        return simSMSList;
+    }
+    /**
+     * This method will return all sim message
+     * @param simNo
+     * @param startTime
+     * @param endTime
+     * @return List
+     * @author nazmul hasan on 17th september 2016
+     */
+    public int getSIMTotalMessages(String simNo, int startTime, int endTime)
+    {
+        int counter = 0;
+        Connection connection = null;
+        try
+        {
+            connection = Database.getInstance().getConnection();
+            sim = new SIM(connection);
+            counter = sim.getSIMTotalMessages(simNo, startTime, endTime);
+            connection.close();
+            this.responseCode = ResponseCodes.SUCCESS;
+            return counter;
+        }
+        catch (SQLException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
+            try {
+                if(connection != null){
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }            
+        } catch (DBSetupException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
+            logger.error(ex.getMessage());
+        }
+        return counter;
+    }
+    /**
+     * This method will return all sim message
+     * @param simNo
+     * @param startTime
+     * @param endTime
+     * @return List
+     * @author nazmul hasan on 17th september 2016
+     */
+    public List<SIMSMSInfo> getAllSIMMessages(String simNo, int startTime, int endTime)
+    {
+        List<SIMSMSInfo> simSMSList = new ArrayList<>();
+        Connection connection = null;
+        try
+        {
+            connection = Database.getInstance().getConnection();
+            sim = new SIM(connection);
+            simSMSList = sim.getAllSIMMessages(simNo, startTime, endTime);
+            connection.close();
+            this.responseCode = ResponseCodes.SUCCESS;
+            return simSMSList;
+        }
+        catch (SQLException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
+            try {
+                if(connection != null){
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }            
+        } catch (DBSetupException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
+            logger.error(ex.getMessage());
+        }
+        return simSMSList;
     }
 }

@@ -10,6 +10,7 @@ package org.bdlions.db.query;
  * @author alamgir
  */
 public class QueryField {
+    public static final String ID = "id";
     public static final String IP_ADDRESS = "ip_address";
     public static final String USER_ID = "user_id";
     public static final String MAX_MEMBERS = "max_members";
@@ -50,4 +51,8 @@ public class QueryField {
     public static final String LS_IDENTIFIER = "ls_identifier";
     public static final String COUNTRY_CODE = "country_code";
     public static final String SENDER = "sender";
+    public static final String START_TIME = "start_time";
+    public static final String END_TIME = "end_time";
+    public static final String LIMIT = "limit";
+    public static final String OFFSET = "offset";
 }

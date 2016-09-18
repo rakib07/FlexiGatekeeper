@@ -280,6 +280,44 @@ public class TransactionManager {
     }
     
     /**
+     * This method will update transaction acknowledge status
+     * @param transactionInfo, transaction info
+     */
+    public void updateTransactionStatusAck(TransactionInfo transactionInfo)
+    {
+        Connection connection = null;
+        try {
+            connection = Database.getInstance().getConnection();
+            transaction = new Transaction(connection);
+            
+            transaction.updateTransactionStatus(transactionInfo); 
+            
+            //send the acknowledge to the webserver after supporting this status id
+            AuthManager authManager = new AuthManager();
+            String baseURL = authManager.getBaseURLTransactionId(transactionInfo.getTransactionId());
+            CallbackTransactionManager callbackTransactionManager = new CallbackTransactionManager();
+            callbackTransactionManager.setBaseURL(baseURL);
+            callbackTransactionManager.updateTransactionStatus(transactionInfo.getTransactionId(), transactionInfo.getTransactionStatusId(), transactionInfo.getSenderCellNumber(), transactionInfo.getTrxIdOperator());
+            
+            this.responseCode = ResponseCodes.SUCCESS;
+            connection.close();
+        } catch (SQLException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
+            try {
+                if(connection != null){
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }
+        } catch (DBSetupException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
+            logger.error(ex.getMessage());
+        }
+    }
+    
+    /**
      * This method will update transaction status
      * @param transactionInfo, transaction info
      */

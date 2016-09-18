@@ -60,7 +60,7 @@ public class SIMManagerTest {
         System.out.println(simInfo.getSimNo());
     }
     
-    @Test
+    //@Test
     public void getAllSIMs() throws DBSetupException, SQLException{
         SIMManager simManager = new SIMManager();
         List<SIMInfo> simList = simManager.getAllSIMs("demols1");
@@ -93,6 +93,37 @@ public class SIMManagerTest {
             simSMSInfo.setSms("Recharge request of TK 13.0 for mobile no. 1784863147, transaction ID BD51072117460432 is successful. Your account balance is TK 37.78.");
             simManager.addSIMMessage(simSMSInfo);
         } catch (Exception e) {
+        }
+    }
+    
+    //@Test
+    public void getSIMMessagesTest() throws DBSetupException, SQLException
+    {
+        try {
+            SIMManager simManager = new SIMManager();
+            List<SIMSMSInfo> simSMSList = simManager.getSIMMessages("8801712341213", 0, 1572626560, 3, 2);
+            System.out.println(simSMSList.size());
+        } catch (Exception ex) {
+        }
+    }
+    @Test
+    public void getSIMTotalMessagesTest() throws DBSetupException, SQLException
+    {
+        try {
+            SIMManager simManager = new SIMManager();
+            int counter = simManager.getSIMTotalMessages("8801712341213", 0, 1572626560);
+            System.out.println(counter);
+        } catch (Exception ex) {
+        }
+    }
+    //@Test
+    public void getAllSIMMessagesTest() throws DBSetupException, SQLException
+    {
+        try {
+            SIMManager simManager = new SIMManager();
+            List<SIMSMSInfo> simSMSList = simManager.getAllSIMMessages("8801712341213", 0, 1572626560);
+            System.out.println(simSMSList.size());
+        } catch (Exception ex) {
         }
     }
 }

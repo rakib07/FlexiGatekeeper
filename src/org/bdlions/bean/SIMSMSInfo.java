@@ -1,5 +1,7 @@
 package org.bdlions.bean;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  *
  * @author nazmul
@@ -73,4 +75,15 @@ public class SIMSMSInfo {
         this.modifiedOn = modifiedOn;
     }
     
+    @Override
+    public String toString() {
+        ObjectMapper mapper = new ObjectMapper();
+        String json = "";
+        try {
+            json = mapper.writeValueAsString(this);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return json;
+    }
 }

@@ -16,6 +16,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.bdlions.bean.SIMInfo;
+import org.bdlions.bean.SIMSMSInfo;
+import org.bdlions.bean.SIMSMSListInfo;
 import org.bdlions.bean.SIMServiceInfo;
 import org.bdlions.bean.TransactionInfo;
 import org.bdlions.bean.UserInfo;
@@ -229,7 +231,57 @@ public class AuthServer extends AbstractVerticle {
             HttpServerResponse response = routingContext.response();
             response.end(resultEvent.toString());
         });
-
+        
+        router.route("/getsimmessages*").handler(BodyHandler.create());
+        router.post("/getsimmessages").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String simNo = routingContext.request().getParam("sim_no");
+            String startTimeStr = routingContext.request().getParam("start_time");
+            String endTimeStr = routingContext.request().getParam("end_time");
+            String offsetStr = routingContext.request().getParam("offset");
+            String limitStr = routingContext.request().getParam("limit");
+            int startTime = 0;
+            int endTime = 0;
+            int offset = 0;
+            int limit = 0;
+            try
+            {
+                startTime = Integer.parseInt(startTimeStr);
+                endTime = Integer.parseInt(endTimeStr);
+                offset = Integer.parseInt(offsetStr);
+                limit = Integer.parseInt(limitStr);
+            }
+            catch(Exception ex)
+            {
+                logger.error(ex.getMessage());
+            }
+            try {
+                SIMSMSListInfo simSMSListInfo = new SIMSMSListInfo();
+                SIMManager simManager = new SIMManager();
+                //setting total messages of this sim
+                simSMSListInfo.setCounter(simManager.getSIMTotalMessages(simNo, startTime, endTime));
+                List<SIMSMSInfo> simSMSList;
+                if(limit != 0)
+                {
+                    simSMSList = simManager.getSIMMessages(simNo, startTime, endTime, offset, limit);
+                }
+                else
+                {
+                    simSMSList = simManager.getAllSIMMessages(simNo, startTime, endTime);
+                }
+                //setting sim sms list
+                simSMSListInfo.setSimSMSList(simSMSList);
+                resultEvent.setResult(simSMSListInfo);
+                resultEvent.setResponseCode(ResponseCodes.SUCCESS);
+            } catch (Exception ex) {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
+        });
+        
+        
         router.route("/registersubscriber*").handler(BodyHandler.create());
         router.post("/registersubscriber").handler((RoutingContext routingContext) -> {
             ResultEvent resultEvent = new ResultEvent();

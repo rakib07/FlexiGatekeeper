@@ -39,4 +39,7 @@ public final class QueryManager {
     public static final String GET_BASE_URL_TRANSACTION_ID = "db.query.get-base-url-transaction-id";
     public static final String GET_LOCAL_SERVER_IDENTIFIER = "db.query.get-local-server-identifier";
     public static final String ADD_SIM_MESSAGE= "db.query.add-sim-message";
+    public static final String GET_SIM_MESSAGES= "db.query.get-sim-messages";
+    public static final String GET_SIM_TOTAL_MESSAGES= "db.query.get-sim-total-messages";
+    public static final String GET_ALL_SIM_MESSAGES= "db.query.get-all-sim-messages";
 }

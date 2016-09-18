@@ -19,6 +19,7 @@ import org.bdlions.bean.SIMInfo;
 import org.bdlions.bean.SIMServiceInfo;
 import org.bdlions.bean.SMSTransactionInfo;
 import org.bdlions.bean.TransactionInfo;
+import org.bdlions.callback.CallbackTransactionManager;
 import org.bdlions.constants.ResponseCodes;
 import org.bdlions.exceptions.DBSetupException;
 import org.json.JSONArray;
@@ -140,7 +141,7 @@ public class TransactionManagerTest {
         }
     }
     
-    @Test
+    //@Test
     public void updateSIMBalanceTest() throws DBSetupException, SQLException
     {
         try
@@ -228,6 +229,20 @@ public class TransactionManagerTest {
         
         TransactionManager transactionManager = new TransactionManager();
         transactionManager.addSMSTransaction(smsTransactionInfo);
+    }
+    
+    @Test
+    public void updateTransactionStatusWSTest() throws DBSetupException, SQLException{
+        TransactionInfo transactionInfo = new TransactionInfo();
+        transactionInfo.setTransactionId("d3or2envlf76bpsjkdpa6kica");
+        transactionInfo.setTransactionStatusId(5);
+        
+        AuthManager authManager = new AuthManager();
+        String baseURL = authManager.getBaseURLTransactionId(transactionInfo.getTransactionId());
+        CallbackTransactionManager callbackTransactionManager = new CallbackTransactionManager();
+        callbackTransactionManager.setBaseURL(baseURL);
+        callbackTransactionManager.updateTransactionStatus(transactionInfo.getTransactionId(), transactionInfo.getTransactionStatusId(), transactionInfo.getSenderCellNumber(), transactionInfo.getTrxIdOperator());
+            
     }
     
 

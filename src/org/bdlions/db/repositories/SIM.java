@@ -198,4 +198,93 @@ public class SIM {
             stmt.executeUpdate();
         }
     }
+    
+    /**
+     * This method will return sim messages
+     * @param simNo
+     * @param startTime
+     * @param endTime
+     * @param offset
+     * @param limit
+     * @return list
+     * @throws DBSetupException
+     * @throws SQLException
+     * @author nazmul hasan on 17th September 2016
+     */
+    public List<SIMSMSInfo> getSIMMessages(String simNo, int startTime, int endTime, int offset, int limit) throws DBSetupException, SQLException
+    {
+        List<SIMSMSInfo> simSMSList = new ArrayList<>();
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_SIM_MESSAGES);){
+            stmt.setString(QueryField.SIM_NO, simNo);
+            stmt.setInt(QueryField.START_TIME, startTime);
+            stmt.setInt(QueryField.END_TIME, endTime);
+            stmt.setInt(QueryField.OFFSET, offset);
+            stmt.setInt(QueryField.LIMIT, limit);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                SIMSMSInfo simSMSInfo = new SIMSMSInfo();
+                simSMSInfo.setId(rs.getInt(QueryField.ID));
+                simSMSInfo.setSimNo(rs.getString(QueryField.SIM_NO));
+                simSMSInfo.setSender(rs.getString(QueryField.SENDER));
+                simSMSInfo.setSms(rs.getString(QueryField.SMS));
+                simSMSInfo.setCreatedOn(rs.getInt(QueryField.CREATED_ON));
+                simSMSList.add(simSMSInfo);
+            }
+        }
+        return simSMSList;
+    }
+    /**
+     * This method will return counter of all sim messages
+     * @param simNo
+     * @param startTime
+     * @param endTime
+     * @return integer
+     * @throws DBSetupException
+     * @throws SQLException
+     * @author nazmul hasan on 17th September 2016
+     */
+    public int getSIMTotalMessages(String simNo, int startTime, int endTime) throws DBSetupException, SQLException
+    {
+        int counter = 0;
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_SIM_TOTAL_MESSAGES);){
+            stmt.setString(QueryField.SIM_NO, simNo);
+            stmt.setInt(QueryField.START_TIME, startTime);
+            stmt.setInt(QueryField.END_TIME, endTime);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                counter = rs.getInt("total_messages");
+            }
+        }
+        return counter;
+    }
+    /**
+     * This method will return all sim messages
+     * @param simNo
+     * @param startTime
+     * @param endTime
+     * @return list
+     * @throws DBSetupException
+     * @throws SQLException
+     * @author nazmul hasan on 17th September 2016
+     */
+    public List<SIMSMSInfo> getAllSIMMessages(String simNo, int startTime, int endTime) throws DBSetupException, SQLException
+    {
+        List<SIMSMSInfo> simSMSList = new ArrayList<>();
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_ALL_SIM_MESSAGES);){
+            stmt.setString(QueryField.SIM_NO, simNo);
+            stmt.setInt(QueryField.START_TIME, startTime);
+            stmt.setInt(QueryField.END_TIME, endTime);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                SIMSMSInfo simSMSInfo = new SIMSMSInfo();
+                simSMSInfo.setId(rs.getInt(QueryField.ID));
+                simSMSInfo.setSimNo(rs.getString(QueryField.SIM_NO));
+                simSMSInfo.setSender(rs.getString(QueryField.SENDER));
+                simSMSInfo.setSms(rs.getString(QueryField.SMS));
+                simSMSInfo.setCreatedOn(rs.getInt(QueryField.CREATED_ON));
+                simSMSList.add(simSMSInfo);
+            }
+        }
+        return simSMSList;
+    }
 }
