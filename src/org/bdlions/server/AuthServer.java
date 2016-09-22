@@ -8,6 +8,8 @@ package org.bdlions.server;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -60,22 +62,20 @@ public class AuthServer extends AbstractVerticle {
             response.end("Authentication server");
         });
         
+        //adding a new sim with services
         router.route("/addsim*").handler(BodyHandler.create());
         router.post("/addsim").handler((RoutingContext routingContext) -> {
             ResultEvent resultEvent = new ResultEvent();
+            //sim no
             String simNo = routingContext.request().getParam("sim_no");
+            //web server identifier
             String identifier = routingContext.request().getParam("identifier");
+            //description of the sim
             String description = routingContext.request().getParam("description");
-            String currentBalanceStr = routingContext.request().getParam("current_balance");
-            double currentBalance = 0;
-            try
-            {
-                currentBalance = Double.parseDouble(currentBalanceStr);
-            }
-            catch(Exception ex){
-                logger.error(ex.getMessage());
-            } 
+            //status of the sim
             String statusStr = routingContext.request().getParam("status");
+            //sim service list
+            String simServiceList = routingContext.request().getParam("sim_service_list");            
             int status = 0;
             try
             {
@@ -83,28 +83,38 @@ public class AuthServer extends AbstractVerticle {
             }
             catch(Exception ex){
                 logger.error(ex.getMessage());
-            } 
-            
+            }
             try {
                 SIMManager simManager = new SIMManager();
                 SIMInfo simInfo = new SIMInfo();
                 simInfo.setSimNo(simNo);
                 simInfo.setIdentifier(identifier);
                 simInfo.setDescription(description);
-                simInfo.setStatus(status);
-                
-                SIMServiceInfo simServiceInfo = new SIMServiceInfo();
-                simServiceInfo.setCurrentBalance(currentBalance);
-                //right now we are assuming sim is for bkash agent only. Late it should be dynamic
-                simServiceInfo.setId(Services.SIM_SERVICE_TYPE_ID_BKASH);
-                simServiceInfo.setCategoryId(Services.PACKAGE_TYPE_ID_AGENT);
-                
-                simInfo.getSimServiceList().add(simServiceInfo);
-                
+                simInfo.setStatus(status);                
+                JsonArray simServiceArray = new JsonArray(simServiceList);
+                for(int counter = 0 ; counter < simServiceArray.size(); counter++)
+                {
+                    JsonObject simServiceObject = new JsonObject(simServiceArray.getValue(counter).toString());
+                    String serviceIdStr = simServiceObject.getString("serviceId"); 
+                    String categoryIdStr = simServiceObject.getString("categoryId"); 
+                    String currentBalanceStr = simServiceObject.getString("currentBalance"); 
+                    double currentBalance = 0;
+                    try
+                    {
+                        currentBalance = Double.parseDouble(currentBalanceStr);
+                    }
+                    catch(Exception ex){
+                        logger.error(ex.getMessage());
+                    }
+                    SIMServiceInfo simServiceInfo = new SIMServiceInfo();
+                    simServiceInfo.setCurrentBalance(currentBalance);
+                    simServiceInfo.setId(Integer.parseInt(serviceIdStr));
+                    simServiceInfo.setCategoryId(Integer.parseInt(categoryIdStr));
+                    simInfo.getSimServiceList().add(simServiceInfo);
+                }                
                 simManager.addSIM(simInfo);
                 resultEvent.setResponseCode(simManager.getResponseCode());
                 resultEvent.setResult(simInfo);
-
             } catch (Exception ex) {
                 resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
                 logger.error(ex.getMessage());
@@ -113,22 +123,16 @@ public class AuthServer extends AbstractVerticle {
             response.end(resultEvent.toString());
         });
         
+        //edit sim info
         router.route("/editsim*").handler(BodyHandler.create());
         router.post("/editsim").handler((RoutingContext routingContext) -> {
             ResultEvent resultEvent = new ResultEvent();
+            //based on the identifier validate that given sim_no is valid for this identifier
             String simNo = routingContext.request().getParam("sim_no");
             String identifier = routingContext.request().getParam("identifier");
             String description = routingContext.request().getParam("description");
-            String currentBalanceStr = routingContext.request().getParam("current_balance");
-            double currentBalance = 0;
-            try
-            {
-                currentBalance = Double.parseDouble(currentBalanceStr);
-            }
-            catch(Exception ex){
-                logger.error(ex.getMessage());
-            }           
             String statusStr = routingContext.request().getParam("status");
+            
             int status = 0;
             try
             {
@@ -144,19 +148,11 @@ public class AuthServer extends AbstractVerticle {
                 simInfo.setIdentifier(identifier);
                 simInfo.setDescription(description);
                 simInfo.setStatus(status);
-                
-                SIMServiceInfo simServiceInfo = new SIMServiceInfo();
-                simServiceInfo.setCurrentBalance(currentBalance);
-                simServiceInfo.setId(Services.SIM_SERVICE_TYPE_ID_BKASH);
-                simServiceInfo.setCategoryId(Services.PACKAGE_TYPE_ID_AGENT);
-                
-                simInfo.getSimServiceList().add(simServiceInfo);
                 simManager.updateSIMInfo(simInfo);
                 resultEvent.setResponseCode(simManager.getResponseCode());
                 resultEvent.setResult(simInfo);
-
             } catch (Exception ex) {
-                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_SERVER_EXCEPTION);
                 logger.error(ex.getMessage());
             }
             if(status == 0)
@@ -179,26 +175,37 @@ public class AuthServer extends AbstractVerticle {
             response.end(resultEvent.toString());
         });
         
-        router.route("/getsiminfo*").handler(BodyHandler.create());
-        router.post("/getsiminfo").handler((RoutingContext routingContext) -> {
+        //return sim with service details
+        router.route("/getsimserviceinfo*").handler(BodyHandler.create());
+        router.post("/getsimserviceinfo").handler((RoutingContext routingContext) -> {
             ResultEvent resultEvent = new ResultEvent();
+            //sim no
             String simNo = routingContext.request().getParam("sim_no");
             try {
                 SIMManager simManager = new SIMManager();
-                SIMInfo simInfo = simManager.getSIMInfo(simNo);
-                resultEvent.setResponseCode(ResponseCodes.SUCCESS);
-                resultEvent.setResult(simInfo);
+                SIMInfo simInfo = simManager.getSIMServiceInfo(simNo);
+                if(simInfo != null)
+                {
+                    resultEvent.setResponseCode(ResponseCodes.SUCCESS);
+                    resultEvent.setResult(simInfo);
+                }
+                else
+                {
+                    resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_SIMNO);
+                }
             } catch (Exception ex) {
-                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_SERVER_EXCEPTION);
                 logger.error(ex.getMessage());
             }
             HttpServerResponse response = routingContext.response();
             response.end(resultEvent.toString());
         });
         
+        //return all sims
         router.route("/getallsims*").handler(BodyHandler.create());
         router.post("/getallsims").handler((RoutingContext routingContext) -> {
             ResultEvent resultEvent = new ResultEvent();
+            //identifier of a webserver
             String identifier = routingContext.request().getParam("identifier");
             try {
                 SIMManager simManager = new SIMManager();
@@ -207,7 +214,25 @@ public class AuthServer extends AbstractVerticle {
                 resultEvent.setResult(simList);
 
             } catch (Exception ex) {
-                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_AMOUNT);
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_IDENTIFIER);
+                logger.error(ex.getMessage());
+            }
+            HttpServerResponse response = routingContext.response();
+            response.end(resultEvent.toString());
+        });
+        
+        router.route("/getallsimsservices*").handler(BodyHandler.create());
+        router.post("/getallsims").handler((RoutingContext routingContext) -> {
+            ResultEvent resultEvent = new ResultEvent();
+            String identifier = routingContext.request().getParam("identifier");
+            try {
+                SIMManager simManager = new SIMManager();
+                List<SIMInfo> simList = simManager.getAllSIMsServices(identifier);
+                resultEvent.setResponseCode(ResponseCodes.SUCCESS);
+                resultEvent.setResult(simList);
+
+            } catch (Exception ex) {
+                resultEvent.setResponseCode(ResponseCodes.ERROR_CODE_INVALID_IDENTIFIER);
                 logger.error(ex.getMessage());
             }
             HttpServerResponse response = routingContext.response();
@@ -220,7 +245,7 @@ public class AuthServer extends AbstractVerticle {
             String simNo = routingContext.request().getParam("sim_no");
             try {
                 SIMManager simManager = new SIMManager();
-                SIMInfo simInfo = simManager.getSIMInfo(simNo);
+                SIMInfo simInfo = simManager.getSIMServiceInfo(simNo);
                 simManager.generateSIMBalance(simInfo);
                 resultEvent.setResponseCode(ResponseCodes.SUCCESS);
 

@@ -56,14 +56,14 @@ public class SIMManagerTest {
     //@Test
     public void getSIMInfo() throws DBSetupException, SQLException{
         SIMManager simManager = new SIMManager();
-        SIMInfo simInfo = simManager.getSIMInfo("8801678112509");
+        SIMInfo simInfo = simManager.getSIMServiceInfo("8801678112509");
         System.out.println(simInfo.getSimNo());
     }
     
     //@Test
     public void getAllSIMs() throws DBSetupException, SQLException{
         SIMManager simManager = new SIMManager();
-        List<SIMInfo> simList = simManager.getAllSIMs("demols1");
+        List<SIMInfo> simList = simManager.getAllSIMsServices("demols1");
         System.out.println(simList.size());
     }
     

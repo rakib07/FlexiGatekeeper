@@ -35,6 +35,25 @@ public class SIM {
         this.connection = connection;
     }
     
+    /**
+     * This method will check whether a SIM exists or not
+     * @param simNo
+     * @return boolean
+     * @throws DBSetupException
+     * @throws SQLException
+     * @author nazmul hasan on 22nd september 2016
+     */
+    public boolean checkSIM(String simNo) throws DBSetupException, SQLException
+    {
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_SIM_INFO);){
+            stmt.setString(QueryField.SIM_NO, simNo);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return true;
+            }
+        }
+        return false;
+    }
     
     /**
      * This method will add a new SIM into the database
@@ -54,10 +73,9 @@ public class SIM {
             stmt.setInt(QueryField.MODIFIED_ON, currentTime);
             stmt.executeUpdate();
         }
-        if(simInfo.getSimServiceList().size() > 0)
+        for(int counter = 0; counter < simInfo.getSimServiceList().size(); counter++)
         {
-            //right now we are storing one service under one sim
-            SIMServiceInfo simServiceInfo = simInfo.getSimServiceList().get(0);
+            SIMServiceInfo simServiceInfo = simInfo.getSimServiceList().get(counter);
             try (EasyStatement stmt = new EasyStatement(connection, QueryManager.ADD_SIM_SERVICE)) {
                 stmt.setString(QueryField.SIM_NO, simInfo.getSimNo());
                 stmt.setInt(QueryField.SERVICE_ID, simServiceInfo.getId());
@@ -67,8 +85,7 @@ public class SIM {
                 stmt.setInt(QueryField.MODIFIED_ON, currentTime);
                 stmt.executeUpdate();
             }
-        }
-        
+        }        
     }
     
     /**
@@ -86,14 +103,41 @@ public class SIM {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 SIMInfo simInfo = new SIMInfo();
-                simInfo.setSimNo(rs.getString("sim_no"));
-                simInfo.setIdentifier(rs.getString("identifier"));
-                simInfo.setDescription(rs.getString("description"));
-                simInfo.setStatus(rs.getInt("status"));
+                simInfo.setSimNo(rs.getString(QueryField.SIM_NO));
+                simInfo.setIdentifier(rs.getString(QueryField.IDENTIFIER));
+                simInfo.setDescription(rs.getString(QueryField.DESCRIPTION));
+                simInfo.setStatus(rs.getInt(QueryField.STATUS));                
+                simList.add(simInfo);
+            }
+        }
+        return simList;
+    }
+    
+    /**
+     * This method will return all sims with services
+     * @param identifier
+     * @return List, sim list
+     * @throws DBSetupException
+     * @throws SQLException
+     */
+    public List<SIMInfo> getAllSIMsServices(String identifier) throws DBSetupException, SQLException
+    {
+        List<SIMInfo> simList = new ArrayList<>();
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_ALL_SIMS_SERVICES);){
+            stmt.setString(QueryField.IDENTIFIER, identifier);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                SIMInfo simInfo = new SIMInfo();
+                simInfo.setSimNo(rs.getString(QueryField.SIM_NO));
+                simInfo.setIdentifier(rs.getString(QueryField.IDENTIFIER));
+                simInfo.setDescription(rs.getString(QueryField.DESCRIPTION));
+                simInfo.setStatus(rs.getInt(QueryField.STATUS));
                 SIMServiceInfo simServiceInfo = new SIMServiceInfo();
-                simServiceInfo.setCurrentBalance(rs.getDouble("current_balance"));
-                simServiceInfo.setCreatedOn(rs.getInt("created_on"));
-                simServiceInfo.setModifiedOn(rs.getInt("modified_on"));
+                simServiceInfo.setId(rs.getInt(QueryField.SERVICE_ID));
+                simServiceInfo.setCategoryId(rs.getInt(QueryField.CATEGORY_ID));
+                simServiceInfo.setCurrentBalance(rs.getDouble(QueryField.CURRENT_BALANCE));
+                simServiceInfo.setCreatedOn(rs.getInt(QueryField.CREATED_ON));
+                simServiceInfo.setModifiedOn(rs.getInt(QueryField.MODIFIED_ON));
                 simInfo.getSimServiceList().add(simServiceInfo);
                 simList.add(simInfo);
             }
@@ -102,29 +146,40 @@ public class SIM {
     }
     
     /**
-     * This method will return sim info
+     * This method will return sim service info
      * @param simNo, sim no
      * @return SIMInfo, sim info
      * @exception DBSetupException
      * @exception SQLException
      */
-    public SIMInfo getSIMInfo(String simNo) throws DBSetupException, SQLException
+    public SIMInfo getSIMServiceInfo(String simNo) throws DBSetupException, SQLException
     {
-        SIMInfo simInfo = new SIMInfo();
-        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_SIM_INFO);){
+        SIMInfo simInfo = null;
+        List<SIMServiceInfo> simServiceList = new ArrayList<>();
+        try (EasyStatement stmt = new EasyStatement(connection, QueryManager.GET_SIM_SERVICE_INFO);){
             stmt.setString(QueryField.SIM_NO, simNo);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                simInfo.setSimNo(rs.getString("sim_no"));
-                simInfo.setIdentifier(rs.getString("identifier"));
-                simInfo.setDescription(rs.getString("description"));
-                simInfo.setStatus(rs.getInt("status"));
+                if(simInfo == null)
+                {
+                    simInfo = new SIMInfo();
+                    simInfo.setSimNo(rs.getString("sim_no"));
+                    simInfo.setIdentifier(rs.getString("identifier"));
+                    simInfo.setDescription(rs.getString("description"));
+                    simInfo.setStatus(rs.getInt("status"));
+                }                
                 SIMServiceInfo simServiceInfo = new SIMServiceInfo();
                 simServiceInfo.setCurrentBalance(rs.getDouble("current_balance"));
                 simServiceInfo.setId(rs.getInt("service_id"));
                 simServiceInfo.setCategoryId(rs.getInt("category_id"));
-                simInfo.getSimServiceList().add(simServiceInfo);
+                simServiceInfo.setCreatedOn(rs.getInt(QueryField.CREATED_ON));
+                simServiceInfo.setModifiedOn(rs.getInt(QueryField.MODIFIED_ON));
+                simServiceList.add(simServiceInfo);
             }
+        }
+        if(simInfo != null && simServiceList.size() > 0)
+        {
+            simInfo.setSimServiceList(simServiceList);
         }
         return simInfo;
     }

@@ -33,7 +33,7 @@ public class SIMManager {
     }
     
     /**
-     * This method will add a new sim
+     * This method will add a new sim with services under that sim
      * @param simInfo, sim info
      * @author nazmul hasan on 11th June 2016
      */
@@ -42,11 +42,20 @@ public class SIMManager {
         Connection connection = null;
         try
         {
-            connection = Database.getInstance().getConnection();
+            connection = Database.getInstance().getConnection();  
+            connection.setAutoCommit(false);
             sim = new SIM(connection);
-            sim.addSIM(simInfo);
-            connection.close();
-            this.responseCode = ResponseCodes.SUCCESS;
+            if(!sim.checkSIM(simInfo.getSimNo()))
+            {                
+                sim.addSIM(simInfo);
+                this.responseCode = ResponseCodes.SUCCESS;                 
+            }
+            else
+            {
+                this.responseCode = ResponseCodes.ERROR_CODE_ADDSIM_SIMNO_ALREADY_EXISTS;
+            } 
+            connection.commit();
+            connection.close(); 
         }
         catch (SQLException ex) {
             this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
@@ -66,20 +75,20 @@ public class SIMManager {
     }
     
     /**
-     * This method will return SIM Info
+     * This method will return SIM Service Info
      * @param simNo, sim number
      * @return SIMInfo
      * @author nazmul hasan on 11th June 2016
      */
-    public SIMInfo getSIMInfo(String simNo)
+    public SIMInfo getSIMServiceInfo(String simNo)
     {
-        SIMInfo simInfo = new SIMInfo();
+        SIMInfo simInfo = null;
         Connection connection = null;
         try
         {
             connection = Database.getInstance().getConnection();
             sim = new SIM(connection);
-            simInfo = sim.getSIMInfo(simNo);
+            simInfo = sim.getSIMServiceInfo(simNo);
             connection.close();
         }
         catch (SQLException ex) {
@@ -135,6 +144,40 @@ public class SIMManager {
     }
     
     /**
+     * This method will return all SIMs with services
+     * @return sim list
+     * @author nazmul hasan on 11th June 2016
+     */
+    public List<SIMInfo> getAllSIMsServices(String identifier) 
+    {
+        List<SIMInfo> simList = new ArrayList<>();
+        Connection connection = null;
+        try
+        {
+            connection = Database.getInstance().getConnection();
+            sim = new SIM(connection);
+            simList = sim.getAllSIMsServices(identifier);
+            connection.close();
+        }
+        catch (SQLException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SQL_EXCEPTION;
+            logger.error(ex.getMessage());
+            try {
+                if(connection != null){
+                    connection.rollback();
+                    connection.close();
+                }
+            } catch (SQLException ex1) {
+                logger.error(ex1.getMessage());
+            }            
+        } catch (DBSetupException ex) {
+            this.responseCode = ResponseCodes.ERROR_CODE_DB_SETUP_EXCEPTION;
+            logger.error(ex.getMessage());
+        }
+        return simList;
+    }
+    
+    /**
      * This method will update SIM info
      * @param simInfo, SIM Info
      * @author nazmul hasan on 11th June 2016
@@ -148,7 +191,7 @@ public class SIMManager {
             connection.setAutoCommit(false);
             sim = new SIM(connection);
             sim.updateSIMInfo(simInfo);
-            sim.updateSIMServiceBalanceInfo(simInfo);
+            //sim.updateSIMServiceBalanceInfo(simInfo);
             connection.commit();
             connection.close();
             this.responseCode = ResponseCodes.SUCCESS;
@@ -198,14 +241,18 @@ public class SIMManager {
         }
     }
     
+    /**
+     * This method will send request to local server to generate current balance of services of a sim
+     * @param simInfo
+     * @author nazmul hasan on 22nd september 2016
+     */
     public void generateSIMBalance(SIMInfo simInfo)
     {
         try
         {
-            //right now one sim has one service only. eg. bkash/dbbl/mcahs/ucash
-            if(simInfo.getSimServiceList().size() > 0)
+            for(int counter = 0; counter < simInfo.getSimServiceList().size(); counter++)
             {
-                SIMServiceInfo simServiceInfo = simInfo.getSimServiceList().get(0);
+                SIMServiceInfo simServiceInfo = simInfo.getSimServiceList().get(counter);
                 TransactionInfo transactionInfo = new TransactionInfo();
                 boolean checkBalance = false;
                 if(simServiceInfo.getId() == Services.SIM_SERVICE_TYPE_ID_BKASH)

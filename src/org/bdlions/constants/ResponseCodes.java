@@ -29,5 +29,7 @@ public class ResponseCodes {
     public static final int ERROR_CODE_INVALID_OP_CODE = 5015;
     public static final int ERROR_CODE_SIM_BALANCE_UPDATE_FAILED = 5016;
     public static final int ERROR_CODE_UPDATE_TRANSACTION_STATUS_ACK_FAILED = 5017;
-    
+    public static final int ERROR_CODE_ADDSIM_SIMNO_ALREADY_EXISTS = 5018;
+    public static final int ERROR_CODE_INVALID_SIMNO = 5019;
+    public static final int ERROR_CODE_INVALID_IDENTIFIER = 5020;
 }

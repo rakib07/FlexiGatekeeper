@@ -26,7 +26,9 @@ public final class QueryManager {
     public static final String ADD_SIM = "db.query.add-sim";
     public static final String ADD_SIM_SERVICE = "db.query.add-sim-service";
     public static final String GET_SIM_INFO = "db.query.get-sim-info";
+    public static final String GET_SIM_SERVICE_INFO = "db.query.get-sim-service-info";
     public static final String GET_ALL_SIMS = "db.query.get-all-sims";
+    public static final String GET_ALL_SIMS_SERVICES = "db.query.get-all-sims-services";
     public static final String UPDATE_SIM_INFO = "db.query.update-sim-info";
     public static final String UPDATE_SIM_SERVICE_BALANCE_INFO = "db.query.update-sim-service-balance-info";
     public static final String GET_TRANSACTION_INFO = "db.query.get-transaction-info";
