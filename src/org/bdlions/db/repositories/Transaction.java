@@ -162,7 +162,7 @@ public class Transaction {
             stmt.setString(QueryField.API_KEY, transactionInfo.getAPIKey());
             stmt.setString(QueryField.TRANSACTION_CELL_NUMBER, transactionInfo.getCellNumber());
             stmt.setDouble(QueryField.BALANCE_OUT, transactionInfo.getBalanceOut());
-            stmt.setInt(QueryField.TRANSACTION_STATUS_ID, Transactions.TRANSACTION_STATUS_PENDING);
+            stmt.setInt(QueryField.TRANSACTION_STATUS_ID, Transactions.TRANSACTION_STATUS_PROCESSED);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 transactionId = rs.getString(QueryField.TRANSACTION_ID);
