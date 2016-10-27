@@ -55,4 +55,5 @@ public class QueryField {
     public static final String END_TIME = "end_time";
     public static final String LIMIT = "limit";
     public static final String OFFSET = "offset";
+    public static final String PROCESS_TYPE_ID = "process_type_id";
 }

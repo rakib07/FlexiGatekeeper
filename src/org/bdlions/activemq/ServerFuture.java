@@ -1,5 +1,7 @@
 package org.bdlions.activemq;
 
+import org.bdlions.constants.Services;
+import org.bdlions.utility.ServerPropertyProvider;
 import org.fusesource.mqtt.client.Future;
 import org.fusesource.mqtt.client.FutureConnection;
 import org.fusesource.mqtt.client.MQTT;
@@ -48,14 +50,20 @@ public class ServerFuture {
     
     /**
      * Sending transaction to android local server
+     * @param serviceId service id
      * @param localServerIdentifier, local server identifier
      * @param transactionInfo, transaction info
      */
-    public void setTransaction(String localServerIdentifier, String transactionInfo)
+    public void setTransaction(int serviceId, String localServerIdentifier, String transactionInfo)
     {
+        String queueName = localServerIdentifier;
+        if(serviceId == Services.SERVICE_TYPE_ID_BKASH_CASHIN)
+        {
+            queueName = localServerIdentifier+"_"+ServerPropertyProvider.get("SERVICE_QUEUE_BKASH_CASHIN");
+        }
         try{
-            Future<Void> f3 = connection.publish(localServerIdentifier, transactionInfo.getBytes(), QoS.EXACTLY_ONCE, false);            
-            System.out.println("Sending transaction to the android local server:"+transactionInfo);
+            Future<Void> f3 = connection.publish(queueName, transactionInfo.getBytes(), QoS.EXACTLY_ONCE, false);            
+            System.out.println("Sending transaction to the android local server:"+transactionInfo+" to the queue:"+queueName);
          }
          catch(Exception ex)
          {

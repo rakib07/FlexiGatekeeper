@@ -23,6 +23,7 @@ public class TransactionInfo {
     private double balanceOut;
     private int transactionTypeId;
     private int serviceId;
+    private int processTypeId;
     private int packageId;
     private int transactionStatusId;
     private String senderCellNumber="";
@@ -186,7 +187,14 @@ public class TransactionInfo {
     public void setTrxIdOperator(String trxIdOperator) {
         this.trxIdOperator = trxIdOperator;
     }
-    
+
+    public int getProcessTypeId() {
+        return processTypeId;
+    }
+
+    public void setProcessTypeId(int processTypeId) {
+        this.processTypeId = processTypeId;
+    }
     
     @Override
     public String toString() {

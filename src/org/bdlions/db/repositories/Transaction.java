@@ -240,6 +240,7 @@ public class Transaction {
                 TransactionInfo transactionInfo = new TransactionInfo();
                 transactionInfo.setTransactionId(rs.getString(QueryField.TRANSACTION_ID));
                 transactionInfo.setServiceId(rs.getInt(QueryField.SERVICE_ID));
+                transactionInfo.setProcessTypeId(rs.getInt(QueryField.PROCESS_TYPE_ID));
                 transactionInfo.setAPIKey(rs.getString(QueryField.API_KEY));
                 transactionInfo.setBalanceIn(rs.getDouble(QueryField.BALANCE_IN));
                 transactionInfo.setBalanceOut(rs.getDouble(QueryField.BALANCE_OUT));

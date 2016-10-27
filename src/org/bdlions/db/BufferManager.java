@@ -6,6 +6,7 @@ import org.bdlions.activemq.ServerFuture;
 import org.bdlions.bean.TransactionInfo;
 import org.bdlions.callback.CallbackTransactionManager;
 import org.bdlions.constants.ResponseCodes;
+import org.bdlions.constants.Services;
 import org.bdlions.constants.Transactions;
 import org.bdlions.utility.ServerPropertyProvider;
 import org.bdlions.utility.Utils;
@@ -104,7 +105,8 @@ public class BufferManager {
                             {
                                 //if(editableTransactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LOCALSERVER_TEST) || editableTransactionInfo.getLiveTestFlag().equals(Transactions.TRANSACTION_FLAG_LIVE))
                                 //right now for demols1 we are testing android local server
-                                if(!lsIdentifier.equals("demols1"))
+                                //if(!lsIdentifier.equals("demols1"))
+                                if(editableTransactionInfo.getProcessTypeId() == Services.PROCESS_TYPE_ID_ACTIVE_MQ)
                                 {
                                     //activemq to enqueue a new transaction
                                     Producer producer = new Producer();
@@ -114,9 +116,9 @@ public class BufferManager {
                                     System.out.println("Queue name:"+producer.getServiceQueueName());
                                     producer.produce();
                                 }
-                                else
+                                else if(editableTransactionInfo.getProcessTypeId() == Services.PROCESS_TYPE_ID_MQTT)
                                 {
-                                    ServerFuture.getInstance().setTransaction(lsIdentifier, editableTransactionInfo.toString());
+                                    ServerFuture.getInstance().setTransaction(editableTransactionInfo.getServiceId(), lsIdentifier, editableTransactionInfo.toString());
                                 }
                             }
                             catch(Exception ex)
@@ -143,7 +145,8 @@ public class BufferManager {
         else if(processType == Transactions.BUFFER_PROCESS_TYPE_MQTT_STOP_SIM)
         {
             try {
-                ServerFuture.getInstance().setTransaction(localServerIdentifier, transactionInfo.toString());
+                //right now by default we have hardcoded for service id bkash cashin
+                ServerFuture.getInstance().setTransaction(Services.SERVICE_TYPE_ID_BKASH_CASHIN, localServerIdentifier, transactionInfo.toString());
             } catch (Exception ex) {
                 logger.debug(ex.toString());
             }

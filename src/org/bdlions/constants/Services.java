@@ -39,5 +39,6 @@ public class Services {
     public static final int SIM_SERVICE_TYPE_ID_AIRTEL = 104;
     public static final int SIM_SERVICE_TYPE_ID_TELETALK = 105;
     
-    
+    public static final int PROCESS_TYPE_ID_ACTIVE_MQ = 1;    
+    public static final int PROCESS_TYPE_ID_MQTT = 2;
 }
