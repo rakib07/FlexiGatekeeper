@@ -91,14 +91,9 @@ public class BufferManager {
                         editableTransactionInfo.setEditable(Boolean.FALSE);
                         transactionManager.updateTransactionInfo(editableTransactionInfo);
                         //forward the transaction to activemq
-                        if(lsIdentifier == null || lsIdentifier.equals(""))
-                        {
-                            lsIdentifier = authManager.getLSIdentifier(editableTransactionInfo.getAPIKey());
-                        }
-                        if(baseURL == null || baseURL.equals(""))
-                        {
-                            baseURL = authManager.getBaseURLTransactionId(editableTransactionInfo.getTransactionId());
-                        }
+                        lsIdentifier = authManager.getLSIdentifier(editableTransactionInfo.getAPIKey());
+                        baseURL = authManager.getBaseURLTransactionId(editableTransactionInfo.getTransactionId());
+                        
                         if(lsIdentifier != null && !lsIdentifier.equals(""))
                         {
                             try
